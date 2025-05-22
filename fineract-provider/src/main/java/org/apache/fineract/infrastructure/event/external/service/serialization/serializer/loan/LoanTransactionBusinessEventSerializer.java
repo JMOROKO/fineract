@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.event.external.service.serialization.serializer.loan;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.avro.generic.GenericContainer;
 import org.apache.fineract.avro.generator.ByteBufferSerializable;
@@ -25,7 +26,9 @@ import org.apache.fineract.avro.loan.v1.LoanTransactionDataV1;
 import org.apache.fineract.infrastructure.event.business.domain.BusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.loan.transaction.LoanTransactionBusinessEvent;
 import org.apache.fineract.infrastructure.event.external.service.serialization.mapper.loan.LoanTransactionDataMapper;
+import org.apache.fineract.infrastructure.event.external.service.serialization.serializer.AbstractBusinessEventWithCustomDataSerializer;
 import org.apache.fineract.infrastructure.event.external.service.serialization.serializer.BusinessEventSerializer;
+import org.apache.fineract.infrastructure.event.external.service.serialization.serializer.ExternalEventCustomDataSerializer;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTransactionData;
 import org.apache.fineract.portfolio.loanaccount.service.LoanChargePaidByReadService;
 import org.apache.fineract.portfolio.loanaccount.service.LoanReadPlatformService;
@@ -33,11 +36,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LoanTransactionBusinessEventSerializer implements BusinessEventSerializer {
+public class LoanTransactionBusinessEventSerializer extends AbstractBusinessEventWithCustomDataSerializer<LoanTransactionBusinessEvent>
+        implements BusinessEventSerializer {
 
     private final LoanReadPlatformService service;
     private final LoanTransactionDataMapper loanTransactionMapper;
     private final LoanChargePaidByReadService loanChargePaidByReadService;
+    private final List<ExternalEventCustomDataSerializer<LoanTransactionBusinessEvent>> externalEventCustomDataSerializers;
 
     @Override
     public <T> boolean canSerialize(BusinessEvent<T> event) {
@@ -51,11 +56,20 @@ public class LoanTransactionBusinessEventSerializer implements BusinessEventSeri
         Long loanTransactionId = event.get().getId();
         LoanTransactionData transactionData = service.retrieveLoanTransaction(loanId, loanTransactionId);
         transactionData.setLoanChargePaidByList(loanChargePaidByReadService.fetchLoanChargesPaidByDataTransactionId(loanTransactionId));
-        return loanTransactionMapper.map(transactionData);
+
+        final LoanTransactionDataV1 result = loanTransactionMapper.map(transactionData);
+        result.setCustomData(collectCustomData(event));
+
+        return result;
     }
 
     @Override
     public Class<? extends GenericContainer> getSupportedSchema() {
         return LoanTransactionDataV1.class;
+    }
+
+    @Override
+    protected List<ExternalEventCustomDataSerializer<LoanTransactionBusinessEvent>> getExternalEventCustomDataSerializers() {
+        return externalEventCustomDataSerializers;
     }
 }

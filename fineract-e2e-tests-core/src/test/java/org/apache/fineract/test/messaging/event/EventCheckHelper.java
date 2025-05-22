@@ -198,7 +198,7 @@ public class EventCheckHelper {
                     Long clientIdExpected = body.getClientId();
                     BigDecimal principalDisbursedActual = loanAccountDataV1.getSummary().getPrincipalDisbursed();
                     Double principalDisbursedExpectedDouble = body.getSummary().getPrincipalDisbursed();
-                    BigDecimal principalDisbursedExpected = new BigDecimal(principalDisbursedExpectedDouble, MathContext.DECIMAL64);
+                    BigDecimal principalDisbursedExpected = BigDecimal.valueOf(principalDisbursedExpectedDouble);
                     String actualDisbursementDateActual = loanAccountDataV1.getTimeline().getActualDisbursementDate();
                     String actualDisbursementDateExpected = FORMATTER_EVENTS.format(body.getTimeline().getActualDisbursementDate());
                     String currencyCodeActual = loanAccountDataV1.getSummary().getCurrency().getCode();

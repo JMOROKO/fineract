@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.businessdate.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Data;
@@ -30,13 +31,14 @@ import org.apache.fineract.infrastructure.businessdate.domain.BusinessDateType;
 @Accessors(chain = true)
 public class BusinessDateData implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private String description;
     private String type;
     private LocalDate date;
 
     public static BusinessDateData instance(BusinessDateType businessDateType, LocalDate value) {
-        return new BusinessDateData().setType(businessDateType.getName()).setDate(value);
+        return new BusinessDateData().setType(businessDateType.getName()).setDescription(businessDateType.getDescription()).setDate(value);
     }
 
 }

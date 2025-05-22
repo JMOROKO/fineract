@@ -33,15 +33,15 @@ public interface LoanSummaryDataProvider {
     BigDecimal computeTotalUnpaidPayableDueInterestAmount(Collection<LoanSchedulePeriodData> periods, LocalDate businessDate);
 
     BigDecimal computeTotalUnpaidPayableNotDueInterestAmountOnActualPeriod(Loan loan, Collection<LoanSchedulePeriodData> periods,
-            LocalDate businessDate, CurrencyData currency);
+            LocalDate businessDate, CurrencyData currency, BigDecimal totalUnpaidPayableDueInterest);
 
     LoanSummaryData withOnlyCurrencyData(CurrencyData currencyData);
 
     LoanSummaryData withTransactionAmountsSummary(Long loanId, LoanSummaryData defaultSummaryData, LoanScheduleData repaymentSchedule,
-            Collection<LoanTransactionBalance> loanTransactionBalances);
+            Collection<? extends LoanTransactionBalance> loanTransactionBalances);
 
     LoanSummaryData withTransactionAmountsSummary(Loan loan, LoanSummaryData defaultSummaryData, LoanScheduleData repaymentSchedule,
-            Collection<LoanTransactionBalance> loanTransactionBalances);
+            Collection<? extends LoanTransactionBalance> loanTransactionBalances);
 
     boolean accept(String loanProcessingStrategyCode);
 }

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.infrastructure.core.data.StringEnumOptionData;
-import org.apache.fineract.portfolio.delinquency.api.DelinquencyApiResourceSwagger.GetDelinquencyRangesResponse;
+import org.apache.fineract.portfolio.delinquency.data.DelinquencyRangeData;
 
 /**
  * Created by Chirag Gupta on 12/09/17.
@@ -722,6 +722,10 @@ final class LoansApiResourceSwagger {
                 public boolean chargeAdjustment;
                 @Schema(example = "false")
                 public boolean chargeoff;
+                @Schema(example = "false")
+                public boolean capitalizedIncome;
+                @Schema(example = "false")
+                public boolean capitalizedIncomeAmortization;
             }
 
             static final class GetLoansLoanIdPaymentDetailData {
@@ -1175,7 +1179,7 @@ final class LoansApiResourceSwagger {
         public GetLoansLoanIdDelinquencySummary delinquent;
         @Schema(description = "Set of charges")
         public List<GetLoansLoanIdLoanChargeData> charges;
-        public GetDelinquencyRangesResponse delinquencyRange;
+        public DelinquencyRangeData delinquencyRange;
         @Schema(example = "false")
         public Boolean fraud;
         @Schema(example = "false")
@@ -1206,6 +1210,14 @@ final class LoansApiResourceSwagger {
         public StringEnumOptionData chargeOffBehaviour;
         @Schema(example = "false")
         public Boolean interestRecognitionOnDisbursementDate;
+        @Schema(example = "false")
+        public Boolean enableIncomeCapitalization;
+        @Schema(example = "FLAT")
+        public StringEnumOptionData capitalizedIncomeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION")
+        public StringEnumOptionData capitalizedIncomeStrategy;
+        @Schema(example = "FEE")
+        public StringEnumOptionData capitalizedIncomeType;
     }
 
     @Schema(description = "GetLoansResponse")
@@ -1225,8 +1237,8 @@ final class LoansApiResourceSwagger {
 
             private PostLoansDisbursementData() {}
 
-            @Schema(example = "[2013, 11, 1]")
-            public LocalDate expectedDisbursementDate;
+            @Schema(example = "1 November 2023")
+            public String expectedDisbursementDate;
             @Schema(example = "1000.00")
             public Double principal;
         }
@@ -1273,6 +1285,8 @@ final class LoansApiResourceSwagger {
         public String transactionProcessingStrategyCode;
         @Schema(example = "360", allowableValues = "1, 360, 364, 36")
         public Integer daysInYearType;
+        @Schema(example = "FULL_LEAP_YEAR", allowableValues = "FULL_LEAP_YEAR, FEB_29_PERIOD_ONLY")
+        public String daysInYearCustomStrategy;
         @Schema(example = "individual")
         public String loanType;
         @Schema(example = "20 September 2011")
@@ -1307,6 +1321,14 @@ final class LoansApiResourceSwagger {
         public BigDecimal fixedEmiAmount;
         @Schema(example = "false")
         public Boolean interestRecognitionOnDisbursementDate;
+        @Schema(example = "false")
+        public Boolean enableIncomeCapitalization;
+        @Schema(example = "FLAT", allowableValues = "FLAT")
+        public String capitalizedIncomeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION", allowableValues = "EQUAL_AMORTIZATION")
+        public String capitalizedIncomeStrategy;
+        @Schema(example = "FEE")
+        public StringEnumOptionData capitalizedIncomeType;
 
         public List<PostLoansRequestChargeData> charges;
 
@@ -1598,7 +1620,7 @@ final class LoansApiResourceSwagger {
         }
 
         @Schema(example = "2")
-        public Integer toLoanOfficerId;
+        public Long toLoanOfficerId;
         @Schema(example = "02 September 2014")
         public String assignmentDate;
 
@@ -1609,7 +1631,7 @@ final class LoansApiResourceSwagger {
         @Schema(example = "dd MMMM yyyy")
         public String dateFormat;
         @Schema(example = "")
-        public Integer fromLoanOfficerId;
+        public Long fromLoanOfficerId;
         @Schema(example = "3e7791ce-aa10-11ec-b909-0242ac120002")
         public String externalId;
         @Schema(example = "5000.33")
@@ -1688,7 +1710,7 @@ final class LoansApiResourceSwagger {
         }
 
         @Schema(example = "2")
-        public Integer officeId;
+        public Long officeId;
         @Schema(example = "6")
         public Long clientId;
         @Schema(example = "3")

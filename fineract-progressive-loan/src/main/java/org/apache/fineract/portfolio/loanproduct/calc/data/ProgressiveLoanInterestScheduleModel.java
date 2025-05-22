@@ -39,9 +39,13 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.fineract.infrastructure.core.serialization.gson.JsonExclude;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
+import org.apache.fineract.infrastructure.core.service.MathUtil;
 import org.apache.fineract.organisation.monetary.domain.Money;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTermVariationType;
@@ -49,16 +53,23 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProductMinimumRepaym
 
 @Data
 @Accessors(fluent = true)
+@AllArgsConstructor
 public class ProgressiveLoanInterestScheduleModel {
 
     private final List<RepaymentPeriod> repaymentPeriods;
     private final TreeSet<InterestRate> interestRates;
+    @JsonExclude
     private final LoanProductMinimumRepaymentScheduleRelatedDetail loanProductRelatedDetail;
     private final Map<LoanTermVariationType, List<LoanTermVariationsData>> loanTermVariations;
     private final Integer installmentAmountInMultiplesOf;
+    @JsonExclude
     private final MathContext mc;
+    @JsonExclude
     private final Money zero;
     private final Map<LoanInterestScheduleModelModifiers, Boolean> modifiers;
+
+    @Setter
+    private LocalDate lastOverdueBalanceChange;
 
     public ProgressiveLoanInterestScheduleModel(final List<RepaymentPeriod> repaymentPeriods,
             final LoanProductMinimumRepaymentScheduleRelatedDetail loanProductRelatedDetail,
@@ -239,12 +250,13 @@ public class ProgressiveLoanInterestScheduleModel {
         final InterestPeriod previousInterestPeriod = findPreviousInterestPeriod(repaymentPeriod, balanceChangeDate);
         final LocalDate originalDueDate = previousInterestPeriod.getDueDate();
         final LocalDate newDueDate = calculateNewDueDate(previousInterestPeriod, balanceChangeDate);
+        final boolean isPaused = previousInterestPeriod.isPaused();
 
         previousInterestPeriod.setDueDate(newDueDate);
         previousInterestPeriod.addDisbursementAmount(disbursedAmount);
         previousInterestPeriod.addBalanceCorrectionAmount(correctionAmount);
 
-        final InterestPeriod interestPeriod = InterestPeriod.withEmptyAmounts(repaymentPeriod, newDueDate, originalDueDate);
+        final InterestPeriod interestPeriod = InterestPeriod.withEmptyAmounts(repaymentPeriod, newDueDate, originalDueDate, isPaused);
         repaymentPeriod.getInterestPeriods().add(interestPeriod);
     }
 
@@ -298,7 +310,7 @@ public class ProgressiveLoanInterestScheduleModel {
      * @return
      */
     public Money getTotalDueInterest() {
-        return repaymentPeriods().stream().map(RepaymentPeriod::getCalculatedDueInterest).reduce(zero(), Money::plus);
+        return MathUtil.negativeToZero(repaymentPeriods().stream().map(RepaymentPeriod::getDueInterest).reduce(zero(), Money::plus), mc);
     }
 
     /**
@@ -308,7 +320,7 @@ public class ProgressiveLoanInterestScheduleModel {
      * @return
      */
     public Money getTotalDuePrincipal() {
-        return repaymentPeriods.stream().map(RepaymentPeriod::getCreditedAmounts).reduce(zero(), Money::plus);
+        return MathUtil.negativeToZero(repaymentPeriods.stream().map(RepaymentPeriod::getCreditedAmounts).reduce(zero(), Money::plus), mc);
     }
 
     /**
@@ -317,7 +329,7 @@ public class ProgressiveLoanInterestScheduleModel {
      * @return
      */
     public Money getTotalPaidInterest() {
-        return repaymentPeriods().stream().map(RepaymentPeriod::getPaidInterest).reduce(zero, Money::plus);
+        return MathUtil.negativeToZero(repaymentPeriods().stream().map(RepaymentPeriod::getPaidInterest).reduce(zero, Money::plus), mc);
     }
 
     /**
@@ -326,7 +338,7 @@ public class ProgressiveLoanInterestScheduleModel {
      * @return
      */
     public Money getTotalPaidPrincipal() {
-        return repaymentPeriods().stream().map(RepaymentPeriod::getPaidPrincipal).reduce(zero, Money::plus);
+        return MathUtil.negativeToZero(repaymentPeriods().stream().map(RepaymentPeriod::getPaidPrincipal).reduce(zero, Money::plus), mc);
     }
 
     /**
@@ -335,7 +347,16 @@ public class ProgressiveLoanInterestScheduleModel {
      * @return
      */
     public Money getTotalChargebackPrincipal() {
-        return repaymentPeriods().stream().map(RepaymentPeriod::getChargebackPrincipal).reduce(zero, Money::plus);
+        return MathUtil.negativeToZero(repaymentPeriods().stream().map(RepaymentPeriod::getChargebackPrincipal).reduce(zero, Money::plus),
+                mc);
+    }
+
+    public Money getTotalOutstandingPrincipal() {
+        return MathUtil.negativeToZero(getTotalDuePrincipal().minus(getTotalPaidPrincipal()));
+    }
+
+    public Money getTotalOutstandingInterest() {
+        return MathUtil.negativeToZero(getTotalDueInterest().minus(getTotalPaidInterest()));
     }
 
     public Optional<RepaymentPeriod> findRepaymentPeriod(@NotNull LocalDate transactionDate) {

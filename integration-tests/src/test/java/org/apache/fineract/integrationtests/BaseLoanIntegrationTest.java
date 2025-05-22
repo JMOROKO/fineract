@@ -61,6 +61,7 @@ import org.apache.fineract.client.models.AdvancedPaymentData;
 import org.apache.fineract.client.models.AllowAttributeOverrides;
 import org.apache.fineract.client.models.BusinessDateRequest;
 import org.apache.fineract.client.models.GetJournalEntriesTransactionIdResponse;
+import org.apache.fineract.client.models.GetLoansLoanIdChargesChargeIdResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdRepaymentPeriod;
 import org.apache.fineract.client.models.GetLoansLoanIdResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdStatus;
@@ -71,6 +72,7 @@ import org.apache.fineract.client.models.LoanPointInTimeData;
 import org.apache.fineract.client.models.PaymentAllocationOrder;
 import org.apache.fineract.client.models.PostChargesResponse;
 import org.apache.fineract.client.models.PostLoanProductsRequest;
+import org.apache.fineract.client.models.PostLoansLoanIdChargesRequest;
 import org.apache.fineract.client.models.PostLoansLoanIdChargesResponse;
 import org.apache.fineract.client.models.PostLoansLoanIdRequest;
 import org.apache.fineract.client.models.PostLoansLoanIdResponse;
@@ -156,6 +158,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
     protected final Account writtenOffAccount = accountHelper.createExpenseAccount("writtenOffAccount");
     protected final Account goodwillExpenseAccount = accountHelper.createExpenseAccount("goodwillExpenseAccount");
     protected final Account goodwillIncomeAccount = accountHelper.createIncomeAccount("goodwillIncomeAccount");
+    protected final Account deferredIncomeLiabilityAccount = accountHelper.createLiabilityAccount("deferredIncomeLiabilityAccount");
     protected final LoanTransactionHelper loanTransactionHelper = new LoanTransactionHelper(requestSpec, responseSpec);
     protected JournalEntryHelper journalEntryHelper = new JournalEntryHelper(requestSpec, responseSpec);
     protected ClientHelper clientHelper = new ClientHelper(requestSpec, responseSpec);
@@ -342,8 +345,8 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                 .isInterestRecalculationEnabled(true)//
                 .interestRecalculationCompoundingMethod(0)//
                 .rescheduleStrategyMethod(RescheduleStrategyMethod.ADJUST_LAST_UNPAID_PERIOD)//
-                .recalculationRestFrequencyType(RecalculationRestFrequencyType.SAME_AS_REPAYMENT_PERIOD)//
-                .recalculationRestFrequencyInterval(0)//
+                .recalculationRestFrequencyType(RecalculationRestFrequencyType.DAILY)//
+                .recalculationRestFrequencyInterval(1)//
                 .isArrearsBasedOnOriginalSchedule(false)//
                 .isCompoundingToBePostedAsTransaction(false)//
                 .preClosureInterestCalculationStrategy(1)//
@@ -796,6 +799,14 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
         return chargeId.longValue();
     }
 
+    protected Long createOverduePenaltyPercentageCharge(double percentageAmount, Integer feeFrequency, int feeInterval) {
+        Integer chargeId = ChargesHelper.createCharges(requestSpec, responseSpec,
+                ChargesHelper.getLoanOverdueFeeJSONWithCalculationTypePercentageWithFeeInterval(String.valueOf(percentageAmount),
+                        feeFrequency, feeInterval));
+        assertNotNull(chargeId);
+        return chargeId.longValue();
+    }
+
     protected void verifyRepaymentSchedule(GetLoansLoanIdResponse savedLoanResponse, GetLoansLoanIdResponse actualLoanResponse,
             int totalPeriods, int identicalPeriods) {
         List<GetLoansLoanIdRepaymentPeriod> savedPeriods = savedLoanResponse.getRepaymentSchedule().getPeriods();
@@ -931,6 +942,18 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
             }
             Assertions.assertEquals(installments[i].completed, period.getComplete());
             Assertions.assertEquals(LocalDate.parse(installments[i].dueDate, dateTimeFormatter), period.getDueDate());
+        }
+    }
+
+    protected void runFromToInclusive(String fromDate, String toDate, Runnable runnable) {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern(DATETIME_PATTERN);
+        LocalDate startDate = LocalDate.parse(fromDate, format);
+        LocalDate endDate = LocalDate.parse(toDate, format);
+
+        LocalDate currentDate = startDate;
+        while (currentDate.isBefore(endDate) || currentDate.isEqual(endDate)) {
+            runAt(format.format(currentDate), runnable);
+            currentDate = currentDate.plusDays(1);
         }
     }
 
@@ -1090,6 +1113,17 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
     protected PostLoansLoanIdChargesResponse addLoanCharge(Long loanId, Long chargeId, String date, Double amount) {
         String payload = LoanTransactionHelper.getSpecifiedDueDateChargesForLoanAsJSON(chargeId.toString(), date, amount.toString());
         return loanTransactionHelper.addChargeForLoan(loanId.intValue(), payload, responseSpec);
+    }
+
+    protected List<GetLoansLoanIdChargesChargeIdResponse> getOverdueInstallmentLoanCharges(Long loanId) {
+        return ok(fineractClient().loanCharges.retrieveAllLoanCharges(loanId)).stream() //
+                .filter(ch -> ch.getChargeTimeType().getId().intValue() == ChargesHelper.CHARGE_OVERDUE_INSTALLMENT_FEE) //
+                .toList(); //
+    }
+
+    protected void deactivateOverdueLoanCharges(Long loanId, String fromDueDate) {
+        ok(fineractClient().loanCharges.executeLoanCharge(loanId,
+                new PostLoansLoanIdChargesRequest().dueDate(fromDueDate).dateFormat(DATETIME_PATTERN).locale("en"), "deactivateOverdue"));
     }
 
     protected void waiveLoanCharge(Long loanId, Long chargeId, Integer installmentNumber) {
@@ -1427,6 +1461,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
 
         public static final String LAST_INSTALLMENT = "LAST_INSTALLMENT";
         public static final String NEXT_INSTALLMENT = "NEXT_INSTALLMENT";
+        public static final String NEXT_LAST_INSTALLMENT = "NEXT_LAST_INSTALLMENT";
 
     }
 
@@ -1464,6 +1499,12 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
 
         advancedPaymentData.setPaymentAllocationOrder(paymentAllocationOrders);
         return advancedPaymentData;
+    }
+
+    protected static class DaysInYearCustomStrategy {
+
+        public static String FEB_29_PERIOD_ONLY = "FEB_29_PERIOD_ONLY";
+        public static String FULL_LEAP_YEAR = "FULL_LEAP_YEAR";
     }
 
 }

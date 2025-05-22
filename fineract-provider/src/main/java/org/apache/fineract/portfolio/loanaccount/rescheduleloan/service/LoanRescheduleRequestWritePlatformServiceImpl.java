@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.accounting.journalentry.service.JournalEntryWritePlatformService;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
 import org.apache.fineract.infrastructure.codes.domain.CodeValueRepositoryWrapper;
@@ -47,10 +48,10 @@ import org.apache.fineract.infrastructure.event.business.service.BusinessEventNo
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.organisation.monetary.domain.MonetaryCurrency;
 import org.apache.fineract.organisation.monetary.domain.MoneyHelper;
+import org.apache.fineract.portfolio.loanaccount.data.AccountingBridgeDataDTO;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallmentRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
@@ -68,6 +69,8 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanRepayme
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleGenerator;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleGeneratorFactory;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.service.LoanScheduleHistoryWritePlatformService;
+import org.apache.fineract.portfolio.loanaccount.mapper.LoanAccountingBridgeMapper;
+import org.apache.fineract.portfolio.loanaccount.mapper.LoanTermVariationsMapper;
 import org.apache.fineract.portfolio.loanaccount.rescheduleloan.RescheduleLoansApiConstants;
 import org.apache.fineract.portfolio.loanaccount.rescheduleloan.data.LoanRescheduleRequestDataValidator;
 import org.apache.fineract.portfolio.loanaccount.rescheduleloan.domain.LoanRescheduleRequest;
@@ -79,9 +82,8 @@ import org.apache.fineract.portfolio.loanaccount.service.LoanAssembler;
 import org.apache.fineract.portfolio.loanaccount.service.LoanChargeService;
 import org.apache.fineract.portfolio.loanaccount.service.LoanUtilService;
 import org.apache.fineract.portfolio.loanaccount.service.ReprocessLoanTransactionsService;
+import org.apache.fineract.portfolio.loanaccount.service.schedule.LoanScheduleComponent;
 import org.apache.fineract.useradministration.domain.AppUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.NonTransientDataAccessException;
@@ -89,11 +91,11 @@ import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanRescheduleRequestWritePlatformService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LoanRescheduleRequestWritePlatformServiceImpl.class);
     private static final DefaultScheduledDateGenerator DEFAULT_SCHEDULED_DATE_GENERATOR = new DefaultScheduledDateGenerator();
 
     private final CodeValueRepositoryWrapper codeValueRepositoryWrapper;
@@ -115,6 +117,9 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
     private final LoanAccrualsProcessingService loanAccrualsProcessingService;
     private final LoanChargeService loanChargeService;
     private final ReprocessLoanTransactionsService reprocessLoanTransactionsService;
+    private final LoanTermVariationsMapper loanTermVariationsMapper;
+    private final LoanAccountingBridgeMapper loanAccountingBridgeMapper;
+    private final LoanScheduleComponent loanSchedule;
 
     /**
      * create a new instance of the LoanRescheduleRequest object from the JsonCommand object and persist
@@ -251,17 +256,15 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
 
         if (rescheduleFromDate != null && endDate != null && emi != null) {
             LoanTermVariations parent = null;
-            LocalDate rescheduleFromLocDate = rescheduleFromDate;
-            LocalDate endDateLocDate = endDate;
             final Integer termType = LoanTermVariationType.EMI_AMOUNT.getValue();
             List<LoanRepaymentScheduleInstallment> installments = loan.getRepaymentScheduleInstallments();
             for (LoanRepaymentScheduleInstallment installment : installments) {
-                if (!DateUtils.isBefore(installment.getDueDate(), rescheduleFromLocDate)
-                        && !DateUtils.isAfter(installment.getDueDate(), endDateLocDate)) {
+                if (!DateUtils.isBefore(installment.getDueDate(), rescheduleFromDate)
+                        && !DateUtils.isAfter(installment.getDueDate(), endDate)) {
                     createLoanTermVariations(loanRescheduleRequest, termType, loan, installment.getDueDate(), installment.getDueDate(),
                             loanRescheduleRequestToTermVariationMappings, isActive, true, emi, parent);
                 }
-                if (DateUtils.isAfter(installment.getDueDate(), endDateLocDate)) {
+                if (DateUtils.isAfter(installment.getDueDate(), endDate)) {
                     break;
                 }
             }
@@ -361,7 +364,8 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
             Collection<LoanRepaymentScheduleHistory> loanRepaymentScheduleHistoryList = this.loanScheduleHistoryWritePlatformService
                     .createLoanScheduleArchive(loan.getRepaymentScheduleInstallments(), loan, loanRescheduleRequest);
 
-            final LoanApplicationTerms loanApplicationTerms = loan.constructLoanApplicationTerms(scheduleGeneratorDTO);
+            final LoanApplicationTerms loanApplicationTerms = loanTermVariationsMapper.constructLoanApplicationTerms(scheduleGeneratorDTO,
+                    loan);
 
             LocalDate rescheduleFromDate = null;
             List<LoanTermVariations> activeLoanTermVariations = loan.getActiveLoanTermVariations();
@@ -401,7 +405,8 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
             }
             BigDecimal annualNominalInterestRate = null;
             List<LoanTermVariationsData> loanTermVariations = new ArrayList<>();
-            loan.constructLoanTermVariations(scheduleGeneratorDTO.getFloatingRateDTO(), annualNominalInterestRate, loanTermVariations);
+            loanTermVariationsMapper.constructLoanTermVariations(scheduleGeneratorDTO.getFloatingRateDTO(), annualNominalInterestRate,
+                    loanTermVariations, loan);
             loanApplicationTerms.getLoanTermVariations().setExceptionData(loanTermVariations);
 
             /*
@@ -421,16 +426,14 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
                     .determineProcessor(loan.transactionProcessingStrategy());
             final LoanScheduleGenerator loanScheduleGenerator = this.loanScheduleFactory.create(loanApplicationTerms.getLoanScheduleType(),
                     loanApplicationTerms.getInterestMethod());
-            final LoanLifecycleStateMachine loanLifecycleStateMachine = null;
-            loan.setHelpers(loanLifecycleStateMachine, this.loanRepaymentScheduleTransactionProcessorFactory);
-            final LoanScheduleDTO loanSchedule = loanScheduleGenerator.rescheduleNextInstallments(mathContext, loanApplicationTerms, loan,
-                    loanApplicationTerms.getHolidayDetailDTO(), loanRepaymentScheduleTransactionProcessor, rescheduleFromDate);
+            final LoanScheduleDTO loanScheduleDTO = loanScheduleGenerator.rescheduleNextInstallments(mathContext, loanApplicationTerms,
+                    loan, loanApplicationTerms.getHolidayDetailDTO(), loanRepaymentScheduleTransactionProcessor, rescheduleFromDate);
 
             // Either the installments got recalculated or the model
-            if (loanSchedule.getInstallments() != null) {
-                loan.updateLoanSchedule(loanSchedule.getInstallments());
+            if (loanScheduleDTO.getInstallments() != null) {
+                loanSchedule.updateLoanSchedule(loan, loanScheduleDTO.getInstallments());
             } else {
-                loan.updateLoanSchedule(loanSchedule.getLoanScheduleModel());
+                loanSchedule.updateLoanSchedule(loan, loanScheduleDTO.getLoanScheduleModel());
             }
             loanAccrualsProcessingService.reprocessExistingAccruals(loan);
             loanChargeService.recalculateAllCharges(loan);
@@ -493,8 +496,8 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
     private void postJournalEntries(Loan loan, List<Long> existingTransactionIds, List<Long> existingReversedTransactionIds) {
         final MonetaryCurrency currency = loan.getCurrency();
         boolean isAccountTransfer = false;
-        final Map<String, Object> accountingBridgeData = loan.deriveAccountingBridgeData(currency.getCode(), existingTransactionIds,
-                existingReversedTransactionIds, isAccountTransfer);
+        final AccountingBridgeDataDTO accountingBridgeData = loanAccountingBridgeMapper.deriveAccountingBridgeData(currency.getCode(),
+                existingTransactionIds, existingReversedTransactionIds, isAccountTransfer, loan);
         this.journalEntryWritePlatformService.createJournalEntriesForLoan(accountingBridgeData);
     }
 
@@ -556,7 +559,7 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
      *
      **/
     private void handleDataIntegrityViolation(final NonTransientDataAccessException dve) {
-        LOG.error("Error occured.", dve);
+        log.error("Error occurred.", dve);
         throw ErrorHandler.getMappable(dve, "error.msg.loan.reschedule.unknown.data.integrity.issue",
                 "Unknown data integrity issue with resource.");
     }

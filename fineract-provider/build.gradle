@@ -168,7 +168,7 @@ configurations {
 dependencies {
     driver 'org.mariadb.jdbc:mariadb-java-client'
     driver 'org.postgresql:postgresql'
-    driver 'mysql:mysql-connector-java:8.0.33'
+    driver 'com.mysql:mysql-connector-j'
 }
 
 URLClassLoader loader = GroovyObject.class.classLoader
@@ -258,7 +258,7 @@ bootJar {
 
 jib {
     from {
-        image = 'azul/zulu-openjdk-alpine:17'
+        image = 'azul/zulu-openjdk-alpine:21'
         platforms {
             platform {
                 architecture = System.getProperty("os.arch").equals("aarch64")?"arm64":"amd64"

@@ -65,7 +65,7 @@ public class LoanAccrualActivityProcessingServiceImpl implements LoanAccrualActi
 
     @Override
     public void makeAccrualActivityTransaction(@NotNull Loan loan, @NotNull LocalDate currentDate) {
-        if (!loan.getLoanProductRelatedDetail().isEnableAccrualActivityPosting() || loan.isClosed() || loan.getStatus().isOverpaid()) {
+        if (!loan.getLoanProductRelatedDetail().isEnableAccrualActivityPosting() || !loan.isOpen()) {
             return;
         }
         // check if loan has installment in the past or due on current date
@@ -147,8 +147,8 @@ public class LoanAccrualActivityProcessingServiceImpl implements LoanAccrualActi
         if (MathUtil.isGreaterThanZero(feeChargesPortion) || MathUtil.isGreaterThanZero(penaltyChargesPortion)
                 || MathUtil.isGreaterThanZero(interestPortion)) {
             BigDecimal transactionAmount = MathUtil.add(feeChargesPortion, penaltyChargesPortion, interestPortion);
-            LoanTransaction newActivity = new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.ACCRUAL_ACTIVITY.getValue(),
-                    closureDate, transactionAmount, null, interestPortion, feeChargesPortion, penaltyChargesPortion, null, false, null,
+            LoanTransaction newActivity = new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.ACCRUAL_ACTIVITY, closureDate,
+                    transactionAmount, null, interestPortion, feeChargesPortion, penaltyChargesPortion, null, false, null,
                     externalIdFactory.create());
             makeAccrualActivityTransaction(loan, newActivity);
         }
@@ -207,14 +207,21 @@ public class LoanAccrualActivityProcessingServiceImpl implements LoanAccrualActi
             newLoanTransaction.copyLoanTransactionRelations(loanTransaction.getLoanTransactionRelations());
             newLoanTransaction.getLoanTransactionRelations().add(LoanTransactionRelation.linkToTransaction(newLoanTransaction,
                     loanTransaction, LoanTransactionRelationTypeEnum.REPLAYED));
+
+            newLoanTransaction.updateExternalId(loanTransaction.getExternalId());
+            loanTransaction.reverse();
+            loanTransaction.updateExternalId(null);
+            loanAccountService.saveLoanTransactionWithDataIntegrityViolationChecks(loanTransaction);
+
             loanAccountService.saveLoanTransactionWithDataIntegrityViolationChecks(newLoanTransaction);
             loan.addLoanTransaction(newLoanTransaction);
 
             LoanAdjustTransactionBusinessEvent.Data data = new LoanAdjustTransactionBusinessEvent.Data(loanTransaction);
             data.setNewTransactionDetail(newLoanTransaction);
             businessEventNotifierService.notifyPostBusinessEvent(new LoanAdjustTransactionBusinessEvent(data));
+        } else {
+            reverseAccrualActivityTransaction(loanTransaction);
         }
-        reverseAccrualActivityTransaction(loanTransaction);
         return newLoanTransaction;
     }
 

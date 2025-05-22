@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.fineract.client.models.BusinessDateResponse;
+import org.apache.fineract.client.models.BusinessDateData;
 import org.apache.fineract.client.models.GetLoansLoanIdLoanChargeData;
 import org.apache.fineract.client.models.GetLoansLoanIdResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdTransactions;
@@ -132,7 +132,7 @@ public class LoanChargeAdjustmentStepDef extends AbstractStepDef {
 
         Long transactionId = getTransactionIdForTransactionMetConditions(transactionDate, transactionAmount, loanDetailsResponse);
 
-        Response<List<BusinessDateResponse>> businessDateResponse = businessDateManagementApi.getBusinessDates().execute();
+        Response<List<BusinessDateData>> businessDateResponse = businessDateManagementApi.getBusinessDates().execute();
         LocalDate businessDate = businessDateResponse.body().get(0).getDate();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         String businessDateActual = formatter.format(businessDate);
@@ -143,6 +143,13 @@ public class LoanChargeAdjustmentStepDef extends AbstractStepDef {
         Response<PostLoansLoanIdTransactionsResponse> chargeAdjustmentUndoResponse = loanTransactionsApi
                 .adjustLoanTransaction(loanId, transactionId, chargeAdjustmentUndoRequest, "").execute();
         ErrorHelper.checkSuccessfulApiCall(chargeAdjustmentUndoResponse);
+    }
+
+    @Then("Charge adjustment response has the subResourceExternalId")
+    public void checkChargeAdjustmentResponse() {
+        final Response<PostLoansLoanIdChargesChargeIdResponse> response = testContext().get(TestContextKey.LOAN_CHARGE_ADJUSTMENT_RESPONSE);
+        final PostLoansLoanIdChargesChargeIdResponse body = response.body();
+        assertThat(body.getSubResourceExternalId()).isNotNull();
     }
 
     private Long getTransactionIdForTransactionMetConditions(String transactionDate, double transactionAmount,

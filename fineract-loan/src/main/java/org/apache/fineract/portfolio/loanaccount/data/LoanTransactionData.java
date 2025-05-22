@@ -18,6 +18,8 @@
  */
 package org.apache.fineract.portfolio.loanaccount.data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,12 +31,16 @@ import org.apache.fineract.organisation.monetary.data.CurrencyData;
 import org.apache.fineract.portfolio.account.data.AccountTransferData;
 import org.apache.fineract.portfolio.paymentdetail.data.PaymentDetailData;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
+import org.springframework.integration.annotation.Default;
 
 /**
  * Immutable data object representing a loan transaction.
  */
 @Getter
-public class LoanTransactionData {
+public class LoanTransactionData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final Long loanId;
@@ -210,9 +216,19 @@ public class LoanTransactionData {
                 loanTransactionData.externalId, loanTransactionData.transfer, loanTransactionData.fixedEmiAmount,
                 loanTransactionData.outstandingLoanBalance, loanTransactionData.manuallyReversed, loanTransactionData.loanId,
                 loanTransactionData.externalLoanId);
-
     }
 
+    public static LoanTransactionData templateOnTop(final LoanTransactionData loanTransactionData, final LoanTransactionEnumData typeOf) {
+        return new LoanTransactionData(loanTransactionData.id, loanTransactionData.officeId, loanTransactionData.officeName, typeOf,
+                loanTransactionData.paymentDetailData, loanTransactionData.currency, loanTransactionData.date, loanTransactionData.amount,
+                loanTransactionData.netDisbursalAmount, loanTransactionData.principalPortion, loanTransactionData.interestPortion,
+                loanTransactionData.feeChargesPortion, loanTransactionData.penaltyChargesPortion, loanTransactionData.overpaymentPortion,
+                loanTransactionData.unrecognizedIncomePortion, loanTransactionData.paymentTypeOptions, loanTransactionData.externalId,
+                loanTransactionData.transfer, loanTransactionData.fixedEmiAmount, loanTransactionData.outstandingLoanBalance,
+                loanTransactionData.manuallyReversed, loanTransactionData.loanId, loanTransactionData.externalLoanId);
+    }
+
+    @Default // Default constructor for mapper
     public LoanTransactionData(final Long id, final Long officeId, final String officeName, final LoanTransactionEnumData transactionType,
             final PaymentDetailData paymentDetailData, final CurrencyData currency, final LocalDate date, final BigDecimal amount,
             final BigDecimal netDisbursalAmount, final BigDecimal principalPortion, final BigDecimal interestPortion,

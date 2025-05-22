@@ -38,14 +38,17 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.client.models.AdvancedPaymentData;
+import org.apache.fineract.client.models.CommandProcessingResult;
 import org.apache.fineract.client.models.DeleteLoansLoanIdChargesChargeIdResponse;
 import org.apache.fineract.client.models.DeleteLoansLoanIdResponse;
+import org.apache.fineract.client.models.DisbursementDetail;
 import org.apache.fineract.client.models.GetDelinquencyActionsResponse;
 import org.apache.fineract.client.models.GetDelinquencyTagHistoryResponse;
 import org.apache.fineract.client.models.GetLoanProductsProductIdResponse;
@@ -60,9 +63,13 @@ import org.apache.fineract.client.models.GetLoansLoanIdRepaymentSchedule;
 import org.apache.fineract.client.models.GetLoansLoanIdResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdSummary;
 import org.apache.fineract.client.models.GetLoansLoanIdTransactions;
+import org.apache.fineract.client.models.GetLoansLoanIdTransactionsResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdTransactionsTemplateResponse;
 import org.apache.fineract.client.models.GetLoansLoanIdTransactionsTransactionIdResponse;
-import org.apache.fineract.client.models.GetPaymentTypesResponse;
+import org.apache.fineract.client.models.GetLoansResponse;
+import org.apache.fineract.client.models.InterestPauseRequestDto;
+import org.apache.fineract.client.models.PaymentTypeData;
+import org.apache.fineract.client.models.PostAddAndDeleteDisbursementDetailRequest;
 import org.apache.fineract.client.models.PostLoanProductsRequest;
 import org.apache.fineract.client.models.PostLoanProductsResponse;
 import org.apache.fineract.client.models.PostLoansDelinquencyActionRequest;
@@ -86,6 +93,7 @@ import org.apache.fineract.client.models.PutLoansLoanIdChargesChargeIdRequest;
 import org.apache.fineract.client.models.PutLoansLoanIdChargesChargeIdResponse;
 import org.apache.fineract.client.models.PutLoansLoanIdRequest;
 import org.apache.fineract.client.models.PutLoansLoanIdResponse;
+import org.apache.fineract.client.models.TransactionType;
 import org.apache.fineract.client.util.CallFailedRuntimeException;
 import org.apache.fineract.client.util.Calls;
 import org.apache.fineract.client.util.JSON;
@@ -98,6 +106,7 @@ import org.apache.fineract.integrationtests.common.accounting.Account;
 import org.apache.fineract.portfolio.delinquency.domain.DelinquencyAction;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import retrofit2.Response;
 
 @Slf4j
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -871,12 +880,13 @@ public class LoanTransactionHelper {
     @Deprecated(forRemoval = true)
     public PostLoansLoanIdTransactionsResponse makeLoanRepayment(final String repaymentTypeCommand, final String date,
             final Float amountToBePaid, final Integer loanID) {
-        log.info("Repayment with amount {} in {} for Loan {}", amountToBePaid, date, loanID);
+        log.info("{} with amount {} in {} for Loan {}", repaymentTypeCommand, amountToBePaid, date, loanID);
         return postLoanTransaction(createLoanTransactionURL(repaymentTypeCommand, loanID), getRepaymentBodyAsJSON(date, amountToBePaid));
     }
 
     public PostLoansLoanIdTransactionsResponse makeLoanRepayment(final Long loanId, final String command, final String date,
             final Double amountToBePaid) {
+        log.info("Make loan transaction. Command - {} with amount {} in {} for Loan {}", command, amountToBePaid, date, loanId);
         return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.executeLoanTransaction(loanId,
                 new PostLoansLoanIdTransactionsRequest().transactionAmount(amountToBePaid).transactionDate(date).dateFormat("dd MMMM yyyy")
                         .locale("en"),
@@ -900,6 +910,22 @@ public class LoanTransactionHelper {
             final String user, final String pass) {
         return Calls.ok(FineractClientHelper.createNewFineractClient(user, pass).loanTransactions.executeLoanTransaction(loanId, request,
                 "repayment"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse addCapitalizedIncome(final Long loanId, final PostLoansLoanIdTransactionsRequest request) {
+        return Calls
+                .ok(FineractClientHelper.getFineractClient().loanTransactions.executeLoanTransaction(loanId, request, "capitalizedIncome"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse addCapitalizedIncome(final Long loanId, final String transactionDate, final double amount) {
+        return addCapitalizedIncome(loanId, new PostLoansLoanIdTransactionsRequest().transactionAmount(amount)
+                .transactionDate(transactionDate).dateFormat("dd MMMM yyyy").locale("en"));
+    }
+
+    public Response<CommandProcessingResult> createInterestPause(Long loanId, String startDate, String endDate) {
+        log.info("Creating interest pause for Loan {} from {} to {}", loanId, startDate, endDate);
+        return Calls.executeU(FineractClientHelper.getFineractClient().loanInterestPauseApi.createInterestPause(loanId,
+                new InterestPauseRequestDto().startDate(startDate).endDate(endDate).dateFormat(DATE_FORMAT).locale("en")));
     }
 
     // TODO: Rewrite to use fineract-client instead!
@@ -1574,9 +1600,44 @@ public class LoanTransactionHelper {
         return Calls.ok(FineractClientHelper.getFineractClient().loans.retrieveLoan1(loanExternalId, false, "all", null, null));
     }
 
+    public GetLoansLoanIdTransactionsResponse getLoanTransactions(final Long loanId) {
+        return getLoanTransactions(loanId, Collections.emptyList(), null, null, null);
+    }
+
+    public GetLoansLoanIdTransactionsResponse getLoanTransactions(final Long loanId, List<TransactionType> excludedTransactionTypes) {
+        return getLoanTransactions(loanId, excludedTransactionTypes, null, null, null);
+    }
+
+    public GetLoansLoanIdTransactionsResponse getLoanTransactions(final Long loanId, List<TransactionType> excludedTransactionTypes,
+            Integer page, Integer size, String sort) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.retrieveTransactionsByLoanId(loanId,
+                excludedTransactionTypes, page, size, sort));
+    }
+
+    public GetLoansLoanIdTransactionsResponse getLoanTransactionsByExternalId(final String loanExternalId) {
+        return getLoanTransactionsByExternalId(loanExternalId, Collections.emptyList(), null, null, null);
+    }
+
+    public GetLoansLoanIdTransactionsResponse getLoanTransactionsByExternalId(final String loanExternalId,
+            List<TransactionType> excludedTransactionTypes) {
+        return getLoanTransactionsByExternalId(loanExternalId, excludedTransactionTypes, null, null, null);
+    }
+
+    public GetLoansLoanIdTransactionsResponse getLoanTransactionsByExternalId(final String loanExternalId,
+            List<TransactionType> excludedTransactionTypes, Integer page, Integer size, String sort) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.retrieveTransactionsByExternalLoanId(loanExternalId,
+                excludedTransactionTypes, page, size, sort));
+    }
+
     // TODO: Rewrite to use fineract-client instead!
     // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
     // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+
+    public GetLoansResponse retrieveAllLoans(final String accountNumber, final String associations, final Long clientId) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loans.retrieveAll27(null, 0, 10, null, null, accountNumber, associations,
+                clientId, null));
+    }
+
     @Deprecated(forRemoval = true)
     public GetLoansLoanIdTransactionsTransactionIdResponse getLoanTransaction(final Integer loanId, final Integer txnId) {
         final String GET_LOAN_CHARGES_URL = "/fineract-provider/api/v1/loans/" + loanId + "/transactions/" + txnId + "?"
@@ -2268,6 +2329,12 @@ public class LoanTransactionHelper {
         return response;
     }
 
+    public GetLoansLoanIdTransactionsTemplateResponse getPrepaymentAmount(final Long loanId, final String transactionDate,
+            String dateformat) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.retrieveTransactionTemplate(loanId, "prepayLoan",
+                dateformat, transactionDate, "en"));
+    }
+
     // TODO: Rewrite to use fineract-client instead!
     // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
     // org.apache.fineract.client.models.PostLoansLoanIdRequest)
@@ -2435,6 +2502,15 @@ public class LoanTransactionHelper {
 
         return Utils.performServerPut(this.requestSpec, this.responseSpec, createAddAndDeleteDisbursementURL(loanID),
                 getAddAndDeleteDisbursementsAsJSON(approvalAmount, expectedDisbursementDate, disbursementData), jsonAttributeToGetBack);
+    }
+
+    public String addAndDeleteDisbursementDetail(final Long loanId, PostAddAndDeleteDisbursementDetailRequest request) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanDisbursementDetails.addAndDeleteDisbursementDetail(loanId, request));
+    }
+
+    public String addAndDeleteDisbursementDetail(final Long loanId, final List<DisbursementDetail> disbursementDetails) {
+        return addAndDeleteDisbursementDetail(loanId, new PostAddAndDeleteDisbursementDetailRequest().locale("en")
+                .dateFormat("dd MMMM yyyy").disbursementData(disbursementDetails));
     }
 
     // TODO: Rewrite to use fineract-client instead!
@@ -2686,7 +2762,7 @@ public class LoanTransactionHelper {
     @Deprecated(forRemoval = true)
     public Long applyChargebackTransaction(final Integer loanId, final Long transactionId, final String amount,
             final Integer paymentTypeIdx, ResponseSpecification responseSpec) {
-        List<GetPaymentTypesResponse> paymentTypeList = paymentTypeHelper.getAllPaymentTypes(false);
+        List<PaymentTypeData> paymentTypeList = paymentTypeHelper.getAllPaymentTypes(false);
         assertTrue(!paymentTypeList.isEmpty());
 
         final String payload = createChargebackPayload(amount, paymentTypeList.get(paymentTypeIdx).getId());
@@ -2792,6 +2868,22 @@ public class LoanTransactionHelper {
         return Calls.ok(FineractClientHelper.getFineractClient().loans.stateTransitions(loanId, request, "disburse"));
     }
 
+    /**
+     * Disburse loan on provided date and amount.
+     *
+     * @param loanId
+     *            loan Id
+     * @param date
+     *            formatted to "d MMMM yyyy"
+     * @param amount
+     *            amount to disburse
+     * @return Post Loans Loan Id Response
+     */
+    public PostLoansLoanIdResponse disburseLoan(Long loanId, String date, Double amount) {
+        return disburseLoan(loanId, new PostLoansLoanIdRequest().actualDisbursementDate(date).dateFormat(DATE_FORMAT)
+                .transactionAmount(BigDecimal.valueOf(amount)).locale("en"));
+    }
+
     public PostLoansLoanIdResponse disburseToSavingsLoan(String loanExternalId, PostLoansLoanIdRequest request) {
         return Calls.ok(FineractClientHelper.getFineractClient().loans.stateTransitions1(loanExternalId, request, "disburseToSavings"));
     }
@@ -2889,6 +2981,10 @@ public class LoanTransactionHelper {
         log.info("---------------------------------GET LOANS BY STATUS---------------------------------------------");
         final String get = Utils.performServerGet(requestSpec, responseSpec, GET_LOAN_URL, null);
         return new Gson().fromJson(get, new TypeToken<ArrayList<Integer>>() {}.getType());
+    }
+
+    public static List<Long> getLoanIdsByStatusId(Integer statusId) {
+        return Calls.ok(FineractClientHelper.getFineractClient().legacy.getLoansByStatus(statusId));
     }
 
     public PutLoanProductsProductIdResponse updateLoanProduct(Long id, PutLoanProductsProductIdRequest requestModifyLoan) {

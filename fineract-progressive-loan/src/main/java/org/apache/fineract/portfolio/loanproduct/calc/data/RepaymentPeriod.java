@@ -31,6 +31,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.fineract.infrastructure.core.serialization.gson.JsonExclude;
 import org.apache.fineract.infrastructure.core.service.MathUtil;
 import org.apache.fineract.organisation.monetary.domain.Money;
 import org.apache.fineract.portfolio.util.Memo;
@@ -39,6 +40,7 @@ import org.apache.fineract.portfolio.util.Memo;
 @EqualsAndHashCode(exclude = { "previous" })
 public final class RepaymentPeriod {
 
+    @JsonExclude
     private final RepaymentPeriod previous;
     @Getter
     private final LocalDate fromDate;
@@ -59,11 +61,16 @@ public final class RepaymentPeriod {
     @Getter
     private Money paidInterest;
 
+    @JsonExclude
     private final MathContext mc;
 
+    @JsonExclude
     private Memo<BigDecimal> rateFactorPlus1Calculation;
+    @JsonExclude
     private Memo<Money> calculatedDueInterestCalculation;
+    @JsonExclude
     private Memo<Money> dueInterestCalculation;
+    @JsonExclude
     private Memo<Money> outstandingBalanceCalculation;
 
     private RepaymentPeriod(RepaymentPeriod previous, LocalDate fromDate, LocalDate dueDate, List<InterestPeriod> interestPeriods,
@@ -77,6 +84,10 @@ public final class RepaymentPeriod {
         this.paidPrincipal = paidPrincipal;
         this.paidInterest = paidInterest;
         this.mc = mc;
+    }
+
+    public static RepaymentPeriod empty(RepaymentPeriod previous, MathContext mc) {
+        return new RepaymentPeriod(previous, null, null, new ArrayList<>(), null, null, null, null, mc);
     }
 
     public static RepaymentPeriod create(RepaymentPeriod previous, LocalDate fromDate, LocalDate dueDate, Money emi, MathContext mc) {
@@ -94,7 +105,7 @@ public final class RepaymentPeriod {
                 repaymentPeriod.paidInterest, mc);
         // There is always at least 1 interest period, by default with same from-due date as repayment period
         for (InterestPeriod interestPeriod : repaymentPeriod.interestPeriods) {
-            newRepaymentPeriod.interestPeriods.add(InterestPeriod.copy(newRepaymentPeriod, interestPeriod));
+            newRepaymentPeriod.interestPeriods.add(InterestPeriod.copy(newRepaymentPeriod, interestPeriod, mc));
         }
         return newRepaymentPeriod;
     }
@@ -154,7 +165,7 @@ public final class RepaymentPeriod {
         if (getPrevious().isPresent()) {
             calculatedDueInterest = calculatedDueInterest.add(getPrevious().get().getUnrecognizedInterest(), mc);
         }
-        return calculatedDueInterest;
+        return MathUtil.negativeToZero(calculatedDueInterest, mc);
     }
 
     /**
@@ -165,9 +176,10 @@ public final class RepaymentPeriod {
     public Money getDueInterest() {
         if (dueInterestCalculation == null) {
             // Due interest might be the maximum paid if there is pay-off or early repayment
-            dueInterestCalculation = Memo.of(() -> MathUtil.max(
-                    getPaidPrincipal().isGreaterThan(getCalculatedDuePrincipal()) ? getPaidInterest() : getCalculatedDueInterest(),
-                    getPaidInterest(), false), () -> new Object[] { paidPrincipal, paidInterest, interestPeriods });
+            dueInterestCalculation = Memo.of(
+                    () -> MathUtil.max(getPaidPrincipal().isGreaterThan(getCalculatedDuePrincipal()) ? getPaidInterest()
+                            : MathUtil.min(getCalculatedDueInterest(), getEmiPlusChargeback(), false), getPaidInterest(), false),
+                    () -> new Object[] { paidPrincipal, paidInterest, interestPeriods });
         }
         return dueInterestCalculation.get();
     }
@@ -187,7 +199,7 @@ public final class RepaymentPeriod {
      * @return
      */
     public Money getCalculatedDuePrincipal() {
-        return getEmiPlusChargeback().minus(getCalculatedDueInterest(), mc);
+        return MathUtil.negativeToZero(getEmiPlusChargeback().minus(getCalculatedDueInterest(), mc), mc);
     }
 
     /**
@@ -196,9 +208,9 @@ public final class RepaymentPeriod {
      * @return
      */
     public Money getChargebackPrincipal() {
-        return interestPeriods.stream() //
+        return MathUtil.negativeToZero(interestPeriods.stream() //
                 .map(InterestPeriod::getChargebackPrincipal) //
-                .reduce(getZero(mc), (value, previous) -> value.plus(previous, mc)); //
+                .reduce(getZero(mc), (value, previous) -> value.plus(previous, mc)), mc); //
     }
 
     /**
@@ -207,9 +219,9 @@ public final class RepaymentPeriod {
      * @return
      */
     public Money getChargebackInterest() {
-        return interestPeriods.stream() //
+        return MathUtil.negativeToZero(interestPeriods.stream() //
                 .map(InterestPeriod::getChargebackInterest) //
-                .reduce(getZero(mc), (value, previous) -> value.plus(previous, mc)); //
+                .reduce(getZero(mc), (value, previous) -> value.plus(previous, mc)), mc); //
     }
 
     /**
@@ -219,7 +231,7 @@ public final class RepaymentPeriod {
      */
     public Money getDuePrincipal() {
         // Due principal might be the maximum paid if there is pay-off or early repayment
-        return MathUtil.max(getEmiPlusChargeback().minus(getDueInterest(), mc), getPaidPrincipal(), false);
+        return MathUtil.max(MathUtil.negativeToZero(getEmiPlusChargeback().minus(getDueInterest(), mc), mc), getPaidPrincipal(), false);
     }
 
     /**
@@ -241,7 +253,7 @@ public final class RepaymentPeriod {
     }
 
     public boolean isFullyPaid() {
-        return getEmi().isEqualTo(getTotalPaidAmount());
+        return getEmiPlusChargeback().isEqualTo(getTotalPaidAmount());
     }
 
     /**
@@ -317,5 +329,9 @@ public final class RepaymentPeriod {
 
     public boolean isFirstRepaymentPeriod() {
         return previous == null;
+    }
+
+    public Money getOutstandingPrincipal() {
+        return MathUtil.negativeToZero(getDuePrincipal().minus(getPaidPrincipal()), mc);
     }
 }
