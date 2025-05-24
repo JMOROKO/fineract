@@ -36,6 +36,7 @@ public enum TransactionType {
     REPAYMENT_AT_DISBURSEMENT("repaymentAtDisbursement"), //
     CAPITALIZED_INCOME("capitalizedIncome"), //
     CAPITALIZED_INCOME_AMORTIZATION("capitalizedIncomeAmortization"), //
+    CAPITALIZED_INCOME_ADJUSTMENT("capitalizedIncomeAdjustment"), //
     ;
 
     public final String value;
