@@ -589,6 +589,23 @@ public class ExternalEventConfigurationHelper {
         loanCapitalizedIncomeAmortizationTransactionCreatedBusinessEvent.put("enabled", false);
         defaults.add(loanCapitalizedIncomeAmortizationTransactionCreatedBusinessEvent);
 
+        Map<String, Object> loanCapitalizedIncomeAdjustmentTransactionCreatedBusinessEvent = new HashMap<>();
+        loanCapitalizedIncomeAdjustmentTransactionCreatedBusinessEvent.put("type",
+                "LoanCapitalizedIncomeAdjustmentTransactionCreatedBusinessEvent");
+        loanCapitalizedIncomeAdjustmentTransactionCreatedBusinessEvent.put("enabled", false);
+        defaults.add(loanCapitalizedIncomeAdjustmentTransactionCreatedBusinessEvent);
+
+        Map<String, Object> loanTransactionContractTerminationPostBusinessEvent = new HashMap<>();
+        loanTransactionContractTerminationPostBusinessEvent.put("type", "LoanTransactionContractTerminationPostBusinessEvent");
+        loanTransactionContractTerminationPostBusinessEvent.put("enabled", false);
+        defaults.add(loanTransactionContractTerminationPostBusinessEvent);
+
+        Map<String, Object> loanCapitalizedIncomeAmortizationAdjustmentTransactionCreatedBusinessEvent = new HashMap<>();
+        loanCapitalizedIncomeAmortizationAdjustmentTransactionCreatedBusinessEvent.put("type",
+                "LoanCapitalizedIncomeAmortizationAdjustmentTransactionCreatedBusinessEvent");
+        loanCapitalizedIncomeAmortizationAdjustmentTransactionCreatedBusinessEvent.put("enabled", false);
+        defaults.add(loanCapitalizedIncomeAmortizationAdjustmentTransactionCreatedBusinessEvent);
+
         return defaults;
     }
 

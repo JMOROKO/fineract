@@ -86,7 +86,7 @@ public class LoanTermVariationsMapper {
         CalendarHistoryDataWrapper calendarHistoryDataWrapper;
         RepaymentStartDateType repaymentStartDateType = loan.getLoanProduct().getRepaymentStartDateType();
         boolean allowCompoundingOnEod = false;
-        if (loan.repaymentScheduleDetail().isInterestRecalculationEnabled()) {
+        if (loan.getLoanProductRelatedDetail().isInterestRecalculationEnabled()) {
             restCalendarInstance = scheduleGeneratorDTO.getCalendarInstanceForInterestRecalculation();
             compoundingCalendarInstance = scheduleGeneratorDTO.getCompoundingCalendarInstance();
             recalculationFrequencyType = loan.getLoanInterestRecalculationDetails().getRestFrequencyType();
@@ -112,8 +112,9 @@ public class LoanTermVariationsMapper {
                 scheduleGeneratorDTO.getCalculatedRepaymentsStartingFromDate(), loan.getInArrearsTolerance(),
                 loan.getLoanRepaymentScheduleDetail(), loan.getLoanProduct().isMultiDisburseLoan(), loan.getFixedEmiAmount(),
                 disbursementData, loan.getMaxOutstandingLoanBalance(), interestChargedFromDate,
-                loan.getLoanProduct().getPrincipalThresholdForLastInstallment(), loan.getLoanProduct().getInstallmentAmountInMultiplesOf(),
-                recalculationFrequencyType, restCalendarInstance, compoundingMethod, compoundingCalendarInstance, compoundingFrequencyType,
+                loan.getLoanProduct().getPrincipalThresholdForLastInstallment(),
+                loan.getLoanProductRelatedDetail().getInstallmentAmountInMultiplesOf(), recalculationFrequencyType, restCalendarInstance,
+                compoundingMethod, compoundingCalendarInstance, compoundingFrequencyType,
                 loan.getLoanProduct().preCloseInterestCalculationStrategy(), rescheduleStrategyMethod, calendar,
                 loan.getApprovedPrincipal(), annualNominalInterestRate, loanTermVariations, calendarHistoryDataWrapper,
                 scheduleGeneratorDTO.getNumberOfdays(), scheduleGeneratorDTO.isSkipRepaymentOnFirstDayofMonth(), holidayDetailDTO,

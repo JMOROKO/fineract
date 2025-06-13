@@ -28,6 +28,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -57,6 +58,9 @@ import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 @Entity
 @Table(name = "m_loan_transaction", uniqueConstraints = { @UniqueConstraint(columnNames = { "external_id" }, name = "external_id_UNIQUE") })
 public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long> {
+
+    @Version
+    private Long version;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "loan_id", nullable = false)
@@ -322,6 +326,22 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
         };
     }
 
+    public static LoanTransaction capitalizedIncomeAdjustment(final Loan loan, final Money amount, final PaymentDetail paymentDetail,
+            final LocalDate transactionDate, final ExternalId externalId) {
+        return new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.CAPITALIZED_INCOME_ADJUSTMENT, transactionDate,
+                amount.getAmount(), amount.getAmount(), null, null, null, null, false, paymentDetail, externalId);
+    }
+
+    public static LoanTransaction capitalizedIncomeAmortizationAdjustment(final Loan loan, final Money amount,
+            final LocalDate transactionDate, final ExternalId externalId) {
+        return switch (loan.getLoanProductRelatedDetail().getCapitalizedIncomeType()) {
+            case FEE -> new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT,
+                    transactionDate, amount.getAmount(), null, null, amount.getAmount(), null, null, false, null, externalId);
+            case INTEREST -> new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT,
+                    transactionDate, amount.getAmount(), null, amount.getAmount(), null, null, null, false, null, externalId);
+        };
+    }
+
     public LoanTransaction copyTransactionPropertiesAndMappings() {
         LoanTransaction newTransaction = copyTransactionProperties(this);
         newTransaction.updateLoanTransactionToRepaymentScheduleMappings(loanTransactionToRepaymentScheduleMappings);
@@ -394,6 +414,15 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
     }
 
     public static LoanTransaction chargeOff(final Loan loan, final LocalDate chargeOffDate, final ExternalId externalId) {
+        return createTerminalTransaction(loan, chargeOffDate, LoanTransactionType.CHARGE_OFF, externalId);
+    }
+
+    public static LoanTransaction contractTermination(final Loan loan, final LocalDate transactionDate, final ExternalId externalId) {
+        return createTerminalTransaction(loan, transactionDate, LoanTransactionType.CONTRACT_TERMINATION, externalId);
+    }
+
+    private static LoanTransaction createTerminalTransaction(final Loan loan, final LocalDate transactionDate,
+            final LoanTransactionType transactionType, final ExternalId externalId) {
         BigDecimal principalPortion = loan.getSummary().getTotalPrincipalOutstanding().compareTo(BigDecimal.ZERO) != 0
                 ? loan.getSummary().getTotalPrincipalOutstanding()
                 : null;
@@ -408,8 +437,8 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
                 : null;
         BigDecimal totalOutstanding = loan.getSummary().getTotalOutstanding();
 
-        return new LoanTransaction(loan, loan.getOffice(), LoanTransactionType.CHARGE_OFF, chargeOffDate, totalOutstanding,
-                principalPortion, interestPortion, feePortion, penaltyPortion, null, false, null, externalId);
+        return new LoanTransaction(loan, loan.getOffice(), transactionType, transactionDate, totalOutstanding, principalPortion,
+                interestPortion, feePortion, penaltyPortion, null, false, null, externalId);
     }
 
     private LoanTransaction(final Loan loan, final Office office, final LoanTransactionType type, final BigDecimal amount,
@@ -570,7 +599,8 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
 
     public boolean isRepaymentLikeType() {
         return isRepayment() || isMerchantIssuedRefund() || isPayoutRefund() || isGoodwillCredit() || isChargeRefund()
-                || isChargeAdjustment() || isDownPayment() || isInterestPaymentWaiver() || isInterestRefund();
+                || isChargeAdjustment() || isDownPayment() || isInterestPaymentWaiver() || isInterestRefund()
+                || isCapitalizedIncomeAdjustment();
     }
 
     public boolean isTypeAllowedForChargeback() {
@@ -652,6 +682,10 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
 
     public boolean isCapitalizedIncomeAdjustment() {
         return LoanTransactionType.CAPITALIZED_INCOME_ADJUSTMENT.equals(getTypeOf()) && isNotReversed();
+    }
+
+    public boolean isContractTermination() {
+        return LoanTransactionType.CONTRACT_TERMINATION.equals(getTypeOf()) && isNotReversed();
     }
 
     public boolean isWaiver() {
@@ -765,7 +799,8 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
                 || type == LoanTransactionType.INITIATE_TRANSFER || type == LoanTransactionType.REJECT_TRANSFER
                 || type == LoanTransactionType.WITHDRAW_TRANSFER || type == LoanTransactionType.CHARGE_OFF
                 || type == LoanTransactionType.REAMORTIZE || type == LoanTransactionType.REAGE
-                || type == LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION);
+                || type == LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION || type == LoanTransactionType.CONTRACT_TERMINATION
+                || type == LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT);
     }
 
     public void updateOutstandingLoanBalance(BigDecimal outstandingLoanBalance) {

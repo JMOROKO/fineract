@@ -155,7 +155,8 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
         if (!processLatest || reprocessOnPostConditions) {
             if (loan.isCumulativeSchedule() && loan.isInterestBearingAndInterestRecalculationEnabled()) {
                 loanScheduleService.regenerateRepaymentScheduleWithInterestRecalculation(loan, scheduleGeneratorDTO);
-            } else if (loan.isProgressiveSchedule() && loan.hasChargeOffTransaction() && loan.hasAccelerateChargeOffStrategy()) {
+            } else if (loan.isProgressiveSchedule() && ((loan.hasChargeOffTransaction() && loan.hasAccelerateChargeOffStrategy())
+                    || loan.hasContractTerminationTransaction())) {
                 loanScheduleService.regenerateRepaymentSchedule(loan, scheduleGeneratorDTO);
             }
             reprocessLoanTransactionsService.reprocessTransactions(loan);
@@ -173,9 +174,10 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
         if (loan.getLoanProduct().isMultiDisburseLoan()) {
             final BigDecimal totalDisbursed = loan.getDisbursedAmount();
             final BigDecimal totalPrincipalAdjusted = loan.getSummary().getTotalPrincipalAdjustments();
-            final BigDecimal totalPrincipalCredited = totalDisbursed.add(totalPrincipalAdjusted);
+            final BigDecimal totalCapitalizedIncome = loan.getSummary().getTotalCapitalizedIncome();
+            final BigDecimal totalPrincipalCredited = totalDisbursed.add(totalPrincipalAdjusted).add(totalCapitalizedIncome);
             if (totalPrincipalCredited.compareTo(loan.getSummary().getTotalPrincipalRepaid()) < 0
-                    && loan.repaymentScheduleDetail().getPrincipal().minus(totalDisbursed).isGreaterThanZero()) {
+                    && loan.getLoanProductRelatedDetail().getPrincipal().minus(totalDisbursed).isGreaterThanZero()) {
                 final String errorMessage = "The transaction amount cannot exceed threshold.";
                 throw new InvalidLoanStateTransitionException("transaction", "amount.exceeds.threshold", errorMessage);
             }
@@ -193,8 +195,9 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
         }
         Money downPaymentMoney = Money.of(loan.getCurrency(),
                 MathUtil.percentageOf(disbursementTransaction.getAmount(), disbursedAmountPercentageForDownPayment, 19));
-        if (loan.getLoanProduct().getInstallmentAmountInMultiplesOf() != null) {
-            downPaymentMoney = Money.roundToMultiplesOf(downPaymentMoney, loan.getLoanProduct().getInstallmentAmountInMultiplesOf());
+        if (loan.getLoanProductRelatedDetail().getInstallmentAmountInMultiplesOf() != null) {
+            downPaymentMoney = Money.roundToMultiplesOf(downPaymentMoney,
+                    loan.getLoanProductRelatedDetail().getInstallmentAmountInMultiplesOf());
         }
         final Money adjustedDownPaymentMoney = switch (loan.getLoanProductRelatedDetail().getLoanScheduleType()) {
             // For Cumulative loan: To check whether the loan was overpaid when the disbursement happened and to get the

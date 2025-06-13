@@ -16,16 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.service;
+package org.apache.fineract.portfolio.loanaccount.data;
 
-import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
-import org.springframework.transaction.annotation.Transactional;
-
-public interface CapitalizedIncomePlatformService {
-
-    @Transactional
-    CommandProcessingResult addCapitalizedIncome(Long loanId, JsonCommand command);
-
-    void resetBalance(Long loanId);
-}
+public interface LoanPrincipalRelatedDataHolder {}

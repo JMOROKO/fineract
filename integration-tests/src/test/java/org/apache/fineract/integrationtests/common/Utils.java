@@ -39,6 +39,8 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -68,9 +70,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.integrationtests.ConfigProperties;
 import org.apache.http.conn.HttpHostConnectException;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 
 /**
  * Util for RestAssured tests. This class here in src/integrationTest is copy/pasted to src/test; please keep them in
@@ -415,7 +417,7 @@ public final class Utils {
         return dateFormat.format(dateToBeConvert.getTime());
     }
 
-    @NotNull
+    @NonNull
     public static OffsetDateTime getAuditDateTimeToCompare() throws InterruptedException {
         OffsetDateTime now = DateUtils.getAuditOffsetDateTime();
         // Testing in minutes precision, but still need to take care around the end of the actual minute
@@ -568,5 +570,9 @@ public final class Utils {
 
     public static long getDifferenceInMonths(final LocalDate localDateBefore, final LocalDate localDateAfter) {
         return MONTHS.between(localDateBefore, localDateAfter);
+    }
+
+    public static Double getDoubleValue(BigDecimal amount) {
+        return amount == null ? null : amount.setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

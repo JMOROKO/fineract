@@ -68,7 +68,6 @@ import org.apache.fineract.integrationtests.common.products.DelinquencyBucketsHe
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleType;
 import org.apache.fineract.portfolio.loanproduct.domain.PaymentAllocationType;
-import org.junit.experimental.runners.Enclosed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
@@ -76,9 +75,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
 
-@RunWith(Enclosed.class)
 @Slf4j
 public class LoanTransactionChargebackTest extends BaseLoanIntegrationTest {
 
@@ -255,7 +252,7 @@ public class LoanTransactionChargebackTest extends BaseLoanIntegrationTest {
                 if (period.getPeriod() != null && period.getPeriod() == 3) {
                     log.info("Period number {} for due date {} and totalDueForPeriod {}", period.getPeriod(), period.getDueDate(),
                             period.getTotalDueForPeriod());
-                    assertEquals(Double.valueOf("666.67"), period.getTotalDueForPeriod());
+                    assertEquals(Double.valueOf("666.67"), Utils.getDoubleValue(period.getTotalDueForPeriod()));
                 }
             }
 
@@ -281,7 +278,7 @@ public class LoanTransactionChargebackTest extends BaseLoanIntegrationTest {
         List<GetLoansLoanIdTransactions> loanTransactions = getLoansLoanIdResponse.getTransactions();
         assertNotNull(loanTransactions);
         log.info("Loan Id {} with {} transactions", loanId, loanTransactions.size());
-        assertEquals(2, loanTransactions.size());
+        assertEquals(1, loanTransactions.size());
         GetLoansLoanIdTransactions loanTransaction = loanTransactions.iterator().next();
         log.info("Try to apply the Charge back over transaction Id {} with type {}", loanTransaction.getId(),
                 loanTransaction.getType().getCode());
@@ -356,7 +353,7 @@ public class LoanTransactionChargebackTest extends BaseLoanIntegrationTest {
                 if (period.getPeriod() != null && period.getPeriod() == 2) {
                     log.info("Period number {} for due date {} and totalDueForPeriod {}", period.getPeriod(), period.getDueDate(),
                             period.getTotalDueForPeriod());
-                    assertEquals(Double.valueOf("500.00"), period.getPrincipalDue());
+                    assertEquals(Double.valueOf("500.00"), Utils.getDoubleValue(period.getPrincipalDue()));
                 }
             }
 
@@ -385,7 +382,7 @@ public class LoanTransactionChargebackTest extends BaseLoanIntegrationTest {
                 if (period.getPeriod() != null && period.getPeriod() == 2) {
                     log.info("Period number {} for due date {} and totalDueForPeriod {}", period.getPeriod(), period.getDueDate(),
                             period.getTotalDueForPeriod());
-                    assertEquals(Double.valueOf("800.00"), period.getPrincipalDue());
+                    assertEquals(Double.valueOf("800.00"), Utils.getDoubleValue(period.getPrincipalDue()));
                 }
             }
 

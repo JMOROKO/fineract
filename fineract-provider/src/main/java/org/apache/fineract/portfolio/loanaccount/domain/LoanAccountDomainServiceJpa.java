@@ -444,8 +444,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     private void handlePayDisbursementTransaction(final Loan loan, final Long chargeId, final LoanTransaction chargesPayment,
             final List<Long> existingTransactionIds, final List<Long> existingReversedTransactionIds) {
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
         LoanCharge charge = null;
         for (final LoanCharge loanCharge : loan.getCharges()) {
             if (loanCharge.isActive() && chargeId.equals(loanCharge.getId())) {
@@ -767,8 +767,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
         final List<Long> existingTransactionIds = new ArrayList<>();
         final List<Long> existingReversedTransactionIds = new ArrayList<>();
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
         final ScheduleGeneratorDTO scheduleGeneratorDTO = null;
         final LoanRepaymentScheduleInstallment foreCloseDetail = loanBalanceService.fetchLoanForeclosureDetail(loan, foreClosureDate);
 
@@ -913,7 +913,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
         } else {
             if (loan.isCumulativeSchedule() && loan.isInterestBearingAndInterestRecalculationEnabled()) {
                 loanScheduleService.regenerateRepaymentScheduleWithInterestRecalculation(loan, scheduleGeneratorDTO);
-            } else if (loan.isProgressiveSchedule() && loan.hasChargeOffTransaction() && loan.hasAccelerateChargeOffStrategy()) {
+            } else if (loan.isProgressiveSchedule() && ((loan.hasChargeOffTransaction() && loan.hasAccelerateChargeOffStrategy())
+                    || loan.hasContractTerminationTransaction())) {
                 loanScheduleService.regenerateRepaymentSchedule(loan, scheduleGeneratorDTO);
             }
             loan.getLoanTransactions().add(refundTransaction);
@@ -988,8 +989,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
         final List<Long> existingTransactionIds = new ArrayList<>();
         final List<Long> existingReversedTransactionIds = new ArrayList<>();
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
 
         final LoanTransaction interestRefundTransaction = LoanTransaction.interestRefund(loan, loan.getOffice(), refundAmount,
                 loanRefundRequest.getPrincipal(), loanRefundRequest.getInterest(), loanRefundRequest.getFeeCharges(),
@@ -1076,8 +1077,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
     private void makeRepayment(final Loan loan, final LoanTransaction repaymentTransaction, final List<Long> existingTransactionIds,
             final List<Long> existingReversedTransactionIds, final ScheduleGeneratorDTO scheduleGeneratorDTO) {
         loanChargeValidator.validateRepaymentTypeTransactionNotBeforeAChargeRefund(loan, repaymentTransaction, "created");
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
 
         loanDownPaymentHandlerService.handleRepaymentOrRecoveryOrWaiverTransaction(loan, repaymentTransaction, null, scheduleGeneratorDTO);
     }

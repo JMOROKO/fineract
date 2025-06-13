@@ -177,7 +177,7 @@ class LoanChargeWritePlatformServiceImplTest {
         when(chargeDefinition.getChargeTimeType()).thenReturn(SPECIFIED_DUE_DATE);
         when(chargeDefinition.getCurrencyCode()).thenReturn(CURRENCY_CODE);
         when(loanChargeAssembler.createNewFromJson(loan, chargeDefinition, jsonCommand)).thenReturn(loanCharge);
-        when(loan.repaymentScheduleDetail()).thenReturn(loanRepaymentScheduleDetail);
+        when(loan.getLoanProductRelatedDetail()).thenReturn(loanRepaymentScheduleDetail);
         when(loanRepaymentScheduleDetail.getLoanScheduleType()).thenReturn(LoanScheduleType.CUMULATIVE);
         when(loan.getLoanRepaymentScheduleDetail()).thenReturn(loanRepaymentScheduleDetail);
         when(loan.hasCurrencyCodeOf(CURRENCY_CODE)).thenReturn(true);
@@ -192,8 +192,8 @@ class LoanChargeWritePlatformServiceImplTest {
         when(loanAccountService.saveAndFlushLoanWithDataIntegrityViolationChecks(any())).thenReturn(loan);
         List<Long> existingTransactionIds = new ArrayList<>();
         List<Long> existingReversedTransactionIds = new ArrayList<>();
-        when(loan.findExistingTransactionIds()).thenReturn(existingTransactionIds);
-        when(loan.findExistingReversedTransactionIds()).thenReturn(existingReversedTransactionIds);
+        when(loanTransactionRepository.findTransactionIdsByLoan(loan)).thenReturn(existingTransactionIds);
+        when(loanTransactionRepository.findReversedTransactionIdsByLoan(loan)).thenReturn(existingReversedTransactionIds);
 
         when(loan.getLoanCharges()).thenReturn(new HashSet<>());
         when(loan.getDisbursementDate()).thenReturn(LocalDate.now(ZoneId.systemDefault()));

@@ -161,13 +161,13 @@ public class ProgressiveLoanInterestScheduleModel {
         if (repaymentPeriods.isEmpty()) {
             return 0;
         }
-        final RepaymentPeriod firstPeriod = repaymentPeriods.get(0);
+        final RepaymentPeriod firstPeriod = repaymentPeriods.getFirst();
         final RepaymentPeriod lastPeriod = repaymentPeriods.size() > 1 ? getLastRepaymentPeriod() : firstPeriod;
         return DateUtils.getExactDifferenceInDays(firstPeriod.getFromDate(), lastPeriod.getDueDate());
     }
 
     public LocalDate getStartDate() {
-        return !repaymentPeriods.isEmpty() ? repaymentPeriods.get(0).getFromDate() : null;
+        return !repaymentPeriods.isEmpty() ? repaymentPeriods.getFirst().getFromDate() : null;
     }
 
     public LocalDate getMaturityDate() {
@@ -175,9 +175,10 @@ public class ProgressiveLoanInterestScheduleModel {
     }
 
     public Optional<RepaymentPeriod> changeOutstandingBalanceAndUpdateInterestPeriods(final LocalDate balanceChangeDate,
-            final Money disbursedAmount, final Money correctionAmount) {
+            final Money disbursedAmount, final Money correctionAmount, final Money capitalizedIncomePrincipal) {
         return findRepaymentPeriodForBalanceChange(balanceChangeDate).stream()//
-                .peek(updateInterestPeriodOnRepaymentPeriod(balanceChangeDate, disbursedAmount, correctionAmount))//
+                .peek(updateInterestPeriodOnRepaymentPeriod(balanceChangeDate, disbursedAmount, correctionAmount,
+                        capitalizedIncomePrincipal))//
                 .findFirst();//
     }
 
@@ -214,7 +215,7 @@ public class ProgressiveLoanInterestScheduleModel {
     }
 
     private Consumer<RepaymentPeriod> updateInterestPeriodOnRepaymentPeriod(final LocalDate balanceChangeDate, final Money disbursedAmount,
-            final Money correctionAmount) {
+            final Money correctionAmount, final Money capitalizedIncomePrincipal) {
         return repaymentPeriod -> {
             final boolean isChangeOnMaturityDate = isLastRepaymentPeriod(repaymentPeriod)
                     && balanceChangeDate.isEqual(repaymentPeriod.getDueDate());
@@ -222,9 +223,10 @@ public class ProgressiveLoanInterestScheduleModel {
                     isChangeOnMaturityDate);
             if (interestPeriodOptional.isPresent()) {
                 interestPeriodOptional.get().addDisbursementAmount(disbursedAmount);
+                interestPeriodOptional.get().addCapitalizedIncomePrincipalAmount(capitalizedIncomePrincipal);
                 interestPeriodOptional.get().addBalanceCorrectionAmount(correctionAmount);
             } else {
-                insertInterestPeriod(repaymentPeriod, balanceChangeDate, disbursedAmount, correctionAmount);
+                insertInterestPeriod(repaymentPeriod, balanceChangeDate, disbursedAmount, correctionAmount, capitalizedIncomePrincipal);
             }
         };
     }
@@ -246,7 +248,7 @@ public class ProgressiveLoanInterestScheduleModel {
     }
 
     void insertInterestPeriod(final RepaymentPeriod repaymentPeriod, final LocalDate balanceChangeDate, final Money disbursedAmount,
-            final Money correctionAmount) {
+            final Money correctionAmount, Money capitalizedIncomePrincipal) {
         final InterestPeriod previousInterestPeriod = findPreviousInterestPeriod(repaymentPeriod, balanceChangeDate);
         final LocalDate originalDueDate = previousInterestPeriod.getDueDate();
         final LocalDate newDueDate = calculateNewDueDate(previousInterestPeriod, balanceChangeDate);
@@ -254,6 +256,7 @@ public class ProgressiveLoanInterestScheduleModel {
 
         previousInterestPeriod.setDueDate(newDueDate);
         previousInterestPeriod.addDisbursementAmount(disbursedAmount);
+        previousInterestPeriod.addCapitalizedIncomePrincipalAmount(capitalizedIncomePrincipal);
         previousInterestPeriod.addBalanceCorrectionAmount(correctionAmount);
 
         final InterestPeriod interestPeriod = InterestPeriod.withEmptyAmounts(repaymentPeriod, newDueDate, originalDueDate, isPaused);
@@ -261,7 +264,9 @@ public class ProgressiveLoanInterestScheduleModel {
     }
 
     private void insertInterestPausePeriods(final RepaymentPeriod repaymentPeriod, final LocalDate pauseStart, final LocalDate pauseEnd) {
-        final LocalDate effectivePauseStart = pauseStart.minusDays(1);
+        final boolean isPauseStartOnFirstDayOfPeriod = pauseStart.isEqual(repaymentPeriod.getFromDate().plusDays(1));
+        final LocalDate effectivePauseStart = isPauseStartOnFirstDayOfPeriod ? pauseStart : pauseStart.minusDays(1);
+
         final LocalDate finalPauseStart = effectivePauseStart.isBefore(repaymentPeriod.getFromDate()) ? repaymentPeriod.getFromDate()
                 : effectivePauseStart;
         final LocalDate finalPauseEnd = pauseEnd.isAfter(repaymentPeriod.getDueDate()) ? repaymentPeriod.getDueDate() : pauseEnd;
@@ -299,7 +304,7 @@ public class ProgressiveLoanInterestScheduleModel {
         } else {
             return repaymentPeriod.getInterestPeriods().stream()
                     .filter(ip -> date.isAfter(ip.getFromDate()) && !date.isAfter(ip.getDueDate())).reduce((first, second) -> second)
-                    .orElse(repaymentPeriod.getInterestPeriods().get(0));
+                    .orElse(repaymentPeriod.getInterestPeriods().getFirst());
         }
     }
 
@@ -354,10 +359,6 @@ public class ProgressiveLoanInterestScheduleModel {
         return MathUtil.negativeToZero(getTotalDuePrincipal().minus(getTotalPaidPrincipal()));
     }
 
-    public Money getTotalOutstandingInterest() {
-        return MathUtil.negativeToZero(getTotalDueInterest().minus(getTotalPaidInterest()));
-    }
-
     public Optional<RepaymentPeriod> findRepaymentPeriod(@NotNull LocalDate transactionDate) {
         return repaymentPeriods.stream() //
                 .filter(period -> isInPeriod(transactionDate, period.getFromDate(), period.getDueDate(), period.isFirstRepaymentPeriod()))//
@@ -378,7 +379,7 @@ public class ProgressiveLoanInterestScheduleModel {
 
     @NotNull
     public RepaymentPeriod getLastRepaymentPeriod() {
-        return repaymentPeriods.get(repaymentPeriods.size() - 1);
+        return repaymentPeriods.getLast();
     }
 
     public boolean isLastRepaymentPeriod(@NotNull RepaymentPeriod repaymentPeriod) {

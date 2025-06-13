@@ -24,4 +24,5 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 public interface LoanAccrualTransactionBusinessEventService {
 
     void raiseBusinessEventForAccrualTransactions(Loan loan, List<Long> existingTransactionIds);
+
 }

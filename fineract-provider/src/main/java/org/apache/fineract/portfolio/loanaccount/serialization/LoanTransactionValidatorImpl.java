@@ -90,7 +90,7 @@ import org.apache.fineract.portfolio.loanaccount.exception.LoanRepaymentSchedule
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleType;
 import org.apache.fineract.portfolio.loanaccount.service.LoanUtilService;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProduct;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component("loanTransactionValidator")
@@ -106,6 +106,7 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
     private final EntityDatatableChecksWritePlatformService entityDatatableChecksWritePlatformService;
     private final CalendarInstanceRepository calendarInstanceRepository;
     private final LoanDownPaymentTransactionValidator loanDownPaymentTransactionValidator;
+    private final LoanDisbursementValidator loanDisbursementValidator;
 
     private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
         if (!dataValidationErrors.isEmpty()) {
@@ -157,6 +158,9 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
             validateLoanClientIsActive(loan);
             validateLoanGroupIsActive(loan);
 
+            final BigDecimal disbursedAmount = loan.getDisbursedAmount();
+            loanDisbursementValidator.compareDisbursedToApprovedOrProposedPrincipal(loan, principal, disbursedAmount);
+
             if (loan.isChargedOff()) {
                 throw new GeneralPlatformDomainRuleException("error.msg.loan.disbursal.not.allowed.on.charged.off",
                         "Loan: " + loan.getId() + " disbursement is not allowed on charged-off loan.");
@@ -173,7 +177,6 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
                 baseDataValidator.getDataValidationErrors().add(error);
             }
 
-            final BigDecimal disbursedAmount = loan.getDisbursedAmount();
             final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
 
             if ((loanCollateralManagements != null && !loanCollateralManagements.isEmpty()) && loan.getLoanType().isIndividualAccount()) {
@@ -912,7 +915,7 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
         }
     }
 
-    private static @NotNull BigDecimal collectTotalCollateral(Set<LoanCollateralManagement> loanCollateralManagements) {
+    private static @NonNull BigDecimal collectTotalCollateral(Set<LoanCollateralManagement> loanCollateralManagements) {
         BigDecimal totalCollateral = BigDecimal.ZERO;
 
         for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
@@ -924,7 +927,7 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
         return totalCollateral;
     }
 
-    private static @NotNull Set<String> getDisbursementParameters(boolean isAccountTransfer) {
+    private static @NonNull Set<String> getDisbursementParameters(boolean isAccountTransfer) {
         Set<String> disbursementParameters;
 
         if (isAccountTransfer) {
@@ -947,7 +950,7 @@ public final class LoanTransactionValidatorImpl implements LoanTransactionValida
 
         final Set<String> transactionParameters = new HashSet<>(
                 Arrays.asList("transactionDate", "transactionAmount", "externalId", "note", "locale", "dateFormat", "paymentTypeId",
-                        "accountNumber", "checkNumber", "routingCode", "receiptNumber", "bankNumber", "loanId"));
+                        "accountNumber", "checkNumber", "routingCode", "receiptNumber", "bankNumber", "loanId", "numberOfRepayments"));
 
         final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
         this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, transactionParameters);

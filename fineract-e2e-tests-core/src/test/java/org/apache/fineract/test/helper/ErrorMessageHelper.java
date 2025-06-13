@@ -64,6 +64,15 @@ public final class ErrorMessageHelper {
         return String.format("The date on which a loan with identifier : %s is disbursed cannot be in the future.", loanIdStr);
     }
 
+    public static String addDisbursementExceedApprovedAmountFailure() {
+        return "Loan can't be disbursed,disburse amount is exceeding approved principal ";
+    }
+
+    public static String addDisbursementExceedMaxAppliedAmountFailure(String totalDisbAmount, String maxDisbursalAmount) {
+        return String.format("Loan disbursal amount can't be greater than maximum applied loan amount calculation. "
+                + "Total disbursed amount: %s  Maximum disbursal amount: %s", totalDisbAmount, maxDisbursalAmount);
+    }
+
     public static String disbursePastDateFailure(Integer loanId, String actualDisbursementDate) {
         return String.format("The date on which a loan is disbursed cannot be before its approval date: %s", actualDisbursementDate);
     }
@@ -148,6 +157,18 @@ public final class ErrorMessageHelper {
 
     public static String addCapitalizedIncomeExceedApprovedAmountFailure() {
         return "Failed data validation due to: exceeds.approved.amount.";
+    }
+
+    public static String addCapitalizedIncomeFutureDateFailure() {
+        return "Failed data validation due to: cannot.be.in.the.future.";
+    }
+
+    public static String addCapitalizedIncomeUndoFailureTransactionTypeNonReversal() {
+        return "Only (non-reversed) transactions of type repayment, waiver, accrual, credit balance refund, capitalized income or capitalized income adjustment can be adjusted.";
+    }
+
+    public static String addCapitalizedIncomeUndoFailureAdjustmentExists() {
+        return "Capitalized income transaction cannot be reversed when non-reversed adjustment exists for it.";
     }
 
     public static String wrongAmountInRepaymentSchedule(int line, BigDecimal actual, BigDecimal expected) {

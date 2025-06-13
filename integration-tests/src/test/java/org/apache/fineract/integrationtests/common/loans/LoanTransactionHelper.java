@@ -933,6 +933,36 @@ public class LoanTransactionHelper {
                 new InterestPauseRequestDto().startDate(startDate).endDate(endDate).dateFormat(DATE_FORMAT).locale("en")));
     }
 
+    public PostLoansLoanIdTransactionsResponse capitalizedIncomeAdjustment(final Long loanId, final Long capitalizedIncomeTransactionId,
+            final PostLoansLoanIdTransactionsTransactionIdRequest request) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.adjustLoanTransaction(loanId,
+                capitalizedIncomeTransactionId, request, "capitalizedIncomeAdjustment"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse capitalizedIncomeAdjustment(final String loanExternalId, final Long transactionId,
+            final PostLoansLoanIdTransactionsTransactionIdRequest request) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.adjustLoanTransaction2(loanExternalId, transactionId,
+                request, "capitalizedIncomeAdjustment"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse capitalizedIncomeAdjustment(final String loanExternalId, final String transactionExternalId,
+            final PostLoansLoanIdTransactionsTransactionIdRequest request) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.adjustLoanTransaction3(loanExternalId,
+                transactionExternalId, request, "capitalizedIncomeAdjustment"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse capitalizedIncomeAdjustment(final Long loanId, final String transactionExternalId,
+            final PostLoansLoanIdTransactionsTransactionIdRequest request) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loanTransactions.adjustLoanTransaction1(loanId, transactionExternalId,
+                request, "capitalizedIncomeAdjustment"));
+    }
+
+    public PostLoansLoanIdTransactionsResponse capitalizedIncomeAdjustment(final Long loanId, final Long capitalizedIncomeTransactionId,
+            final String transactionDate, final double amount) {
+        return capitalizedIncomeAdjustment(loanId, capitalizedIncomeTransactionId, new PostLoansLoanIdTransactionsTransactionIdRequest()
+                .transactionAmount(amount).transactionDate(transactionDate).dateFormat("dd MMMM yyyy").locale("en"));
+    }
+
     // TODO: Rewrite to use fineract-client instead!
     // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
     // org.apache.fineract.client.models.PostLoansLoanIdRequest)
@@ -2688,7 +2718,7 @@ public class LoanTransactionHelper {
             log.info("  Id {} code {} date {} amount {}", transaction.getId(), transaction.getType().getCode(), transaction.getDate(),
                     transaction.getAmount());
             if (transactionType.equals(transaction.getType().getCode())) {
-                transactionsAmount += transaction.getAmount();
+                transactionsAmount += Utils.getDoubleValue(transaction.getAmount());
             }
         }
         assertEquals(amountExpected, transactionsAmount);
@@ -2707,7 +2737,7 @@ public class LoanTransactionHelper {
             }
         }
         assertEquals(transactionExpected, Utils.dateFormatter.format(lastTransaction.getDate()));
-        assertEquals(amountExpected, lastTransaction.getAmount());
+        assertEquals(amountExpected, Utils.getDoubleValue(lastTransaction.getAmount()));
         return lastTransaction.getId();
     }
 
@@ -2722,7 +2752,7 @@ public class LoanTransactionHelper {
         if (getLoansLoanIdSummary != null) {
             log.info("Loan with Principal Outstanding Balance {} expected {}", getLoansLoanIdSummary.getPrincipalOutstanding(),
                     amountExpected);
-            assertEquals(amountExpected, getLoansLoanIdSummary.getPrincipalOutstanding());
+            assertEquals(amountExpected, Utils.getDoubleValue(getLoansLoanIdSummary.getPrincipalOutstanding()));
         }
     }
 
@@ -2730,7 +2760,7 @@ public class LoanTransactionHelper {
         GetLoansLoanIdSummary getLoansLoanIdSummary = getLoansLoanIdResponse.getSummary();
         if (getLoansLoanIdSummary != null) {
             log.info("Loan with Fees Outstanding Balance {} expected {}", getLoansLoanIdSummary.getFeeChargesOutstanding(), amountExpected);
-            assertEquals(amountExpected, getLoansLoanIdSummary.getFeeChargesOutstanding());
+            assertEquals(amountExpected, Utils.getDoubleValue(getLoansLoanIdSummary.getFeeChargesOutstanding()));
         }
     }
 
@@ -2738,14 +2768,14 @@ public class LoanTransactionHelper {
         GetLoansLoanIdSummary getLoansLoanIdSummary = getLoansLoanIdResponse.getSummary();
         assertNotNull(getLoansLoanIdSummary);
         log.info("Loan with Fees Outstanding Balance {} expected {}", getLoansLoanIdSummary.getFeeChargesOutstanding(), amountExpected);
-        assertEquals(amountExpected, getLoansLoanIdSummary.getPenaltyChargesOutstanding());
+        assertEquals(amountExpected, Utils.getDoubleValue(getLoansLoanIdSummary.getPenaltyChargesOutstanding()));
     }
 
     public void validateLoanTotalOustandingBalance(GetLoansLoanIdResponse getLoansLoanIdResponse, Double amountExpected) {
         GetLoansLoanIdSummary getLoansLoanIdSummary = getLoansLoanIdResponse.getSummary();
         if (getLoansLoanIdSummary != null) {
             log.info("Loan with Total Outstanding Balance {} expected {}", getLoansLoanIdSummary.getTotalOutstanding(), amountExpected);
-            assertEquals(amountExpected, getLoansLoanIdSummary.getTotalOutstanding());
+            assertEquals(amountExpected, Utils.getDoubleValue(getLoansLoanIdSummary.getTotalOutstanding()));
         }
     }
 
@@ -2793,7 +2823,7 @@ public class LoanTransactionHelper {
         GetLoansLoanIdSummary getLoansLoanIdSummary = getLoansLoanIdResponse.getSummary();
         if (getLoansLoanIdSummary != null) {
             log.info("Loan with Principal Adjustments {} expected {}", getLoansLoanIdSummary.getPrincipalAdjustments(), amountExpected);
-            assertEquals(amountExpected, getLoansLoanIdSummary.getPrincipalAdjustments());
+            assertEquals(amountExpected, Utils.getDoubleValue(getLoansLoanIdSummary.getPrincipalAdjustments()));
         }
     }
 
@@ -2877,6 +2907,10 @@ public class LoanTransactionHelper {
 
     public PostLoansLoanIdResponse disburseLoan(Long loanId, PostLoansLoanIdRequest request) {
         return Calls.ok(FineractClientHelper.getFineractClient().loans.stateTransitions(loanId, request, "disburse"));
+    }
+
+    public PostLoansLoanIdResponse moveLoanState(Long loanId, PostLoansLoanIdRequest request, String command) {
+        return Calls.ok(FineractClientHelper.getFineractClient().loans.stateTransitions(loanId, request, command));
     }
 
     /**

@@ -432,8 +432,6 @@ public class LoanScheduleAssembler {
 
         final BigDecimal principalThresholdForLastInstalment = loanProduct.getPrincipalThresholdForLastInstallment();
 
-        final Integer installmentAmountInMultiplesOf = loanProduct.getInstallmentAmountInMultiplesOf();
-
         List<LoanTermVariationsData> loanTermVariations = new ArrayList<>();
         if (loanProduct.isLinkedToFloatingInterestRate()) {
             final BigDecimal interestRateDiff = this.fromApiJsonHelper
@@ -538,8 +536,9 @@ public class LoanScheduleAssembler {
                 loanProduct.isMultiDisburseLoan(), emiAmount, disbursementDatas, maxOutstandingBalance, graceOnArrearsAgeing,
                 daysInMonthType, daysInYearType, isInterestRecalculationEnabled, recalculationFrequencyType, restCalendarInstance,
                 compoundingMethod, compoundingCalendarInstance, compoundingFrequencyType, principalThresholdForLastInstalment,
-                installmentAmountInMultiplesOf, loanProduct.preCloseInterestCalculationStrategy(), calendar, BigDecimal.ZERO,
-                loanTermVariations, isInterestChargedFromDateSameAsDisbursalDateEnabled, numberOfDays, isSkipMeetingOnFirstDay, detailDTO,
+                loanProduct.getLoanProductRelatedDetail().getInstallmentAmountInMultiplesOf(),
+                loanProduct.preCloseInterestCalculationStrategy(), calendar, BigDecimal.ZERO, loanTermVariations,
+                isInterestChargedFromDateSameAsDisbursalDateEnabled, numberOfDays, isSkipMeetingOnFirstDay, detailDTO,
                 allowCompoundingOnEod, isEqualAmortization, isInterestToBeRecoveredFirstWhenGreaterThanEMI,
                 fixedPrincipalPercentagePerInstallment, isPrincipalCompoundingDisabledForOverdueLoans, isDownPaymentEnabled,
                 disbursedAmountPercentageForDownPayment, isAutoRepaymentForDownPaymentEnabled, repaymentStartDateType, submittedOnDate,
@@ -673,8 +672,8 @@ public class LoanScheduleAssembler {
         }
     }
 
-    public LoanProductRelatedDetail assembleLoanProductRelatedDetail(final JsonElement element, final LoanProduct loanProduct) {
-        final LoanApplicationTerms loanApplicationTerms = assembleLoanApplicationTermsFrom(element, loanProduct);
+    public LoanProductRelatedDetail assembleLoanProductRelatedDetail(final LoanApplicationTerms loanApplicationTerms,
+            final JsonElement element) {
         LoanProductRelatedDetail loanProductRelatedDetail = loanApplicationTerms.toLoanProductRelatedDetail();
         final String interestRateFrequencyTypeParamName = "interestRateFrequencyType";
         if (this.fromApiJsonHelper.parameterExists(interestRateFrequencyTypeParamName, element)) {
@@ -682,6 +681,10 @@ public class LoanScheduleAssembler {
             loanProductRelatedDetail.setInterestPeriodFrequencyType(PeriodFrequencyType.fromInt(newValue));
         }
         return loanProductRelatedDetail;
+    }
+
+    public LoanProductRelatedDetail assembleLoanProductRelatedDetail(final JsonElement element, final LoanProduct loanProduct) {
+        return assembleLoanProductRelatedDetail(assembleLoanApplicationTermsFrom(element, loanProduct), element);
     }
 
     public LoanScheduleModel assembleLoanScheduleFrom(final JsonElement element) {
@@ -749,7 +752,8 @@ public class LoanScheduleAssembler {
 
         LoanScheduleModel loanScheduleModel = loanScheduleGenerator.generate(mc, loanApplicationTerms, loanCharges, detailDTO);
         if (!nonCompoundingCharges.isEmpty()) {
-            updateDisbursementWithCharges(loanScheduleModel.getPeriods(), nonCompoundingCharges);
+            updateDisbursementWithCharges(loanApplicationTerms.getPrincipal().getAmount(), loanScheduleModel.getPeriods(),
+                    nonCompoundingCharges);
         }
         return loanScheduleModel;
     }
@@ -1564,14 +1568,17 @@ public class LoanScheduleAssembler {
         return interestCharges;
     }
 
-    private void updateDisbursementWithCharges(final Collection<LoanScheduleModelPeriod> periods,
+    private void updateDisbursementWithCharges(final BigDecimal principal, final Collection<LoanScheduleModelPeriod> periods,
             final Set<LoanCharge> nonCompoundingCharges) {
         final BigDecimal totalInterest = periods.stream().filter(p -> p.isRepaymentPeriod()).map(LoanScheduleModelPeriod::interestDue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         for (LoanScheduleModelPeriod loanScheduleModelPeriod : periods) {
             if (loanScheduleModelPeriod instanceof LoanScheduleModelDisbursementPeriod) {
                 for (final LoanCharge loanCharge : nonCompoundingCharges) {
-                    loanChargeService.populateDerivedFields(loanCharge, totalInterest, loanCharge.amountOrPercentage(), null,
+                    final BigDecimal amountAppliedTo = loanCharge.getChargeCalculation().isPercentageOfAmountAndInterest()
+                            ? principal.add(totalInterest)
+                            : totalInterest;
+                    loanChargeService.populateDerivedFields(loanCharge, amountAppliedTo, loanCharge.amountOrPercentage(), null,
                             BigDecimal.ZERO);
                     loanScheduleModelPeriod.addLoanCharges(loanCharge.getAmountOutstanding(), BigDecimal.ZERO);
                 }

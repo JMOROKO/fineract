@@ -25,6 +25,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanEvent;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.transactionprocessor.MoneyHolder;
 import org.apache.fineract.portfolio.loanaccount.domain.transactionprocessor.TransactionCtx;
 import org.apache.fineract.portfolio.loanaccount.serialization.LoanRefundValidator;
@@ -35,11 +36,12 @@ public class LoanRefundService {
     private final LoanRefundValidator loanRefundValidator;
     private final LoanTransactionProcessingService loadTransactionProcessingService;
     private final LoanLifecycleStateMachine loanLifecycleStateMachine;
+    private final LoanTransactionRepository loanTransactionRepository;
 
     public void makeRefund(final Loan loan, final LoanTransaction loanTransaction, final List<Long> existingTransactionIds,
             final List<Long> existingReversedTransactionIds) {
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
 
         loanRefundValidator.validateTransferRefund(loan, loanTransaction);
 
@@ -59,8 +61,8 @@ public class LoanRefundService {
 
     public void makeRefundForActiveLoan(final Loan loan, final LoanTransaction loanTransaction, final List<Long> existingTransactionIds,
             final List<Long> existingReversedTransactionIds) {
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
 
         handleRefundTransaction(loan, loanTransaction);
     }
@@ -69,8 +71,8 @@ public class LoanRefundService {
             final List<Long> existingTransactionIds, final List<Long> existingReversedTransactionIds) {
         loanRefundValidator.validateCreditBalanceRefund(loan, newCreditBalanceRefundTransaction);
 
-        existingTransactionIds.addAll(loan.findExistingTransactionIds());
-        existingReversedTransactionIds.addAll(loan.findExistingReversedTransactionIds());
+        existingTransactionIds.addAll(loanTransactionRepository.findTransactionIdsByLoan(loan));
+        existingReversedTransactionIds.addAll(loanTransactionRepository.findReversedTransactionIdsByLoan(loan));
 
         loan.getLoanTransactions().add(newCreditBalanceRefundTransaction);
 

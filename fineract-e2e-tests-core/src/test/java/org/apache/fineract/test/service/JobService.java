@@ -31,6 +31,7 @@ import org.apache.fineract.client.services.SchedulerJobApi;
 import org.apache.fineract.test.data.job.Job;
 import org.apache.fineract.test.data.job.JobResolver;
 import org.apache.fineract.test.helper.ErrorHelper;
+import org.apache.fineract.test.messaging.config.JobPollingProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import retrofit2.Response;
@@ -42,6 +43,9 @@ public class JobService {
 
     @Autowired
     private SchedulerJobApi schedulerJobApi;
+
+    @Autowired
+    private JobPollingProperties jobPollingProperties;
 
     private final JobResolver jobResolver;
 
@@ -62,10 +66,10 @@ public class JobService {
 
     private void waitUntilJobIsFinished(Job job) {
         String jobName = job.getName();
-        await().atMost(Duration.ofMinutes(2)) //
+        await().atMost(Duration.ofMillis(jobPollingProperties.getTimeoutInMillis())) //
                 .alias("%s didn't finish on time".formatted(jobName)) //
-                .pollInterval(Duration.ofSeconds(5)) //
-                .pollDelay(Duration.ofSeconds(5)) //
+                .pollInterval(Duration.ofMillis(jobPollingProperties.getIntervalInMillis())) //
+                .pollDelay(Duration.ofMillis(jobPollingProperties.getDelayInMillis())) //
                 .until(() -> {
                     log.info("Waiting for job {} to finish", jobName);
                     Long jobId = jobResolver.resolve(job);

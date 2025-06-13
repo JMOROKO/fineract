@@ -173,10 +173,10 @@ public class LoanSpecificDueDateChargeAfterMaturityTest extends BaseLoanIntegrat
 
         ArrayList<HashMap> loanSchedule = this.loanTransactionHelper.getLoanRepaymentSchedule(requestSpec, responseSpec, loanID);
         assertEquals(2, loanSchedule.size());
-        assertEquals(0.0f, loanSchedule.get(1).get("feeChargesDue"));
-        assertEquals(0.0f, loanSchedule.get(1).get("feeChargesOutstanding"));
-        assertEquals(0.0f, loanSchedule.get(1).get("penaltyChargesDue"));
-        assertEquals(0.0f, loanSchedule.get(1).get("penaltyChargesOutstanding"));
+        assertEquals(0, loanSchedule.get(1).get("feeChargesDue"));
+        assertEquals(0, loanSchedule.get(1).get("feeChargesOutstanding"));
+        assertEquals(0, loanSchedule.get(1).get("penaltyChargesDue"));
+        assertEquals(0, loanSchedule.get(1).get("penaltyChargesOutstanding"));
         assertEquals(10000.0f, loanSchedule.get(1).get("totalDueForPeriod"));
         assertEquals(10000.0f, loanSchedule.get(1).get("totalOutstandingForPeriod"));
         targetDate = LocalDate.of(2011, 4, 5);
@@ -306,10 +306,10 @@ public class LoanSpecificDueDateChargeAfterMaturityTest extends BaseLoanIntegrat
 
         ArrayList<HashMap> loanSchedule = this.loanTransactionHelper.getLoanRepaymentSchedule(requestSpec, responseSpec, loanID);
         assertEquals(2, loanSchedule.size());
-        assertEquals(0.0f, loanSchedule.get(1).get("feeChargesDue"));
-        assertEquals(0.0f, loanSchedule.get(1).get("feeChargesOutstanding"));
-        assertEquals(0.0f, loanSchedule.get(1).get("penaltyChargesDue"));
-        assertEquals(0.0f, loanSchedule.get(1).get("penaltyChargesOutstanding"));
+        assertEquals(0, loanSchedule.get(1).get("feeChargesDue"));
+        assertEquals(0, loanSchedule.get(1).get("feeChargesOutstanding"));
+        assertEquals(0, loanSchedule.get(1).get("penaltyChargesDue"));
+        assertEquals(0, loanSchedule.get(1).get("penaltyChargesOutstanding"));
         assertEquals(10000.0f, loanSchedule.get(1).get("totalDueForPeriod"));
         assertEquals(10000.0f, loanSchedule.get(1).get("totalOutstandingForPeriod"));
 
@@ -563,31 +563,38 @@ public class LoanSpecificDueDateChargeAfterMaturityTest extends BaseLoanIntegrat
 
     private static void validateLoanTransaction(GetLoansLoanIdResponse loanDetails, int index, double transactionAmount,
             double principalPortion, double overPaidPortion, double loanBalance) {
-        assertEquals(transactionAmount, loanDetails.getTransactions().get(index).getAmount());
-        assertEquals(principalPortion, loanDetails.getTransactions().get(index).getPrincipalPortion());
-        assertEquals(overPaidPortion, loanDetails.getTransactions().get(index).getOverpaymentPortion());
-        assertEquals(loanBalance, loanDetails.getTransactions().get(index).getOutstandingLoanBalance());
+        assertEquals(transactionAmount, Utils.getDoubleValue(loanDetails.getTransactions().get(index).getAmount()));
+        assertEquals(principalPortion, Utils.getDoubleValue(loanDetails.getTransactions().get(index).getPrincipalPortion()));
+        assertEquals(overPaidPortion, Utils.getDoubleValue(loanDetails.getTransactions().get(index).getOverpaymentPortion()));
+        assertEquals(loanBalance, Utils.getDoubleValue(loanDetails.getTransactions().get(index).getOutstandingLoanBalance()));
     }
 
     private static void validateRepaymentPeriod(GetLoansLoanIdResponse loanDetails, int index, double principalDue, double principalPaid,
             double principalOutstanding, double paidInAdvance, double paidLate) {
-        assertEquals(principalDue, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalDue());
-        assertEquals(principalPaid, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalPaid());
-        assertEquals(principalOutstanding, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalOutstanding());
-        assertEquals(paidInAdvance, loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidInAdvanceForPeriod());
-        assertEquals(paidLate, loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidLateForPeriod());
+        assertEquals(principalDue, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalDue()));
+        assertEquals(principalPaid, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalPaid()));
+        assertEquals(principalOutstanding,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalOutstanding()));
+        assertEquals(paidInAdvance,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidInAdvanceForPeriod()));
+        assertEquals(paidLate,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidLateForPeriod()));
     }
 
     private static void validateRepaymentPeriod(GetLoansLoanIdResponse loanDetails, int index, double principalDue, double principalPaid,
             double principalOutstanding, double penaltyDue, double penaltyPaid, double penaltyOutstanding, double paidInAdvance,
             double paidLate) {
-        assertEquals(principalDue, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalDue());
-        assertEquals(principalPaid, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalPaid());
-        assertEquals(principalOutstanding, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalOutstanding());
-        assertEquals(penaltyDue, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesDue());
-        assertEquals(penaltyPaid, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesPaid());
-        assertEquals(penaltyOutstanding, loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesOutstanding());
-        assertEquals(paidInAdvance, loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidInAdvanceForPeriod());
-        assertEquals(paidLate, loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidLateForPeriod());
+        assertEquals(principalDue, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalDue()));
+        assertEquals(principalPaid, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalPaid()));
+        assertEquals(principalOutstanding,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPrincipalOutstanding()));
+        assertEquals(penaltyDue, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesDue()));
+        assertEquals(penaltyPaid, Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesPaid()));
+        assertEquals(penaltyOutstanding,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getPenaltyChargesOutstanding()));
+        assertEquals(paidInAdvance,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidInAdvanceForPeriod()));
+        assertEquals(paidLate,
+                Utils.getDoubleValue(loanDetails.getRepaymentSchedule().getPeriods().get(index).getTotalPaidLateForPeriod()));
     }
 }
