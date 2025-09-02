@@ -91,8 +91,7 @@ public class LoanTransactionsApiResource {
     public static final String REAMORTIZE = "reAmortize";
     public static final String UNDO_REAMORTIZE = "undoReAmortize";
     public static final String CAPITALIZED_INCOME = "capitalizedIncome";
-    public static final String CAPITALIZED_INCOME_ADJUSTMENT = "capitalizedIncomeAdjustment";
-    public static final String CONTRACT_TERMINATION = "contractTermination";
+    public static final String INTEREST_REFUND_COMMAND_VALUE = "interest-refund";
     private final Set<String> responseDataParameters = new HashSet<>(Arrays.asList("id", "type", "date", "currency", "amount", "externalId",
             LoanApiConstants.REVERSAL_EXTERNAL_ID_PARAMNAME, LoanApiConstants.REVERSED_ON_DATE_PARAMNAME));
 
@@ -121,7 +120,8 @@ public class LoanTransactionsApiResource {
             + "loans/1/transactions/template?command=refundbycash" + "\n" + "loans/1/transactions/template?command=refundbytransfer" + "\n"
             + "loans/1/transactions/template?command=foreclosure" + "\n" + "loans/1/transactions/template?command=interestPaymentWaiver"
             + "\n" + "loans/1/transactions/template?command=creditBalanceRefund (returned 'amount' field will have the overpaid value)"
-            + "\n" + "loans/1/transactions/template?command=charge-off" + "\n" + "loans/1/transactions/template?command=downPayment" + "\n")
+            + "\n" + "loans/1/transactions/template?command=charge-off" + "\n" + "loans/1/transactions/template?command=downPayment" + "\n"
+            + "loans/1/transactions/template?command=interest-refund")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoanTransactionsApiResourceSwagger.GetLoansLoanIdTransactionsTemplateResponse.class))) })
     public String retrieveTransactionTemplate(@PathParam("loanId") @Parameter(description = "loanId", required = true) final Long loanId,
@@ -151,7 +151,8 @@ public class LoanTransactionsApiResource {
             + "loans/1/transactions/template?command=refundbycash" + "\n" + "loans/1/transactions/template?command=refundbytransfer" + "\n"
             + "loans/1/transactions/template?command=foreclosure" + "\n" + "loans/1/transactions/template?command=interestPaymentWaiver"
             + "\n" + "loans/1/transactions/template?command=creditBalanceRefund (returned 'amount' field will have the overpaid value)"
-            + "\n" + "loans/1/transactions/template?command=charge-off" + "\n" + "loans/1/transactions/template?command=downPayment" + "\n")
+            + "\n" + "loans/1/transactions/template?command=charge-off" + "\n" + "loans/1/transactions/template?command=downPayment" + "\n"
+            + "loans/1/transactions/template?command=interest-refund")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoanTransactionsApiResourceSwagger.GetLoansLoanIdTransactionsTemplateResponse.class))) })
     public String retrieveTransactionTemplate(
@@ -468,7 +469,7 @@ public class LoanTransactionsApiResource {
         ExternalId loanExternalId = ExternalIdFactory.produce(loanExternalIdStr);
         ExternalId transactionExternalId = ExternalIdFactory.produce(transactionExternalIdStr);
 
-        Long resolvedLoanId = getResolvedLoanId(loanId, loanExternalId);
+        Long resolvedLoanId = loanId == null ? loanReadPlatformService.getResolvedLoanId(loanExternalId) : loanId;
         Long resolvedLoanTransactionId = getResolvedLoanTransactionId(transactionId, transactionExternalId);
 
         LoanTransactionData transactionData = this.loanReadPlatformService.retrieveLoanTransaction(resolvedLoanId,
@@ -537,6 +538,8 @@ public class LoanTransactionsApiResource {
             case capitalizedIncomeAdjustment -> LoanTransactionType.CAPITALIZED_INCOME_ADJUSTMENT;
             case contractTermination -> LoanTransactionType.CONTRACT_TERMINATION;
             case capitalizedIncomeAmortizationAdjustment -> LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT;
+            case buyDownFeeAmortization -> LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION;
+            case buyDownFeeAmortizationAdjustment -> LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION_ADJUSTMENT;
             default ->
                 throw new InvalidLoanTransactionTypeException("transaction", transactionTypeParam.name(), "Unknown transaction type");
         };
@@ -547,7 +550,7 @@ public class LoanTransactionsApiResource {
         final CommandWrapperBuilder builder = new CommandWrapperBuilder().withJson(apiRequestBodyAsJson);
 
         ExternalId loanExternalId = ExternalIdFactory.produce(loanExternalIdStr);
-        Long resolvedLoanId = getResolvedLoanId(loanId, loanExternalId);
+        Long resolvedLoanId = loanId == null ? loanReadPlatformService.getResolvedLoanId(loanExternalId) : loanId;
 
         CommandWrapper commandRequest = null;
         if (CommandParameterUtil.is(commandParam, "repayment")) {
@@ -596,6 +599,8 @@ public class LoanTransactionsApiResource {
             commandRequest = builder.undoReAmortize(resolvedLoanId).build();
         } else if (CommandParameterUtil.is(commandParam, CAPITALIZED_INCOME)) {
             commandRequest = builder.addCapitalizedIncome(resolvedLoanId).build();
+        } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.BUY_DOWN_FEE_COMMAND)) {
+            commandRequest = builder.makeLoanBuyDownFee(resolvedLoanId).build();
         }
 
         if (commandRequest == null) {
@@ -611,7 +616,7 @@ public class LoanTransactionsApiResource {
 
         ExternalId loanExternalId = ExternalIdFactory.produce(loanExternalIdStr);
 
-        Long resolvedLoanId = getResolvedLoanId(loanId, loanExternalId);
+        Long resolvedLoanId = loanId == null ? loanReadPlatformService.getResolvedLoanId(loanExternalId) : loanId;
         LoanTransactionData transactionData;
 
         if (CommandParameterUtil.is(commandParam, "repayment")) {
@@ -684,6 +689,14 @@ public class LoanTransactionsApiResource {
         } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.CAPITALIZED_INCOME_ADJUSTMENT_TRANSACTION_COMMAND)) {
             transactionData = this.loanReadPlatformService.retrieveLoanTransactionTemplate(resolvedLoanId,
                     LoanTransactionType.CAPITALIZED_INCOME_ADJUSTMENT, transactionId);
+        } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.BUY_DOWN_FEE_COMMAND)) {
+            transactionData = this.loanReadPlatformService.retrieveLoanTransactionTemplate(resolvedLoanId, LoanTransactionType.BUY_DOWN_FEE,
+                    transactionId);
+        } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.BUY_DOWN_FEE_ADJUSTMENT_COMMAND)) {
+            transactionData = this.loanReadPlatformService.retrieveLoanTransactionTemplate(resolvedLoanId,
+                    LoanTransactionType.BUY_DOWN_FEE_ADJUSTMENT, transactionId);
+        } else if (CommandParameterUtil.is(commandParam, INTEREST_REFUND_COMMAND_VALUE)) {
+            transactionData = this.loanReadPlatformService.retrieveManualInterestRefundTemplate(resolvedLoanId, transactionId);
         } else {
             throw new UnrecognizedQueryParamException("command", commandParam);
         }
@@ -699,13 +712,17 @@ public class LoanTransactionsApiResource {
         ExternalId loanExternalId = ExternalIdFactory.produce(loanExternalIdStr);
         ExternalId transactionExternalId = ExternalIdFactory.produce(transactionExternalIdStr);
 
-        Long resolvedLoanId = getResolvedLoanId(loanId, loanExternalId);
+        Long resolvedLoanId = loanId == null ? loanReadPlatformService.getResolvedLoanId(loanExternalId) : loanId;
         Long resolvedTransactionId = getResolvedLoanTransactionId(transactionId, transactionExternalId);
         CommandWrapper commandRequest;
         if (CommandParameterUtil.is(commandParam, LoanApiConstants.CHARGEBACK_TRANSACTION_COMMAND)) {
             commandRequest = builder.chargebackTransaction(resolvedLoanId, resolvedTransactionId).build();
         } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.CAPITALIZED_INCOME_ADJUSTMENT_TRANSACTION_COMMAND)) {
             commandRequest = builder.capitalizedIncomeAdjustment(resolvedLoanId, resolvedTransactionId).build();
+        } else if (CommandParameterUtil.is(commandParam, LoanApiConstants.BUY_DOWN_FEE_ADJUSTMENT_COMMAND)) {
+            commandRequest = builder.buyDownFeeAdjustment(resolvedLoanId, resolvedTransactionId).build();
+        } else if (CommandParameterUtil.is(commandParam, INTEREST_REFUND_COMMAND_VALUE)) {
+            commandRequest = builder.manualInterestRefund(resolvedLoanId, resolvedTransactionId).build();
         } else { // Default to adjust the Loan Transaction
             commandRequest = builder.adjustTransaction(resolvedLoanId, resolvedTransactionId).build();
         }
@@ -720,7 +737,7 @@ public class LoanTransactionsApiResource {
         ExternalId loanExternalId = ExternalIdFactory.produce(loanExternalIdStr);
         ExternalId transactionExternalId = ExternalIdFactory.produce(transactionExternalIdStr);
 
-        Long resolvedLoanId = getResolvedLoanId(loanId, loanExternalId);
+        Long resolvedLoanId = loanId == null ? loanReadPlatformService.getResolvedLoanId(loanExternalId) : loanId;
         Long resolvedTransactionId = getResolvedLoanTransactionId(transactionId, transactionExternalId);
         final CommandWrapper commandRequest = new CommandWrapperBuilder().undoWaiveChargeTransaction(resolvedLoanId, resolvedTransactionId)
                 .build();
@@ -738,18 +755,6 @@ public class LoanTransactionsApiResource {
             }
         }
         return resolvedLoanTransactionId;
-    }
-
-    private Long getResolvedLoanId(final Long loanId, final ExternalId loanExternalId) {
-        Long resolvedLoanId = loanId;
-        if (resolvedLoanId == null) {
-            loanExternalId.throwExceptionIfEmpty();
-            resolvedLoanId = this.loanReadPlatformService.retrieveLoanIdByExternalId(loanExternalId);
-            if (resolvedLoanId == null) {
-                throw new LoanNotFoundException(loanExternalId);
-            }
-        }
-        return resolvedLoanId;
     }
 
     private Long getResolvedLoanIdWithExistsCheck(final Long loanId, final ExternalId loanExternalId) {

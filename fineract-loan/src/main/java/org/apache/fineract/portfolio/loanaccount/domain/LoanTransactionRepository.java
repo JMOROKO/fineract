@@ -127,7 +127,8 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                     org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.INITIATE_TRANSFER,
                     org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REJECT_TRANSFER,
                     org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.WITHDRAW_TRANSFER,
-                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT
             )
             """)
     Optional<LocalDate> findLastTransactionDateForReprocessing(@Param("loan") Loan loan);
@@ -174,7 +175,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.typeOf IN :types
                 AND lt.dateOf = :transactionDate
             """)
-    Optional<LoanTransaction> findNonReversedByLoanAndTypesAndDate(@Param("loan") Loan loan, @Param("type") Set<LoanTransactionType> types,
+    Optional<LoanTransaction> findNonReversedByLoanAndTypesAndDate(@Param("loan") Loan loan, @Param("types") Set<LoanTransactionType> types,
             @Param("transactionDate") LocalDate transactionDate);
 
     @Query("""
@@ -184,7 +185,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
                 AND lt.typeOf IN :types
                 AND lt.dateOf > :transactionDate
-            ORDER BY lt.dateOf
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndTypesAndAfterDate(@Param("loan") Loan loan,
             @Param("types") Set<LoanTransactionType> types, @Param("transactionDate") LocalDate transactionDate);
@@ -196,7 +197,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
                 AND lt.typeOf = :type
                 AND lt.dateOf > :transactionDate
-            ORDER BY lt.dateOf
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndTypeAndAfterDate(@Param("loan") Loan loan, @Param("type") LoanTransactionType type,
             @Param("transactionDate") LocalDate transactionDate);
@@ -219,6 +220,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
                 AND lt.typeOf IN :types
                 AND lt.id NOT IN :existingTransactionIds
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndTypesAndNotInIds(@Param("loan") Loan loan, @Param("types") Set<LoanTransactionType> types,
             @Param("existingTransactionIds") List<Long> existingTransactionIds);
@@ -229,6 +231,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
             WHERE lt.loan = :loan
                 AND lt.reversed = false
                 AND lt.typeOf IN :types
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndTypes(@Param("loan") Loan loan, @Param("types") Set<LoanTransactionType> types);
 
@@ -238,6 +241,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
             WHERE lt.loan = :loan
                 AND lt.reversed = false
                 AND lt.typeOf = :type
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndType(@Param("loan") Loan loan, @Param("type") LoanTransactionType type);
 
@@ -248,7 +252,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
                 AND lt.dateOf >= :date
                 AND lt.typeOf IN :types
-            ORDER BY lt.dateOf
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedByLoanAndTypesAndOnOrAfterDate(@Param("loan") Loan loan,
             @Param("types") Set<LoanTransactionType> types, @Param("date") LocalDate date);
@@ -276,6 +280,19 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
             """)
     BigDecimal findChargeAccrualAmount(@Param("loanCharge") LoanCharge loanCharge);
+
+    @Query("""
+            SELECT COALESCE(SUM(CASE WHEN lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL THEN lcpb.amount
+                 WHEN lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL_ADJUSTMENT THEN -lcpb.amount
+                 ELSE 0 END), 0)
+            FROM LoanChargePaidBy lcpb
+            JOIN lcpb.loanTransaction lt
+            WHERE lcpb.loanCharge = :loanCharge
+                AND lcpb.installmentNumber = :installmentNumber
+                AND lt.reversed = false
+            """)
+    BigDecimal findChargeAccrualAmountByInstallment(@Param("loanCharge") LoanCharge loanCharge,
+            @Param("installmentNumber") Integer installmentNumber);
 
     @Query("""
             SELECT COALESCE(SUM(lt.unrecognizedIncomePortion), 0)
@@ -333,7 +350,7 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
                 AND lt.reversed = false
                 AND lt.typeOf = :type
                 AND lt.dateOf IN :transactionDates
-            ORDER BY lt.id
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
             """)
     List<LoanTransaction> findNonReversedLoanAndTypeAndDates(@Param("loan") Loan loan, @Param("type") LoanTransactionType type,
             @Param("transactionDates") Set<LocalDate> transactionDates);
@@ -357,14 +374,162 @@ public interface LoanTransactionRepository extends JpaRepository<LoanTransaction
             AND (lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION
               OR lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT)
             """)
-    BigDecimal getAmortizedAmount(@Param("loan") Loan loan);
+    BigDecimal getAmortizedAmountCapitalizedIncome(@Param("loan") Loan loan);
+
+    @Query("""
+            SELECT COALESCE(SUM(CASE WHEN lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION THEN lt.amount
+              WHEN lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION_ADJUSTMENT THEN -lt.amount
+              ELSE 0 END), 0) FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+            AND lt.reversed = false
+            AND (lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION
+              OR lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.BUY_DOWN_FEE_AMORTIZATION_ADJUSTMENT)
+            """)
+    BigDecimal getAmortizedAmountBuyDownFee(@Param("loan") Loan loan);
 
     @Query("""
             SELECT lt FROM LoanTransaction lt, LoanTransactionRelation ltr
             WHERE lt.reversed = false
             AND lt = ltr.fromTransaction
-            AND ltr.toTransaction = :capitalizedIncome
+            AND ltr.toTransaction = :transaction
             AND ltr.relationType = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRelationTypeEnum.ADJUSTMENT
             """)
-    List<LoanTransaction> findAdjustmentsForCapitalizedIncome(@Param("capitalizedIncome") LoanTransaction capitalizedIncome);
+    List<LoanTransaction> findAdjustments(@Param("transaction") LoanTransaction transaction);
+
+    @Query("""
+            SELECT lt FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND lt.reversed = false
+                AND lt.typeOf NOT IN (
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CONTRA,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.MARKED_FOR_RESCHEDULING,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL_ADJUSTMENT,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.APPROVE_TRANSFER,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.INITIATE_TRANSFER,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REJECT_TRANSFER,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.WITHDRAW_TRANSFER,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION,
+                        org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT
+                )
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
+            """)
+    List<LoanTransaction> findNonReversedTransactionsForReprocessingByLoan(@Param("loan") Loan loan);
+
+    @Query("""
+            SELECT MAX(lt.dateOf) FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND lt.reversed = false
+                AND lt.amount > 0
+                AND lt.typeOf IN (
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REPAYMENT,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.MERCHANT_ISSUED_REFUND,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.PAYOUT_REFUND,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.GOODWILL_CREDIT,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CHARGE_REFUND,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CHARGE_ADJUSTMENT,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.DOWN_PAYMENT,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.INTEREST_PAYMENT_WAIVER,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.INTEREST_REFUND,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_ADJUSTMENT
+                )
+            """)
+    Optional<LocalDate> findLastRepaymentLikeTransactionDate(@Param("loan") Loan loan);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(lt) > 0 THEN true ELSE false END
+            FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND lt.reversed = false
+                AND lt.typeOf = :type
+                AND lt.dateOf > :transactionDate
+            """)
+    boolean existsNonReversedByLoanAndTypeAndAfterDate(@Param("loan") Loan loan, @Param("type") LoanTransactionType type,
+            @Param("transactionDate") LocalDate transactionDate);
+
+    @Query("""
+            SELECT lt FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND lt.reversed = false
+                AND lt.typeOf NOT IN (
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CONTRA,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.MARKED_FOR_RESCHEDULING,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL_ADJUSTMENT,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.ACCRUAL_ACTIVITY,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.APPROVE_TRANSFER,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.INITIATE_TRANSFER,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REJECT_TRANSFER,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.WITHDRAW_TRANSFER,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CHARGE_OFF,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REAMORTIZE,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.REAGE,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CONTRACT_TERMINATION,
+                    org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.CAPITALIZED_INCOME_AMORTIZATION_ADJUSTMENT
+                )
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
+            """)
+    List<LoanTransaction> findNonReversedMonetaryTransactionsByLoan(@Param("loan") Loan loan);
+
+    @Query("""
+            SELECT COALESCE(SUM(lt.amount), 0)
+            FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND lt.reversed = false
+                AND lt.typeOf = org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType.RECOVERY_REPAYMENT
+            """)
+    BigDecimal calculateTotalRecoveryPaymentAmount(@Param("loan") Loan loan);
+
+    @Query("""
+            SELECT lt FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND (
+                    (:dateComparison = 'BEFORE' AND lt.dateOf < :chargeOffDate) OR
+                    (:dateComparison = 'EQUAL' AND lt.dateOf = :chargeOffDate) OR
+                    (:dateComparison = 'AFTER' AND lt.dateOf > :chargeOffDate)
+                )
+                AND (
+                    (lt.reversed = true AND lt.id IN :existingTransactionIds AND lt.id NOT IN :existingReversedTransactionIds)
+                    OR (lt.id NOT IN :existingTransactionIds)
+                )
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
+            """)
+    List<LoanTransaction> findTransactionsForChargeOffClassification(@Param("loan") Loan loan,
+            @Param("chargeOffDate") LocalDate chargeOffDate, @Param("dateComparison") String dateComparison,
+            @Param("existingTransactionIds") List<Long> existingTransactionIds,
+            @Param("existingReversedTransactionIds") List<Long> existingReversedTransactionIds);
+
+    @Query("""
+            SELECT lt FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND (
+                    (:dateComparison = 'BEFORE' AND lt.dateOf < :chargeOffDate) OR
+                    (:dateComparison = 'EQUAL' AND lt.dateOf = :chargeOffDate) OR
+                    (:dateComparison = 'AFTER' AND lt.dateOf > :chargeOffDate)
+                )
+                AND (
+                    (lt.reversed = true AND lt.id IN :existingTransactionIds)
+                    OR (lt.id NOT IN :existingTransactionIds)
+                )
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
+            """)
+    List<LoanTransaction> findTransactionsForChargeOffClassification(@Param("loan") Loan loan,
+            @Param("chargeOffDate") LocalDate chargeOffDate, @Param("dateComparison") String dateComparison,
+            @Param("existingTransactionIds") List<Long> existingTransactionIds);
+
+    @Query("""
+            SELECT lt FROM LoanTransaction lt
+            WHERE lt.loan = :loan
+                AND (
+                    (:dateComparison = 'BEFORE' AND lt.dateOf < :chargeOffDate) OR
+                    (:dateComparison = 'EQUAL' AND lt.dateOf = :chargeOffDate) OR
+                    (:dateComparison = 'AFTER' AND lt.dateOf > :chargeOffDate)
+                )
+                AND lt.reversed = false
+            ORDER BY lt.dateOf, lt.createdDate, lt.id
+            """)
+    List<LoanTransaction> findTransactionsForChargeOffClassification(@Param("loan") Loan loan,
+            @Param("chargeOffDate") LocalDate chargeOffDate, @Param("dateComparison") String dateComparison);
+
 }

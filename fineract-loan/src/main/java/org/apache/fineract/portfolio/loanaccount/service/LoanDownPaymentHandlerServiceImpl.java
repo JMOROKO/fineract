@@ -29,7 +29,6 @@ import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.ExternalId;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.infrastructure.core.service.MathUtil;
-import org.apache.fineract.infrastructure.event.business.domain.loan.LoanBalanceChangedBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.loan.transaction.LoanTransactionDownPaymentPostBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.loan.transaction.LoanTransactionDownPaymentPreBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.service.BusinessEventNotifierService;
@@ -64,6 +63,7 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
     private final LoanLifecycleStateMachine loanLifecycleStateMachine;
     private final LoanBalanceService loanBalanceService;
     private final LoanTransactionService loanTransactionService;
+    private final LoanJournalEntryPoster journalEntryPoster;
 
     @Override
     public LoanTransaction handleDownPayment(ScheduleGeneratorDTO scheduleGeneratorDTO, JsonCommand command,
@@ -72,8 +72,8 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
         LoanTransaction downPaymentTransaction = handleDownPayment(loan, disbursementTransaction, command, scheduleGeneratorDTO);
         if (downPaymentTransaction != null) {
             downPaymentTransaction = loanTransactionRepository.saveAndFlush(downPaymentTransaction);
+            journalEntryPoster.postJournalEntriesForLoanTransaction(downPaymentTransaction, false, false);
             businessEventNotifierService.notifyPostBusinessEvent(new LoanTransactionDownPaymentPostBusinessEvent(downPaymentTransaction));
-            businessEventNotifierService.notifyPostBusinessEvent(new LoanBalanceChangedBusinessEvent(loan));
         }
         return downPaymentTransaction;
     }
@@ -135,6 +135,7 @@ public class LoanDownPaymentHandlerServiceImpl implements LoanDownPaymentHandler
         boolean processLatest = isTransactionChronologicallyLatest //
                 && adjustedTransaction == null // covers reversals
                 && !loan.isForeclosure() //
+                && !loan.hasChargesAffectedByBackdatedRepaymentLikeTransaction(loanTransaction)
                 && loanTransactionProcessingService.canProcessLatestTransactionOnly(loan, loanTransaction, currentInstallment); //
         if (processLatest) {
             loanTransactionProcessingService.processLatestTransaction(loan.getTransactionProcessingStrategyCode(), loanTransaction,

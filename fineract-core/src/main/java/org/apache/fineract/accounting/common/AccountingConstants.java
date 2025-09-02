@@ -111,7 +111,10 @@ public final class AccountingConstants {
         INCOME_FROM_GOODWILL_CREDIT_FEES(20), //
         INCOME_FROM_GOODWILL_CREDIT_PENALTY(21), //
         INCOME_FROM_CAPITALIZATION(22), //
-        DEFERRED_INCOME_LIABILITY(23); //
+        DEFERRED_INCOME_LIABILITY(23), //
+        BUY_DOWN_EXPENSE(24), //
+        INCOME_FROM_BUY_DOWN(25), //
+        ;
 
         private final Integer value;
 
@@ -179,7 +182,10 @@ public final class AccountingConstants {
         EXPENSE_GL_ACCOUNT_ID("expenseAccountId"), //
         CHARGE_OFF_REASON_CODE_VALUE_ID("chargeOffReasonCodeValueId"), //
         DEFERRED_INCOME_LIABILITY("deferredIncomeLiabilityAccountId"), //
-        INCOME_FROM_CAPITALIZATION("incomeFromCapitalizationAccountId"); //
+        INCOME_FROM_CAPITALIZATION("incomeFromCapitalizationAccountId"), //
+        BUY_DOWN_EXPENSE("buyDownExpenseAccountId"), //
+        INCOME_FROM_BUY_DOWN("incomeFromBuyDownAccountId"), //
+        ;
 
         private final String value;
 
@@ -189,7 +195,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public String getValue() {
@@ -223,7 +229,10 @@ public final class AccountingConstants {
         INCOME_FROM_GOODWILL_CREDIT_FEES("incomeFromGoodwillCreditFeesAccount"), //
         INCOME_FROM_GOODWILL_CREDIT_PENALTY("incomeFromGoodwillCreditPenaltyAccount"), //
         DEFERRED_INCOME_LIABILITY("deferredIncomeLiabilityAccount"), //
-        INCOME_FROM_CAPITALIZATION("incomeFromCapitalizationAccount"); //
+        INCOME_FROM_CAPITALIZATION("incomeFromCapitalizationAccount"), //
+        BUY_DOWN_EXPENSE("buyDownExpenseAccount"), //
+        INCOME_FROM_BUY_DOWN("incomeFromBuyDownAccount"), //
+        ;
 
         private final String value;
 
@@ -233,7 +242,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public String getValue() {
@@ -265,7 +274,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public Integer getValue() {
@@ -303,7 +312,8 @@ public final class AccountingConstants {
         ESCHEAT_LIABILITY(14), //
         FEES_RECEIVABLE(15), //
         PENALTIES_RECEIVABLE(16), //
-        INTEREST_PAYABLE(17);
+        INTEREST_PAYABLE(17), //
+        INTEREST_RECEIVABLE(18);
 
         private final Integer value;
 
@@ -313,7 +323,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public Integer getValue() {
@@ -357,6 +367,7 @@ public final class AccountingConstants {
         LOSSES_WRITTEN_OFF("writeOffAccountId"), //
         ESCHEAT_LIABILITY("escheatLiabilityId"), //
         PENALTIES_RECEIVABLE("penaltiesReceivableAccountId"), //
+        INTEREST_RECEIVABLE("interestReceivableAccountId"), //
         FEES_RECEIVABLE("feesReceivableAccountId"), //
         INTEREST_PAYABLE("interestPayableAccountId");
 
@@ -368,7 +379,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public String getValue() {
@@ -395,7 +406,8 @@ public final class AccountingConstants {
         ESCHEAT_LIABILITY("escheatLiabilityAccount"), //
         FEES_RECEIVABLE("feeReceivableAccount"), //
         PENALTIES_RECEIVABLE("penaltyReceivableAccount"), //
-        INTEREST_PAYABLE("interestPayableAccount"); //
+        INTEREST_PAYABLE("interestPayableAccount"), //
+        INTEREST_RECEIVABLE("interestReceivableAccount"); //
 
         private final String value;
 
@@ -405,7 +417,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public String getValue() {
@@ -445,7 +457,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public Integer getValue() {
@@ -510,7 +522,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public Integer getValue() {
@@ -549,7 +561,7 @@ public final class AccountingConstants {
 
         @Override
         public String toString() {
-            return name().toString().replaceAll("_", " ");
+            return name().replaceAll("_", " ");
         }
 
         public String getValue() {

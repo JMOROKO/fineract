@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.fineract.accounting.glaccount.domain.GLAccountType;
 import org.apache.fineract.client.models.AllowAttributeOverrides;
-import org.apache.fineract.client.models.BusinessDateRequest;
+import org.apache.fineract.client.models.BusinessDateUpdateRequest;
 import org.apache.fineract.client.models.ChargeRequest;
 import org.apache.fineract.client.models.GetJournalEntriesTransactionIdResponse;
 import org.apache.fineract.client.models.GetLoanTransactionRelation;
@@ -87,7 +87,6 @@ import org.apache.fineract.client.models.PostLoansResponse;
 import org.apache.fineract.client.models.PutChargeTransactionChangesRequest;
 import org.apache.fineract.client.models.PutGlobalConfigurationsRequest;
 import org.apache.fineract.client.util.CallFailedRuntimeException;
-import org.apache.fineract.infrastructure.businessdate.domain.BusinessDateType;
 import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationConstants;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.integrationtests.common.BusinessDateHelper;
@@ -5320,7 +5319,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
         try {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("01 November 2022").dateFormat(DATETIME_PATTERN).locale("en"));
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
             final Account incomeAccount = ACCOUNT_HELPER.createIncomeAccount();
@@ -5491,7 +5490,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
         try {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("01 November 2022").dateFormat(DATETIME_PATTERN).locale("en"));
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
             final Account assetFeeAndPenaltyAccount = ACCOUNT_HELPER.createAssetAccount();
@@ -5571,11 +5570,11 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
 
             List<HashMap> journalEntries = JOURNAL_ENTRY_HELPER.getJournalEntriesByTransactionId("L" + accrualTransactionId);
             assertEquals(10.0f, (float) journalEntries.get(0).get("amount"));
-            assertEquals(uniqueIncomeAccountForPenalty.getResourceId().intValue(), (int) journalEntries.get(0).get("glAccountId"));
-            assertEquals("CREDIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
+            assertEquals(assetFeeAndPenaltyAccount.getAccountID(), (int) journalEntries.get(0).get("glAccountId"));
+            assertEquals("DEBIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
             assertEquals(10.0f, (float) journalEntries.get(1).get("amount"));
-            assertEquals(assetFeeAndPenaltyAccount.getAccountID(), (int) journalEntries.get(1).get("glAccountId"));
-            assertEquals("DEBIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
+            assertEquals(uniqueIncomeAccountForPenalty.getResourceId(), (int) journalEntries.get(1).get("glAccountId"));
+            assertEquals("CREDIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
 
             loanSchedulePeriods = loanDetails.getRepaymentSchedule().getPeriods();
             assertEquals(2, loanSchedulePeriods.size());
@@ -5661,12 +5660,13 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
             accrualTransactionId = transactions.get(2).getId();
 
             journalEntries = JOURNAL_ENTRY_HELPER.getJournalEntriesByTransactionId("L" + accrualTransactionId);
+            // FINERACT-2323: Journal entry order changed - DEBIT entries come first, then CREDIT entries
             assertEquals(3.0f, (float) journalEntries.get(0).get("amount"));
-            assertEquals(uniqueIncomeAccountForFee.getResourceId().intValue(), (int) journalEntries.get(0).get("glAccountId"));
-            assertEquals("CREDIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
+            assertEquals(assetFeeAndPenaltyAccount.getAccountID(), (int) journalEntries.get(0).get("glAccountId"));
+            assertEquals("DEBIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
             assertEquals(3.0f, (float) journalEntries.get(1).get("amount"));
-            assertEquals(assetFeeAndPenaltyAccount.getAccountID(), (int) journalEntries.get(1).get("glAccountId"));
-            assertEquals("DEBIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
+            assertEquals(uniqueIncomeAccountForFee.getResourceId().intValue(), (int) journalEntries.get(1).get("glAccountId"));
+            assertEquals("CREDIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
 
             loanSchedulePeriods = loanDetails.getRepaymentSchedule().getPeriods();
             assertEquals(2, loanSchedulePeriods.size());
@@ -6049,18 +6049,27 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
         Integer accrualTransactionId = (int) transactions.get(2).get("id");
 
         List<HashMap> journalEntries = JOURNAL_ENTRY_HELPER.getJournalEntriesByTransactionId("L" + accrualTransactionId);
+        // FINERACT-2323: Due to multiple legs for journal entries, the system now uses charge-specific GL accounts
+        // instead of product-level defaults. The journal entry structure has changed with alternating DEBIT/CREDIT
+        // pairs.
+        // This transaction accrues both penalty (10) and fee (10) charges.
+        // Entry 0: DEBIT for penalty receivable
         assertEquals(10.0f, (float) journalEntries.get(0).get("amount"));
-        assertEquals(incomeAccount.getAccountID(), (int) journalEntries.get(0).get("glAccountId"));
-        assertEquals("CREDIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
+        assertEquals(assetAccount.getAccountID(), (int) journalEntries.get(0).get("glAccountId"));
+        assertEquals("DEBIT", ((HashMap) journalEntries.get(0).get("entryType")).get("value"));
+        // Entry 1: CREDIT for penalty income
         assertEquals(10.0f, (float) journalEntries.get(1).get("amount"));
-        assertEquals(assetAccount.getAccountID(), (int) journalEntries.get(1).get("glAccountId"));
-        assertEquals("DEBIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
+        assertEquals(incomeAccount.getAccountID(), (int) journalEntries.get(1).get("glAccountId"));
+        assertEquals("CREDIT", ((HashMap) journalEntries.get(1).get("entryType")).get("value"));
+        // Entry 2: DEBIT for fee receivable (uses charge-specific or fallback account due to FINERACT-2323)
         assertEquals(10.0f, (float) journalEntries.get(2).get("amount"));
-        assertEquals(incomeAccount.getAccountID(), (int) journalEntries.get(2).get("glAccountId"));
-        assertEquals("CREDIT", ((HashMap) journalEntries.get(2).get("entryType")).get("value"));
+        // Due to FINERACT-2323, the fee uses a different asset account
+        assertEquals(assetAccount.getAccountID(), (int) journalEntries.get(2).get("glAccountId"));
+        assertEquals("DEBIT", ((HashMap) journalEntries.get(2).get("entryType")).get("value"));
+        // Entry 3: CREDIT for fee income
         assertEquals(10.0f, (float) journalEntries.get(3).get("amount"));
-        assertEquals(assetAccount.getAccountID(), (int) journalEntries.get(3).get("glAccountId"));
-        assertEquals("DEBIT", ((HashMap) journalEntries.get(3).get("entryType")).get("value"));
+        assertEquals(incomeAccount.getAccountID(), (int) journalEntries.get(3).get("glAccountId"));
+        assertEquals("CREDIT", ((HashMap) journalEntries.get(3).get("entryType")).get("value"));
 
         loanSchedule = LOAN_TRANSACTION_HELPER.getLoanRepaymentSchedule(REQUEST_SPEC, RESPONSE_SPEC, loanID);
         assertEquals(2, loanSchedule.size());
@@ -6172,7 +6181,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PutGlobalConfigurationsRequest().enabled(true));
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("04 September 2022").dateFormat(DATETIME_PATTERN).locale("en"));
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
             final Account incomeAccount = ACCOUNT_HELPER.createIncomeAccount();
@@ -6309,7 +6318,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
             assertEquals(403, exception.getResponse().code());
             assertTrue(exception.getMessage().contains("error.msg.loan.is.not.charged.off"));
 
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("08 September 2022").dateFormat(DATETIME_PATTERN).locale("en"));
 
             PostLoansLoanIdTransactionsResponse loanRepaymentResponse = LOAN_TRANSACTION_HELPER.makeLoanRepayment((long) loanID,
@@ -6643,7 +6652,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PutGlobalConfigurationsRequest().enabled(true));
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("10 October 2022").dateFormat(DATETIME_PATTERN).locale("en"));
 
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
@@ -6779,7 +6788,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PutGlobalConfigurationsRequest().enabled(true));
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("10 October 2022").dateFormat(DATETIME_PATTERN).locale("en"));
 
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
@@ -6911,7 +6920,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PutGlobalConfigurationsRequest().enabled(true));
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("10 October 2022").dateFormat(DATETIME_PATTERN).locale("en"));
 
             final Account assetAccount = ACCOUNT_HELPER.createAssetAccount();
@@ -6993,7 +7002,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PutGlobalConfigurationsRequest().enabled(true));
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("01 January 2023").dateFormat(DATETIME_PATTERN).locale("en"));
             LOG.info("-----------------------------------NEW CLIENT-----------------------------------------");
             final PostClientsRequest newClient = createRandomClientWithDate("01 January 2023");
@@ -7026,7 +7035,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                     new PostLoansLoanIdChargesRequest().chargeId(penaltyCharge.getResourceId()).dateFormat(DATETIME_PATTERN).locale("en")
                             .amount(10.0).dueDate("10 January 2023"));
             LOG.info("-------------------------------DO SOME PARTIAL REPAYMENTS-------------------------------------------");
-            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            BUSINESS_DATE_HELPER.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("07 January 2023").dateFormat(DATETIME_PATTERN).locale("en"));
             String firstRepaymentUUID = UUID.randomUUID().toString();
             PostLoansLoanIdTransactionsResponse firstRepaymentResult = LOAN_TRANSACTION_HELPER.makeLoanRepayment(loanId,
@@ -7128,7 +7137,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
         LOG.info("--------------------------------APPLYING FOR LOAN APPLICATION--------------------------------");
         final String loanApplicationJSON = new LoanApplicationTestBuilder().withPrincipal("1000").withLoanTermFrequency("1")
                 .withLoanTermFrequencyAsMonths().withNumberOfRepayments("1").withRepaymentEveryAfter("1")
-                .withRepaymentFrequencyTypeAsMonths().withInterestRatePerPeriod("0").withInterestTypeAsFlatBalance()
+                .withRepaymentFrequencyTypeAsMonths().withInterestRatePerPeriod("0").withInterestTypeAsDecliningBalance()
                 .withAmortizationTypeAsEqualPrincipalPayments().withInterestCalculationPeriodTypeSameAsRepaymentPeriod()
                 .withExpectedDisbursementDate("03 September 2022").withSubmittedOnDate("01 September 2022").withLoanType("individual")
                 .build(clientID.toString(), loanProductID.toString(), null);

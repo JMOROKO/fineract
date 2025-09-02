@@ -30,37 +30,10 @@ apply plugin: 'se.thinkcode.cucumber-runner'
 
 check.dependsOn('cucumber')
 
-tasks.register('staticWeaveJpa', JavaExec) {
-    group = "build"
-    description = "Performs EclipseLink static weaving of entity classes"
+// Static weaving is now configured in gradle/static-weaving.gradle
+// This ensures consistent configuration across all modules with JPA entities
 
-    dependsOn classes
-
-    def classesDir = file("$buildDir/classes/java/main")
-
-    mainClass.set('org.eclipse.persistence.tools.weaving.jpa.StaticWeave')
-    classpath = sourceSets.main.runtimeClasspath
-    args '-persistenceinfo', classesDir.absolutePath, classesDir.absolutePath, classesDir.absolutePath
-}
-
-staticWeaveJpa.doLast {
-    delete "${sourceSets.main.output.classesDirs.asPath}/META-INF/persistence.xml"
-}
-
-tasks.named('classes') {
-    finalizedBy staticWeaveJpa
-}
-
-tasks.named('processResources') {
-    from('src/main/resources')
-    into sourceSets.main.java.classesDirectory
-    outputs.upToDateWhen { false }
-}
-
-tasks.named('staticWeaveJpa') {
-    mustRunAfter tasks.named('resolve')
-}
-
+// Add dependency on avro schemas
 compileJava {
     dependsOn ':fineract-avro-schemas:buildJavaSdk'
 }
@@ -89,7 +62,7 @@ resolve {
     prettyPrint = false
     classpath = sourceSets.main.runtimeClasspath
     buildClasspath = classpath
-    outputDir = file("${buildDir}/classes/java/main/static")
+    outputDir = file("${buildDir}/resources/main/static")
     openApiFile = file("${buildDir}/tmp/swagger/fineract-input.yaml")
     sortOutput = true
     dependsOn(prepareInputYaml)
@@ -246,7 +219,7 @@ tasks.register('setBlankPassword') {
 
 bootRun {
     jvmArgs = [
-        "-Dspring.output.ansi.enabled=ALWAYS"
+            "-Dspring.output.ansi.enabled=ALWAYS"
     ]
 
     dependencies {
@@ -308,19 +281,6 @@ jib {
         implementation 'org.mariadb.jdbc:mariadb-java-client'
         implementation 'org.postgresql:postgresql'
     }
-
-    pluginExtensions {
-        pluginExtension {
-            implementation = 'com.google.cloud.tools.jib.gradle.extension.layerfilter.JibLayerFilterExtension'
-            configuration {
-                filters {
-                    filter {
-                        glob = '/app/resources/**'
-                    }
-                }
-            }
-        }
-    }
 }
 
 tasks.register('migrateDatabase') {
@@ -355,7 +315,8 @@ cucumber {
     ]
 }
 
-tasks.jibDockerBuild.dependsOn(bootJar)
+tasks.jib.dependsOn(bootJar, resolve)
+tasks.jibDockerBuild.dependsOn(bootJar, resolve)
 
 // Configuration for git properties gradle plugin
 // https://github.com/n0mer/gradle-git-properties
@@ -378,7 +339,6 @@ rat.dependsOn prepareInputYaml
 spotbugsTest.dependsOn resolve
 compileTestJava.dependsOn ':fineract-client:processResources', ':fineract-avro-schemas:processResources'
 resolveMainClassName.dependsOn resolve
-processResources.dependsOn compileJava
 
 javadoc {
     dependsOn resolve

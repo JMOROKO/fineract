@@ -232,7 +232,7 @@ public class LoanScheduleAssembler {
         Boolean allowPartialPeriodInterestCalcualtion = this.fromApiJsonHelper
                 .extractBooleanNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME, element);
         if (allowPartialPeriodInterestCalcualtion == null) {
-            allowPartialPeriodInterestCalcualtion = loanProduct.getLoanProductRelatedDetail().isAllowPartialPeriodInterestCalcualtion();
+            allowPartialPeriodInterestCalcualtion = loanProduct.getLoanProductRelatedDetail().isAllowPartialPeriodInterestCalculation();
         }
 
         final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("interestRatePerPeriod", element);
@@ -550,7 +550,12 @@ public class LoanScheduleAssembler {
                 loanProduct.getLoanProductRelatedDetail().isEnableIncomeCapitalization(),
                 loanProduct.getLoanProductRelatedDetail().getCapitalizedIncomeCalculationType(),
                 loanProduct.getLoanProductRelatedDetail().getCapitalizedIncomeStrategy(),
-                loanProduct.getLoanProductRelatedDetail().getCapitalizedIncomeType());
+                loanProduct.getLoanProductRelatedDetail().getCapitalizedIncomeType(),
+                loanProduct.getLoanProductRelatedDetail().isEnableBuyDownFee(),
+                loanProduct.getLoanProductRelatedDetail().getBuyDownFeeCalculationType(),
+                loanProduct.getLoanProductRelatedDetail().getBuyDownFeeStrategy(),
+                loanProduct.getLoanProductRelatedDetail().getBuyDownFeeIncomeType(),
+                loanProduct.getLoanProductRelatedDetail().isMerchantBuyDownFee());
     }
 
     private CalendarInstance createCalendarForSameAsRepayment(final Integer repaymentEvery,
@@ -632,8 +637,8 @@ public class LoanScheduleAssembler {
                                 .getAsBigDecimal();
                     }
                     BigDecimal waivedChargeAmount = null;
-                    disbursementDatas.add(new DisbursementData(null, expectedDisbursementDate, null, principal, netDisbursalAmount, null,
-                            null, waivedChargeAmount));
+                    disbursementDatas.add(new DisbursementData(null, null, expectedDisbursementDate, null, principal, netDisbursalAmount,
+                            null, null, waivedChargeAmount));
                     i++;
                 } while (i < disbursementDataArray.size());
             }
@@ -969,7 +974,7 @@ public class LoanScheduleAssembler {
         final LocalDate recalculateFrom = null;
         ScheduleGeneratorDTO scheduleGeneratorDTO = this.loanUtilService.buildScheduleGeneratorDTO(loan, recalculateFrom);
         loanScheduleService.regenerateRepaymentSchedule(loan, scheduleGeneratorDTO);
-        loanAccrualsProcessingService.reprocessExistingAccruals(loan);
+        loanAccrualsProcessingService.reprocessExistingAccruals(loan, false);
 
     }
 
@@ -1355,15 +1360,15 @@ public class LoanScheduleAssembler {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME,
-                loanProductRelatedDetail.isAllowPartialPeriodInterestCalcualtion())) {
+                loanProductRelatedDetail.isAllowPartialPeriodInterestCalculation())) {
             final boolean newValue = command
                     .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME);
             changes.put(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME, newValue);
-            loanProductRelatedDetail.setAllowPartialPeriodInterestCalcualtion(newValue);
+            loanProductRelatedDetail.setAllowPartialPeriodInterestCalculation(newValue);
         }
 
         if (loanProductRelatedDetail.getInterestCalculationPeriodMethod().isDaily()) {
-            loanProductRelatedDetail.setAllowPartialPeriodInterestCalcualtion(false);
+            loanProductRelatedDetail.setAllowPartialPeriodInterestCalculation(false);
         }
 
         final String graceOnPrincipalPaymentParamName = "graceOnPrincipalPayment";
@@ -1548,7 +1553,7 @@ public class LoanScheduleAssembler {
             if (actualChanges.containsKey(LoanApiConstants.approvedLoanAmountParameterName)
                     || actualChanges.containsKey("recalculateLoanSchedule") || actualChanges.containsKey("expectedDisbursementDate")) {
                 loanScheduleService.regenerateRepaymentSchedule(loan, loanUtilService.buildScheduleGeneratorDTO(loan, null));
-                loanAccrualsProcessingService.reprocessExistingAccruals(loan);
+                loanAccrualsProcessingService.reprocessExistingAccruals(loan, false);
             }
         }
 

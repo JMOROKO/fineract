@@ -61,12 +61,14 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanChargePaidBy;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCreditAllocationRule;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanInterestRecalculationDetails;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanPaymentAllocationRule;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRelation;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRelationTypeEnum;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType;
 import org.apache.fineract.portfolio.loanaccount.domain.transactionprocessor.MoneyHolder;
 import org.apache.fineract.portfolio.loanaccount.domain.transactionprocessor.TransactionCtx;
@@ -74,7 +76,7 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanSchedul
 import org.apache.fineract.portfolio.loanaccount.serialization.LoanChargeValidator;
 import org.apache.fineract.portfolio.loanaccount.service.InterestRefundService;
 import org.apache.fineract.portfolio.loanaccount.service.LoanBalanceService;
-import org.apache.fineract.portfolio.loanaccount.service.LoanTransactionService;
+import org.apache.fineract.portfolio.loanaccount.service.LoanChargeService;
 import org.apache.fineract.portfolio.loanaccount.service.schedule.LoanScheduleComponent;
 import org.apache.fineract.portfolio.loanproduct.calc.EMICalculator;
 import org.apache.fineract.portfolio.loanproduct.calc.data.ProgressiveLoanInterestScheduleModel;
@@ -120,8 +122,8 @@ class AdvancedPaymentScheduleTransactionProcessorTest {
     public void setUp() {
         underTest = new AdvancedPaymentScheduleTransactionProcessor(emiCalculator, Mockito.mock(LoanRepositoryWrapper.class),
                 Mockito.mock(InterestRefundService.class), Mockito.mock(ExternalIdFactory.class), Mockito.mock(LoanScheduleComponent.class),
-                Mockito.mock(LoanTransactionService.class), Mockito.mock(LoanChargeValidator.class),
-                Mockito.mock(LoanBalanceService.class));
+                Mockito.mock(LoanTransactionRepository.class), Mockito.mock(LoanChargeValidator.class),
+                Mockito.mock(LoanBalanceService.class), Mockito.mock(LoanChargeService.class));
 
         ThreadLocalContextUtil.setTenant(new FineractPlatformTenant(1L, "default", "Default", "Asia/Kolkata", null));
         ThreadLocalContextUtil.setActionContext(ActionContext.DEFAULT);
@@ -466,6 +468,9 @@ class AdvancedPaymentScheduleTransactionProcessorTest {
         when(loanTransaction.getLoan()).thenReturn(loan);
         when(loan.getCurrency()).thenReturn(currency);
         when(loan.getPaymentAllocationRules()).thenReturn(List.of(loanPaymentAllocationRule));
+        LoanInterestRecalculationDetails loanInterestRecalculationDetails = mock(LoanInterestRecalculationDetails.class);
+        when(loanInterestRecalculationDetails.disallowInterestCalculationOnPastDue()).thenReturn(false);
+        when(loan.getLoanInterestRecalculationDetails()).thenReturn(loanInterestRecalculationDetails);
 
         when(loanPaymentAllocationRule.getTransactionType()).thenReturn(PaymentAllocationTransactionType.DEFAULT);
         when(loanPaymentAllocationRule.getAllocationTypes())
@@ -534,7 +539,6 @@ class AdvancedPaymentScheduleTransactionProcessorTest {
 
         Loan loan = mock(Loan.class);
         when(loan.getLoanRepaymentScheduleDetail()).thenReturn(loanProductRelatedDetail);
-        when(loan.isInterestBearing()).thenReturn(true);
 
         LoanRepaymentScheduleInstallment installment1 = spy(
                 new LoanRepaymentScheduleInstallment(loan, 1, disbursementDate, disbursementDate.plusMonths(1), BigDecimal.valueOf(200.0),

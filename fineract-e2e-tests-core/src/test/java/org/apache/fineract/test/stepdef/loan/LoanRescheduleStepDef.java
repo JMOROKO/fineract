@@ -75,8 +75,7 @@ public class LoanRescheduleStepDef extends AbstractStepDef {
                 : Integer.valueOf(rescheduleData.get(4));
         Integer extraTerms = (rescheduleData.get(5) == null || "0".equals(rescheduleData.get(5))) ? null
                 : Integer.valueOf(rescheduleData.get(5));
-        BigDecimal newInterestRate = (rescheduleData.get(6) == null || "0".equals(rescheduleData.get(6))) ? null
-                : new BigDecimal(rescheduleData.get(6));
+        BigDecimal newInterestRate = (rescheduleData.get(6) == null) ? null : new BigDecimal(rescheduleData.get(6));
 
         PostCreateRescheduleLoansRequest request = new PostCreateRescheduleLoansRequest()//
                 .loanId(loanId)//
@@ -146,7 +145,9 @@ public class LoanRescheduleStepDef extends AbstractStepDef {
         String rescheduleFromDateFormatted = localDate.format(FORMATTER_HU);
         String errorMessageExpected = "";
         int expectedParameterCount = loanRescheduleErrorMessage.getExpectedParameterCount();
-        if (expectedParameterCount == 1) {
+        if (expectedParameterCount == 0) {
+            errorMessageExpected = loanRescheduleErrorMessage.getMessageTemplate();
+        } else if (expectedParameterCount == 1) {
             errorMessageExpected = loanRescheduleErrorMessage.getValue(loanId);
         } else if (expectedParameterCount == 2) {
             errorMessageExpected = loanRescheduleErrorMessage.getValue(rescheduleFromDateFormatted, loanId);

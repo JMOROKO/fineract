@@ -176,6 +176,14 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
     }
 
     @Override
+    public LoanScheduleDTO rescheduleNextInstallments(MathContext mc, LoanApplicationTerms loanApplicationTerms, Loan loan,
+            HolidayDetailDTO holidayDetailDTO, LoanRepaymentScheduleTransactionProcessor loanRepaymentScheduleTransactionProcessor,
+            LocalDate rescheduleFrom, LocalDate rescheduleTill) {
+        return rescheduleNextInstallments(mc, loanApplicationTerms, loan, holidayDetailDTO, loanRepaymentScheduleTransactionProcessor,
+                rescheduleFrom);
+    }
+
+    @Override
     public OutstandingAmountsDTO calculatePrepaymentAmount(MonetaryCurrency currency, LocalDate onDate,
             LoanApplicationTerms loanApplicationTerms, MathContext mc, Loan loan, HolidayDetailDTO holidayDetailDTO,
             LoanRepaymentScheduleTransactionProcessor loanRepaymentScheduleTransactionProcessor) {
@@ -195,7 +203,7 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
         Optional<ProgressiveLoanInterestScheduleModel> savedModel = interestScheduleModelRepositoryWrapper.getSavedModel(loan,
                 transactionDate);
         ProgressiveLoanInterestScheduleModel model = savedModel
-                .orElseGet(() -> processor.calculateInterestScheduleModel(loan.getId(), onDate));
+                .orElseGet(() -> processor.calculateInterestScheduleModel(loan.getId(), transactionDate));
         OutstandingDetails outstandingAmounts = emiCalculator.getOutstandingAmountsTillDate(model, transactionDate);
         // TODO: We should add all the past due outstanding amounts as well
         OutstandingAmountsDTO result = new OutstandingAmountsDTO(currency) //
@@ -273,7 +281,7 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
     private void prepareDisbursementsOnLoanApplicationTerms(final LoanApplicationTerms loanApplicationTerms) {
         if (loanApplicationTerms.getDisbursementDatas().isEmpty()) {
             loanApplicationTerms.getDisbursementDatas()
-                    .add(new DisbursementData(1L, loanApplicationTerms.getExpectedDisbursementDate(),
+                    .add(new DisbursementData(1L, null, loanApplicationTerms.getExpectedDisbursementDate(),
                             loanApplicationTerms.getExpectedDisbursementDate(), loanApplicationTerms.getPrincipal().getAmount(), null, null,
                             null, null));
         }

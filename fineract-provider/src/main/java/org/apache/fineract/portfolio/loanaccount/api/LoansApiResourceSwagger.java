@@ -524,6 +524,8 @@ final class LoansApiResourceSwagger {
             @Schema(example = "1000000.000000")
             public BigDecimal totalCapitalizedIncome;
             @Schema(example = "0.000000")
+            public BigDecimal totalCapitalizedIncomeAdjustment;
+            @Schema(example = "0.000000")
             public BigDecimal principalPaid;
             @Schema(example = "0.00")
             public BigDecimal principalAdjustments;
@@ -733,6 +735,16 @@ final class LoansApiResourceSwagger {
                 public boolean capitalizedIncomeAmortization;
                 @Schema(example = "false")
                 public boolean capitalizedIncomeAdjustment;
+                @Schema(example = "false")
+                public boolean contractTermination;
+                @Schema(example = "false")
+                public boolean buyDownFee;
+                @Schema(example = "false")
+                public boolean buyDownFeeAdjustment;
+                @Schema(example = "false")
+                public boolean buyDownFeeAmortization;
+                @Schema(example = "false")
+                public boolean buyDownFeeAmortizationAdjustment;
             }
 
             static final class GetLoansLoanIdPaymentDetailData {
@@ -1008,10 +1020,14 @@ final class LoansApiResourceSwagger {
 
             @Schema(example = "100.000000")
             public BigDecimal availableDisbursementAmount;
+            @Schema(example = "150.000000")
+            public BigDecimal availableDisbursementAmountWithOverApplied;
             @Schema(example = "12")
             public Integer pastDueDays;
             @Schema(example = "[2022, 07, 01]")
             public LocalDate nextPaymentDueDate;
+            @Schema(example = "123.23")
+            public BigDecimal nextPaymentAmount;
             @Schema(example = "4")
             public Integer delinquentDays;
             @Schema(example = "[2022, 07, 01]")
@@ -1225,6 +1241,14 @@ final class LoansApiResourceSwagger {
         public StringEnumOptionData capitalizedIncomeStrategy;
         @Schema(example = "FEE")
         public StringEnumOptionData capitalizedIncomeType;
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT")
+        public StringEnumOptionData buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION")
+        public StringEnumOptionData buyDownFeeStrategy;
+        @Schema(example = "FEE")
+        public StringEnumOptionData buyDownFeeIncomeType;
     }
 
     @Schema(description = "GetLoansResponse")
@@ -1346,6 +1370,14 @@ final class LoansApiResourceSwagger {
         public String capitalizedIncomeStrategy;
         @Schema(example = "FEE")
         public StringEnumOptionData capitalizedIncomeType;
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT", allowableValues = "FLAT")
+        public String buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION", allowableValues = "EQUAL_AMORTIZATION")
+        public String buyDownFeeStrategy;
+        @Schema(example = "FEE", allowableValues = { "FEE", "INTEREST" })
+        public String buyDownFeeIncomeType;
         @Schema(example = "List of PostLoansDataTable")
         public List<PostLoansDataTable> datatables;
 
@@ -1744,5 +1776,95 @@ final class LoansApiResourceSwagger {
         public String subResourceExternalId;
         @Schema(description = "PostLoansLoanIdChanges")
         public PostLoansLoanIdChanges changes;
+    }
+
+    @Schema(description = "PutLoansApprovedAmountRequest")
+    public static final class PutLoansApprovedAmountRequest {
+
+        private PutLoansApprovedAmountRequest() {}
+
+        @Schema(example = "1000")
+        public BigDecimal amount;
+        @Schema(example = "en")
+        public String locale;
+    }
+
+    @Schema(description = "PutLoansApprovedAmountResponse")
+    public static final class PutLoansApprovedAmountResponse {
+
+        private PutLoansApprovedAmountResponse() {}
+
+        static final class PutLoansApprovedAmountChanges {
+
+            private PutLoansApprovedAmountChanges() {}
+
+            @Schema(example = "1000")
+            public BigDecimal oldApprovedAmount;
+            @Schema(example = "1000")
+            public BigDecimal newApprovedAmount;
+            @Schema(example = "en_GB")
+            public String locale;
+        }
+
+        @Schema(example = "3")
+        public Long resourceId;
+        @Schema(example = "95174ff9-1a75-4d72-a413-6f9b1cb988b7")
+        public String resourceExternalId;
+        @Schema(example = "2")
+        public Long officeId;
+        @Schema(example = "6")
+        public Long clientId;
+        @Schema(example = "10")
+        public Long groupId;
+
+        @Schema(description = "PutLoansApprovedAmountChanges")
+        public PutLoansApprovedAmountChanges changes;
+    }
+
+    @Schema(description = "PutLoansAvailableDisbursementAmountRequest")
+    public static final class PutLoansAvailableDisbursementAmountRequest {
+
+        private PutLoansAvailableDisbursementAmountRequest() {}
+
+        @Schema(example = "1000")
+        public BigDecimal amount;
+        @Schema(example = "en")
+        public String locale;
+    }
+
+    @Schema(description = "PutLoansAvailableDisbursementAmountResponse")
+    public static final class PutLoansAvailableDisbursementAmountResponse {
+
+        private PutLoansAvailableDisbursementAmountResponse() {}
+
+        static final class PutLoansAvailableDisbursementAmountChanges {
+
+            private PutLoansAvailableDisbursementAmountChanges() {}
+
+            @Schema(example = "1000")
+            public BigDecimal oldApprovedAmount;
+            @Schema(example = "1000")
+            public BigDecimal newApprovedAmount;
+            @Schema(example = "1000")
+            public BigDecimal oldAvailableDisbursementAmount;
+            @Schema(example = "1000")
+            public BigDecimal newAvailableDisbursementAmount;
+            @Schema(example = "en_GB")
+            public String locale;
+        }
+
+        @Schema(example = "3")
+        public Long resourceId;
+        @Schema(example = "95174ff9-1a75-4d72-a413-6f9b1cb988b7")
+        public String resourceExternalId;
+        @Schema(example = "2")
+        public Long officeId;
+        @Schema(example = "6")
+        public Long clientId;
+        @Schema(example = "10")
+        public Long groupId;
+
+        @Schema(description = "PutLoansAvailableDisbursementAmountChanges")
+        public PutLoansAvailableDisbursementAmountChanges changes;
     }
 }

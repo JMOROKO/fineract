@@ -35,6 +35,7 @@ import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.ChangedTransactionDetail;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanInterestRecalculationDetails;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
@@ -61,8 +62,8 @@ public class LoanTransactionProcessingServiceImpl implements LoanTransactionProc
     private final LoanRepaymentScheduleTransactionProcessorFactory transactionProcessorFactory;
     private final LoanTermVariationsMapper loanMapper;
     private final InterestScheduleModelRepositoryWrapper modelRepository;
-    private final LoanTransactionService loanTransactionService;
     private final LoanBalanceService loanBalanceService;
+    private final LoanTransactionService loanTransactionService;
 
     @Override
     public boolean canProcessLatestTransactionOnly(Loan loan, LoanTransaction loanTransaction,
@@ -71,6 +72,16 @@ public class LoanTransactionProcessingServiceImpl implements LoanTransactionProc
             return true;
         }
         if (!DateUtils.isEqualBusinessDate(loanTransaction.getTransactionDate())) {
+            return false;
+        }
+        if (loan.hasChargesAffectedByBackdatedRepaymentLikeTransaction(loanTransaction)) {
+            return false;
+        }
+        LoanInterestRecalculationDetails interestRecalculationDetails = loan.getLoanInterestRecalculationDetails();
+        if (interestRecalculationDetails != null && ((interestRecalculationDetails.getRestFrequencyType().isSameAsRepayment()
+                && interestRecalculationDetails.getPreCloseInterestCalculationStrategy().calculateTillPreClosureDateEnabled())
+                || (interestRecalculationDetails.getRestFrequencyType().isDaily()
+                        && interestRecalculationDetails.getPreCloseInterestCalculationStrategy().calculateTillRestFrequencyEnabled()))) {
             return false;
         }
         if (loan.isProgressiveSchedule()) {
@@ -84,16 +95,19 @@ public class LoanTransactionProcessingServiceImpl implements LoanTransactionProc
             AdvancedPaymentScheduleTransactionProcessor advancedProcessor, Loan loan, LoanTransaction loanTransaction) {
         Optional<ProgressiveLoanInterestScheduleModel> savedModel = modelRepository.getSavedModel(loan,
                 loanTransaction.getTransactionDate());
+        ProgressiveLoanInterestScheduleModel model = savedModel
+                .orElseGet(() -> advancedProcessor.calculateInterestScheduleModel(loan.getId(), loanTransaction.getTransactionDate()));
 
         ProgressiveTransactionCtx progressiveContext = new ProgressiveTransactionCtx(loan.getCurrency(),
                 loan.getRepaymentScheduleInstallments(), loan.getActiveCharges(), new MoneyHolder(loan.getTotalOverpaidAsMoney()),
-                new ChangedTransactionDetail(), savedModel.orElse(null), getTotalRefundInterestAmount(loan));
+                new ChangedTransactionDetail(), model, getTotalRefundInterestAmount(loan));
         progressiveContext.getAlreadyProcessedTransactions().addAll(loanTransactionService.retrieveListOfTransactionsForReprocessing(loan));
         progressiveContext.setChargedOff(loan.isChargedOff());
+        progressiveContext.setWrittenOff(loan.isClosedWrittenOff());
         progressiveContext.setContractTerminated(loan.isContractTermination());
         ChangedTransactionDetail result = advancedProcessor.processLatestTransaction(loanTransaction, progressiveContext);
-        if (savedModel.isPresent() && !TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
-            modelRepository.writeInterestScheduleModel(loan, savedModel.get());
+        if (!TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
+            modelRepository.writeInterestScheduleModel(loan, model);
         }
         return result;
     }
@@ -113,7 +127,7 @@ public class LoanTransactionProcessingServiceImpl implements LoanTransactionProc
         final LoanRepaymentScheduleTransactionProcessor loanRepaymentScheduleTransactionProcessor = getTransactionProcessor(
                 transactionProcessingStrategyCode);
         if (loanRepaymentScheduleTransactionProcessor instanceof AdvancedPaymentScheduleTransactionProcessor advancedProcessor
-                && loanTransaction.getLoan().isInterestBearingAndInterestRecalculationEnabled()) {
+                && loanTransaction.getLoan().isInterestRecalculationEnabled()) {
             return processLatestTransactionProgressiveInterestRecalculation(advancedProcessor, loanTransaction.getLoan(), loanTransaction);
         }
         return loanRepaymentScheduleTransactionProcessor.processLatestTransaction(loanTransaction, ctx);
@@ -200,7 +214,7 @@ public class LoanTransactionProcessingServiceImpl implements LoanTransactionProc
                 loan.getTransactionProcessingStrategyCode());
 
         return loanScheduleGenerator.rescheduleNextInstallments(mc, loanApplicationTerms, loan, generatorDTO.getHolidayDetailDTO(),
-                loanRepaymentScheduleTransactionProcessor, generatorDTO.getRecalculateFrom());
+                loanRepaymentScheduleTransactionProcessor, generatorDTO.getRecalculateFrom(), generatorDTO.getRecalculateTill());
     }
 
     @Override

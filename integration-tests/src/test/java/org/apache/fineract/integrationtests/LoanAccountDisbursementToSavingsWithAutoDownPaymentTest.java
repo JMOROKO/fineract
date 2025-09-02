@@ -39,7 +39,7 @@ import org.apache.fineract.client.models.PostLoansLoanIdRequest;
 import org.apache.fineract.client.models.PostLoansLoanIdResponse;
 import org.apache.fineract.client.models.SavingsAccountTransactionsSearchResponse;
 import org.apache.fineract.infrastructure.core.service.MathUtil;
-import org.apache.fineract.infrastructure.event.external.service.validation.ExternalEventDTO;
+import org.apache.fineract.infrastructure.event.external.data.ExternalEventResponse;
 import org.apache.fineract.integrationtests.common.ClientHelper;
 import org.apache.fineract.integrationtests.common.CommonConstants;
 import org.apache.fineract.integrationtests.common.ExternalEventConfigurationHelper;
@@ -157,7 +157,7 @@ public class LoanAccountDisbursementToSavingsWithAutoDownPaymentTest extends Bas
 
         String loanApplicationJSON = new LoanApplicationTestBuilder().withPrincipal("1000").withLoanTermFrequency("45")
                 .withLoanTermFrequencyAsDays().withNumberOfRepayments("3").withRepaymentEveryAfter("15").withRepaymentFrequencyTypeAsDays()
-                .withInterestRatePerPeriod("0").withInterestTypeAsFlatBalance().withAmortizationTypeAsEqualPrincipalPayments()
+                .withInterestRatePerPeriod("0").withInterestTypeAsDecliningBalance().withAmortizationTypeAsEqualPrincipalPayments()
                 .withInterestCalculationPeriodTypeSameAsRepaymentPeriod().withExpectedDisbursementDate("01 March 2023")
                 .withSubmittedOnDate("01 March 2023").withLoanType("individual").withExternalId(externalId)
                 .withCreateStandingInstructionAtDisbursement().build(clientID.toString(), loanProductID.toString(), savingsId.toString());
@@ -263,14 +263,14 @@ public class LoanAccountDisbursementToSavingsWithAutoDownPaymentTest extends Bas
     }
 
     private void verifyBusinessEvent() {
-        List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+        List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
         String type = "LoanBalanceChangedBusinessEvent";
 
-        final Optional<ExternalEventDTO> optionalExternalEventDTO = allExternalEvents.stream().filter(event -> event.getType().equals(type))
-                .findFirst();
+        final Optional<ExternalEventResponse> optionalExternalEventDTO = allExternalEvents.stream()
+                .filter(event -> event.getType().equals(type)).findFirst();
         Assertions.assertTrue(optionalExternalEventDTO.isPresent());
 
-        final ExternalEventDTO externalEventDTO = optionalExternalEventDTO.get();
+        final ExternalEventResponse externalEventDTO = optionalExternalEventDTO.get();
         Assertions.assertEquals(externalEventDTO.getPayLoad().get("enableDownPayment"), Boolean.TRUE);
         Assertions.assertEquals(externalEventDTO.getPayLoad().get("enableAutoRepaymentForDownPayment"), Boolean.TRUE);
         Assertions.assertEquals(externalEventDTO.getPayLoad().get("disbursedAmountPercentageForDownPayment"),

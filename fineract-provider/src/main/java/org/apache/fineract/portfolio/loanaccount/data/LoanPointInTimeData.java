@@ -21,7 +21,9 @@ package org.apache.fineract.portfolio.loanaccount.data;
 import lombok.Data;
 import org.apache.fineract.infrastructure.core.config.MapstructMapperConfig;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
+import org.apache.fineract.organisation.monetary.mapper.CurrencyMapper;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.arrears.LoanArrearsData;
 import org.mapstruct.Mapping;
 
 @Data
@@ -50,7 +52,10 @@ public class LoanPointInTimeData {
     private Long loanProductId;
     private String loanProductName;
 
-    @org.mapstruct.Mapper(config = MapstructMapperConfig.class, uses = { LoanStatusEnumData.Mapper.class, CurrencyData.Mapper.class,
+    // Arrears data
+    private LoanArrearsData arrears;
+
+    @org.mapstruct.Mapper(config = MapstructMapperConfig.class, uses = { LoanStatusEnumData.Mapper.class, CurrencyMapper.class,
             LoanPrincipalData.Mapper.class, LoanInterestData.Mapper.class, LoanFeeData.Mapper.class, LoanPenaltyData.Mapper.class,
             LoanTotalAmountData.Mapper.class })
     public interface Mapper {
@@ -69,6 +74,7 @@ public class LoanPointInTimeData {
         @Mapping(source = "summary", target = "total")
         @Mapping(source = "loanProduct.id", target = "loanProductId")
         @Mapping(source = "loanProduct.name", target = "loanProductName")
+        @Mapping(target = "arrears", ignore = true)
         LoanPointInTimeData map(Loan source);
     }
 }

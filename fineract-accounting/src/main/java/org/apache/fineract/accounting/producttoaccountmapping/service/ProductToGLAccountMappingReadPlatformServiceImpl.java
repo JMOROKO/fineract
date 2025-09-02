@@ -171,6 +171,10 @@ public class ProductToGLAccountMappingReadPlatformServiceImpl implements Product
                     accountMappingDetails.put(LoanProductAccountingDataParams.DEFERRED_INCOME_LIABILITY.getValue(), gLAccountData);
                 } else if (glAccountForLoan.equals(AccrualAccountsForLoan.INCOME_FROM_CAPITALIZATION)) {
                     accountMappingDetails.put(LoanProductAccountingDataParams.INCOME_FROM_CAPITALIZATION.getValue(), gLAccountData);
+                } else if (glAccountForLoan.equals(AccrualAccountsForLoan.BUY_DOWN_EXPENSE)) {
+                    accountMappingDetails.put(LoanProductAccountingDataParams.BUY_DOWN_EXPENSE.getValue(), gLAccountData);
+                } else if (glAccountForLoan.equals(AccrualAccountsForLoan.INCOME_FROM_BUY_DOWN)) {
+                    accountMappingDetails.put(LoanProductAccountingDataParams.INCOME_FROM_BUY_DOWN.getValue(), gLAccountData);
                 }
             }
 
@@ -354,6 +358,8 @@ public class ProductToGLAccountMappingReadPlatformServiceImpl implements Product
                 // Assets
                 if (glAccountForSavings.equals(AccrualAccountsForSavings.SAVINGS_REFERENCE)) {
                     accountMappingDetails.put(SavingProductAccountingDataParams.SAVINGS_REFERENCE.getValue(), glAccountData);
+                } else if (glAccountForSavings.equals(AccrualAccountsForSavings.INTEREST_RECEIVABLE)) {
+                    accountMappingDetails.put(SavingProductAccountingDataParams.INTEREST_RECEIVABLE.getValue(), glAccountData);
                 } else if (glAccountForSavings.equals(AccrualAccountsForSavings.OVERDRAFT_PORTFOLIO_CONTROL)) {
                     accountMappingDetails.put(SavingProductAccountingDataParams.OVERDRAFT_PORTFOLIO_CONTROL.getValue(), glAccountData);
                 } else if (glAccountForSavings.equals(AccrualAccountsForSavings.FEES_RECEIVABLE)) {

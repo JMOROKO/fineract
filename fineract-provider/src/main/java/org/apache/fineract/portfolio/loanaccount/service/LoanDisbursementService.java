@@ -52,6 +52,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.LoanDisbursementDetails;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTrancheCharge;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTrancheDisbursementCharge;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRepository;
 import org.apache.fineract.portfolio.loanaccount.serialization.LoanChargeValidator;
 import org.apache.fineract.portfolio.loanaccount.serialization.LoanDisbursementValidator;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
@@ -63,6 +64,9 @@ public class LoanDisbursementService {
     private final LoanDisbursementValidator loanDisbursementValidator;
     private final ReprocessLoanTransactionsService reprocessLoanTransactionsService;
     private final LoanChargeService loanChargeService;
+    private final LoanBalanceService loanBalanceService;
+    private final LoanJournalEntryPoster loanJournalEntryPoster;
+    private final LoanTransactionRepository loanTransactionRepository;
 
     public void updateDisbursementDetails(final Loan loan, final JsonCommand jsonCommand, final Map<String, Object> actualChanges) {
         final List<Long> disbursementList = loan.fetchDisbursementIds();
@@ -146,10 +150,10 @@ public class LoanDisbursementService {
                     disbursementDetails.updatePrincipal(principalDisbursed);
                 }
             }
+            BigDecimal totalAmount = BigDecimal.ZERO;
             if (loan.loanProduct().isMultiDisburseLoan()) {
                 Collection<LoanDisbursementDetails> loanDisburseDetails = loan.getDisbursementDetails();
                 BigDecimal setPrincipalAmount = BigDecimal.ZERO;
-                BigDecimal totalAmount = BigDecimal.ZERO;
                 for (LoanDisbursementDetails disbursementDetails : loanDisburseDetails) {
                     if (disbursementDetails.actualDisbursementDate() != null) {
                         setPrincipalAmount = setPrincipalAmount.add(disbursementDetails.principal());
@@ -157,12 +161,12 @@ public class LoanDisbursementService {
                     totalAmount = totalAmount.add(disbursementDetails.principal());
                 }
                 loan.getLoanRepaymentScheduleDetail().setPrincipal(setPrincipalAmount);
-                loanDisbursementValidator.compareDisbursedToApprovedOrProposedPrincipal(loan, disburseAmount.getAmount(), totalAmount);
             } else {
                 loan.getLoanRepaymentScheduleDetail()
                         .setPrincipal(loan.getLoanRepaymentScheduleDetail().getPrincipal().minus(diff).getAmount());
+                totalAmount = loan.getLoanRepaymentScheduleDetail().getPrincipal().getAmount();
             }
-            loanDisbursementValidator.validateDisburseAmountNotExceedingApprovedAmount(loan, diff, principalDisbursed);
+            loanDisbursementValidator.compareDisbursedToApprovedOrProposedPrincipal(loan, disburseAmount.getAmount(), totalAmount);
         }
         return disburseAmount;
     }
@@ -209,7 +213,12 @@ public class LoanDisbursementService {
                 }
             } else if (disbursedOn.equals(loan.getActualDisbursementDate())
                     && loan.isNoneOrCashOrUpfrontAccrualAccountingEnabledOnLoanProduct()) {
-                loanChargeService.handleChargeAppliedTransaction(loan, charge, disbursedOn);
+                final LoanTransaction applyLoanChargeTransaction = loanChargeService.handleChargeAppliedTransaction(loan, charge,
+                        disbursedOn);
+                if (applyLoanChargeTransaction != null) {
+                    loanTransactionRepository.saveAndFlush(applyLoanChargeTransaction);
+                    loanJournalEntryPoster.postJournalEntriesForLoanTransaction(applyLoanChargeTransaction, false, false);
+                }
             }
         }
 
@@ -218,7 +227,9 @@ public class LoanDisbursementService {
             chargesPayment.updateComponentsAndTotal(zero, zero, disbursentMoney, zero);
             chargesPayment.updateLoan(loan);
             loan.addLoanTransaction(chargesPayment);
-            loan.updateLoanOutstandingBalances();
+            loanTransactionRepository.saveAndFlush(chargesPayment);
+            loanJournalEntryPoster.postJournalEntriesForLoanTransaction(chargesPayment, false, false);
+            loanBalanceService.updateLoanOutstandingBalances(loan);
         }
 
         final LocalDate expectedDate = loan.getExpectedFirstRepaymentOnDate();

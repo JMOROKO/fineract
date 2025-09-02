@@ -42,6 +42,8 @@ public final class LoanProductsApiResourceSwagger {
 
         @Schema(example = "1")
         public Long id;
+        @Schema(example = "60.0")
+        public BigDecimal amount;
     }
 
     @Schema(description = "LoanProductChargeToGLAccountMapper")
@@ -203,6 +205,16 @@ public final class LoanProductsApiResourceSwagger {
         public String capitalizedIncomeStrategy;
         @Schema(example = "FEE", allowableValues = { "FEE", "INTEREST" })
         public String capitalizedIncomeType;
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT", allowableValues = "FLAT")
+        public String buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION", allowableValues = "EQUAL_AMORTIZATION")
+        public String buyDownFeeStrategy;
+        @Schema(example = "FEE", allowableValues = { "FEE", "INTEREST" })
+        public String buyDownFeeIncomeType;
+        @Schema(example = "false")
+        public Boolean merchantBuyDownFee;
 
         // Interest Recalculation
         @Schema(example = "false")
@@ -281,6 +293,10 @@ public final class LoanProductsApiResourceSwagger {
         public Long deferredIncomeLiabilityAccountId;
         @Schema(example = "37")
         public Long incomeFromCapitalizationAccountId;
+        @Schema(example = "27")
+        public Long buyDownExpenseAccountId;
+        @Schema(example = "38")
+        public Long incomeFromBuyDownAccountId;
         public List<GetLoanProductsProductIdResponse.GetLoanPaymentChannelToFundSourceMappings> paymentChannelToFundSourceMappings;
         public List<LoanProductChargeToGLAccountMapper> feeToIncomeAccountMappings;
         public List<PostChargeOffReasonToExpenseAccountMappings> chargeOffReasonToExpenseAccountMappings;
@@ -671,6 +687,16 @@ public final class LoanProductsApiResourceSwagger {
         public StringEnumOptionData capitalizedIncomeStrategy;
         @Schema(example = "FEE")
         public StringEnumOptionData capitalizedIncomeType;
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT")
+        public StringEnumOptionData buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION")
+        public StringEnumOptionData buyDownFeeStrategy;
+        @Schema(example = "FEE")
+        public StringEnumOptionData buyDownFeeIncomeType;
+        @Schema(example = "false")
+        public Boolean merchantBuyDownFee;
     }
 
     @Schema(description = "GetLoanProductsTemplateResponse")
@@ -1128,6 +1154,20 @@ public final class LoanProductsApiResourceSwagger {
         public List<StringEnumOptionData> capitalizedIncomeCalculationTypeOptions;
         public List<StringEnumOptionData> capitalizedIncomeStrategyOptions;
         public List<StringEnumOptionData> capitalizedIncomeTypeOptions;
+
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT")
+        public StringEnumOptionData buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION")
+        public StringEnumOptionData buyDownFeeStrategy;
+        @Schema(example = "false")
+        public Boolean merchantBuyDownFee;
+        @Schema(example = "FEE")
+        public StringEnumOptionData buyDownFeeIncomeType;
+        public List<StringEnumOptionData> buyDownFeeCalculationTypeOptions;
+        public List<StringEnumOptionData> buyDownFeeStrategyOptions;
+        public List<StringEnumOptionData> buyDownFeeIncomeTypeOptions;
     }
 
     @Schema(description = "GetLoanProductsProductIdResponse")
@@ -1240,6 +1280,8 @@ public final class LoanProductsApiResourceSwagger {
             public GetGlAccountMapping overpaymentLiabilityAccount;
             public GetGlAccountMapping deferredIncomeLiabilityAccount;
             public GetGlAccountMapping incomeFromCapitalizationAccount;
+            public GetGlAccountMapping buyDownExpenseAccount;
+            public GetGlAccountMapping incomeFromBuyDownAccount;
         }
 
         static final class GetLoanPaymentChannelToFundSourceMappings {
@@ -1387,7 +1429,7 @@ public final class LoanProductsApiResourceSwagger {
         @Schema(example = "false")
         public Boolean canDefineInstallmentAmount;
         @Schema(example = "[]")
-        public List<Integer> charges;
+        public List<LoanProductChargeData> charges;
         public Set<GetLoanProductsPrincipalVariationsForBorrowerCycle> productsPrincipalVariationsForBorrowerCycle;
         @Schema(example = "[]")
         public List<Integer> interestRateVariationsForBorrowerCycle;
@@ -1460,6 +1502,20 @@ public final class LoanProductsApiResourceSwagger {
         public List<StringEnumOptionData> capitalizedIncomeCalculationTypeOptions;
         public List<StringEnumOptionData> capitalizedIncomeStrategyOptions;
         public List<StringEnumOptionData> capitalizedIncomeTypeOptions;
+
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT")
+        public StringEnumOptionData buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION")
+        public StringEnumOptionData buyDownFeeStrategy;
+        @Schema(example = "FEE")
+        public StringEnumOptionData buyDownFeeIncomeType;
+        @Schema(example = "false")
+        public Boolean merchantBuyDownFee;
+        public List<StringEnumOptionData> buyDownFeeCalculationTypeOptions;
+        public List<StringEnumOptionData> buyDownFeeStrategyOptions;
+        public List<StringEnumOptionData> buyDownFeeIncomeTypeOptions;
     }
 
     @Schema(description = "PutLoanProductsProductIdRequest")
@@ -1683,6 +1739,10 @@ public final class LoanProductsApiResourceSwagger {
         public Long deferredIncomeLiabilityAccountId;
         @Schema(example = "37")
         public Long incomeFromCapitalizationAccountId;
+        @Schema(example = "27")
+        public Long buyDownExpenseAccountId;
+        @Schema(example = "38")
+        public Long incomeFromBuyDownAccountId;
         public List<GetLoanProductsProductIdResponse.GetLoanPaymentChannelToFundSourceMappings> paymentChannelToFundSourceMappings;
         public List<LoanProductChargeToGLAccountMapper> feeToIncomeAccountMappings;
         public List<PostLoanProductsRequest.PostChargeOffReasonToExpenseAccountMappings> chargeOffReasonToExpenseAccountMappings;
@@ -1727,6 +1787,16 @@ public final class LoanProductsApiResourceSwagger {
         public String capitalizedIncomeStrategy;
         @Schema(example = "FEE", allowableValues = { "FEE", "INTEREST" })
         public String capitalizedIncomeType;
+        @Schema(example = "false")
+        public Boolean enableBuyDownFee;
+        @Schema(example = "FLAT", allowableValues = "FLAT")
+        public String buyDownFeeCalculationType;
+        @Schema(example = "EQUAL_AMORTIZATION", allowableValues = "EQUAL_AMORTIZATION")
+        public String buyDownFeeStrategy;
+        @Schema(example = "FEE", allowableValues = { "FEE", "INTEREST" })
+        public String buyDownFeeIncomeType;
+        @Schema(example = "false")
+        public Boolean merchantBuyDownFee;
     }
 
     public static final class AdvancedPaymentData {

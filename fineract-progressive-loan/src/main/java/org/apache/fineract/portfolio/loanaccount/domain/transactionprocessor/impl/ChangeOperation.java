@@ -32,30 +32,30 @@ import org.springframework.lang.NonNull;
 @Getter
 public class ChangeOperation implements Comparable<ChangeOperation> {
 
-    private final Optional<LoanTermVariationsData> interestRateChange;
+    private final Optional<LoanTermVariationsData> loanTermVariationsData;
     private final Optional<LoanCharge> loanCharge;
     private final Optional<LoanTransaction> loanTransaction;
 
     public ChangeOperation(LoanCharge loanCharge) {
-        this.interestRateChange = Optional.empty();
+        this.loanTermVariationsData = Optional.empty();
         this.loanCharge = Optional.of(loanCharge);
         this.loanTransaction = Optional.empty();
     }
 
     public ChangeOperation(LoanTransaction loanTransaction) {
-        this.interestRateChange = Optional.empty();
+        this.loanTermVariationsData = Optional.empty();
         this.loanTransaction = Optional.of(loanTransaction);
         this.loanCharge = Optional.empty();
     }
 
-    public ChangeOperation(LoanTermVariationsData interestRateChange) {
-        this.interestRateChange = Optional.of(interestRateChange);
+    public ChangeOperation(LoanTermVariationsData loanTermVariationsData) {
+        this.loanTermVariationsData = Optional.of(loanTermVariationsData);
         this.loanTransaction = Optional.empty();
         this.loanCharge = Optional.empty();
     }
 
-    public boolean isInterestRateChange() {
-        return interestRateChange.isPresent();
+    public boolean isLoanTermVariationsData() {
+        return loanTermVariationsData.isPresent();
     }
 
     public boolean isTransaction() {
@@ -66,20 +66,27 @@ public class ChangeOperation implements Comparable<ChangeOperation> {
         return loanCharge.isPresent();
     }
 
+    public boolean isInstallmentFee() {
+        return loanCharge.map(LoanCharge::isInstalmentFee).orElse(false);
+    }
+
     private boolean isAccrualActivity() {
         return isTransaction() && loanTransaction.get().isAccrualActivity();
     }
 
     private boolean isBackdatedCharge() {
-        return isCharge() && DateUtils.isBefore(loanCharge.get().getDueDate(), loanCharge.get().getSubmittedOnDate());
+        return isCharge() && loanCharge.isPresent() && loanCharge.get().getDueDate() != null
+                && DateUtils.isBefore(loanCharge.get().getDueDate(), loanCharge.get().getSubmittedOnDate());
     }
 
     private LocalDate getEffectiveDate() {
-        if (interestRateChange.isPresent()) {
+        if (loanTermVariationsData.isPresent()) {
             return getSubmittedOnDate();
         } else if (loanCharge.isPresent()) {
             if (isBackdatedCharge()) {
                 return loanCharge.get().getDueDate();
+            } else if (isInstallmentFee()) {
+                return loanCharge.get().getLoan().isDisbursed() ? loanCharge.get().getSubmittedOnDate() : loanCharge.get().getDueDate();
             } else {
                 return loanCharge.get().getSubmittedOnDate();
             }
@@ -91,8 +98,8 @@ public class ChangeOperation implements Comparable<ChangeOperation> {
     }
 
     private LocalDate getSubmittedOnDate() {
-        if (interestRateChange.isPresent()) {
-            return interestRateChange.get().getTermVariationApplicableFrom();
+        if (loanTermVariationsData.isPresent()) {
+            return loanTermVariationsData.get().getTermVariationApplicableFrom();
         } else if (loanCharge.isPresent()) {
             return loanCharge.get().getSubmittedOnDate();
         } else if (loanTransaction.isPresent()) {
@@ -103,7 +110,7 @@ public class ChangeOperation implements Comparable<ChangeOperation> {
     }
 
     private OffsetDateTime getCreatedDateTime() {
-        if (interestRateChange.isPresent()) {
+        if (loanTermVariationsData.isPresent()) {
             return DateUtils.getOffsetDateTimeOfTenantFromLocalDate(getSubmittedOnDate());
         } else if (loanCharge.isPresent() && loanCharge.get().getCreatedDate().isPresent()) {
             return loanCharge.get().getCreatedDate().get();
@@ -119,6 +126,17 @@ public class ChangeOperation implements Comparable<ChangeOperation> {
     public int compareTo(@NonNull ChangeOperation o) {
         int datePortion = DateUtils.compareWithNullsLast(this.getEffectiveDate(), o.getEffectiveDate());
         if (datePortion == 0) {
+            boolean thisIsDisb = this.isTransaction() && this.getLoanTransaction().isPresent()
+                    && this.getLoanTransaction().get().isDisbursement();
+            boolean otherIsDisb = o.isTransaction() && o.getLoanTransaction().isPresent() && o.getLoanTransaction().get().isDisbursement();
+
+            if (thisIsDisb && o.isCharge() && o.isInstallmentFee()) {
+                return -1;
+            }
+            if (this.isCharge() && this.isInstallmentFee() && otherIsDisb) {
+                return 1;
+            }
+
             final boolean isAccrual = isAccrualActivity();
             if (isAccrual != o.isAccrualActivity()) {
                 return isAccrual ? 1 : -1;

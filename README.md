@@ -86,46 +86,9 @@ The tenants database connection details are configured [via environment variable
 
 <br>SECURITY
 ============
-NOTE: The HTTP Basic and OAuth2 authentication schemes are mutually exclusive. You can't enable them both at the same time. Fineract checks these settings on startup and will fail if more than one authentication scheme is enabled.
+If you believe you have found a security vulnerability, [let us know privately](https://fineract.apache.org/#contribute).
 
-HTTP Basic Authentication
-------------
-By default Fineract is configured with a HTTP Basic Authentication scheme, so you actually don't have to do anything if you want to use it. But if you would like to explicitly choose this authentication scheme then there are two ways to enable it:
-1. Use environment variables (best choice if you run with Docker Compose):
-```
-FINERACT_SECURITY_BASICAUTH_ENABLED=true
-FINERACT_SECURITY_OAUTH_ENABLED=false
-```
-2. Use JVM parameters (best choice if you run the Spring Boot JAR):
-```
-java -Dfineract.security.basicauth.enabled=true -Dfineract.security.oauth.enabled=false -jar fineract-provider.jar
-```
-
-<br>OAuth2 AUTHENTICATION
-------------
-There is also an OAuth2 authentication scheme available. Again, two ways to enable it:
-1. Use environment variables (best choice if you run with Docker Compose):
-```
-FINERACT_SECURITY_BASICAUTH_ENABLED=false
-FINERACT_SECURITY_OAUTH_ENABLED=true
-```
-2. Use JVM parameters (best choice if you run the Spring Boot JAR):
-```
-java -Dfineract.security.basicauth.enabled=false -Dfineract.security.oauth.enabled=true -jar fineract-provider.jar
-```
-
-TWO FACTOR AUTHENTICATION (2FA)
-------------
-You can also enable 2FA authentication. Depending on how you start Fineract add the following:
-
-1. Use environment variable (best choice if you run with Docker Compose):
-```
-FINERACT_SECURITY_2FA_ENABLED=true
-```
-2. Use JVM parameter (best choice if you run the Spring Boot JAR):
-```
--Dfineract.security.2fa.enabled=true
-```
+For details about security during development and deployment, see <https://fineract.apache.org/docs/current/#_security>.
 
 
 <br>INSTRUCTIONS: How to build a WAR file
@@ -185,6 +148,11 @@ UnsupportedClassVersionError: com.example.package/ClassName has been compiled by
 These builds are run in [short-lived virtual machines](https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners), so locally reproducing the same may require additional effort, such as these extra clean-up procedures:
 
 ```bash
+# Might fix `error: cannot find symbol` or other intermittent failures.
+# `doc` here is a placeholder for any task(s) you are trying to run.
+# 💚 This is generally very safe to run between builds.
+./gradlew --refresh-dependencies doc
+
 # Destroy anything untracked by git.
 # ⚠️ This may delete something important, e.g. a finely-tuned IDE configuration.
 git clean --force -dx
@@ -303,6 +271,8 @@ Additionally, IDEs such as IntelliJ are useful for editing the AsciiDoc source f
 
 HTML rendered from the AsciiDoc source files is also available online at <https://fineract.apache.org/docs/current/>.
 
+A release version is derived from source control. The version will include `-SNAPSHOT` unless the current branch looks like a release or release maintenance branch. See `gitVersioning` settings in `build.gradle` for details.
+
 Connection pool configuration
 =============================
 
@@ -313,10 +283,7 @@ NOTE: we'll keep backwards compatibility until one of the next releases to ensur
 <br>SSL CONFIGURATION
 =================
 
-Read also [the HTTPS related doc](fineract-doc/src/docs/en/chapters/deployment/https.adoc).
-
-By default SSL is enabled, but all SSL related properties are now tunable. SSL can be turned off by setting the environment variable `FINERACT_SERVER_SSL_ENABLED` to false. If you do that then please make sure to also change the server port to `8080` via the variable `FINERACT_SERVER_PORT`, just for the sake of keeping the conventions.
-You can choose now easily a different SSL keystore by setting `FINERACT_SERVER_SSL_KEY_STORE` with a path to a different (not embedded) keystore. The password can be set via `FINERACT_SERVER_SSL_KEY_STORE_PASSWORD`. See the `application.properties` file and the latest Spring Boot documentation (https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html) for more details.
+See [the HTTPS related doc](https://fineract.apache.org/docs/current/#_https).
 
 
 <br>TOMCAT CONFIGURATION

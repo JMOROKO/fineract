@@ -18,8 +18,6 @@
  */
 package org.apache.fineract.integrationtests.savings.base;
 
-import static org.apache.fineract.infrastructure.businessdate.domain.BusinessDateType.BUSINESS_DATE;
-
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
@@ -36,7 +34,7 @@ import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.fineract.client.models.BusinessDateRequest;
+import org.apache.fineract.client.models.BusinessDateUpdateRequest;
 import org.apache.fineract.client.models.PostSavingsAccountTransactionsRequest;
 import org.apache.fineract.client.models.PostSavingsAccountTransactionsResponse;
 import org.apache.fineract.client.models.PostSavingsAccountsAccountIdRequest;
@@ -102,8 +100,8 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
         try {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            businessDateHelper.updateBusinessDate(
-                    new BusinessDateRequest().type(BUSINESS_DATE.getName()).date(date).dateFormat(DATETIME_PATTERN).locale("en"));
+            businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
+                    .date(date).dateFormat(DATETIME_PATTERN).locale("en"));
             runnable.accept(date);
         } finally {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
@@ -121,7 +119,12 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
                 .accountingRule(1) // none
                 .interestCalculationDaysInYearType(DaysInYearType.DAYS_365).interestCompoundingPeriodType(InterestPeriodType.DAILY)
                 .interestCalculationType(InterestCalculationType.AVERAGE_DAILY_BALANCE) //
-                .interestPostingPeriodType(InterestPeriodType.DAILY);//
+                .interestPostingPeriodType(InterestPeriodType.DAILY) //
+                .withdrawalFeeForTransfers(false) //
+                .enforceMinRequiredBalance(false) //
+                .allowOverdraft(false) //
+                .withHoldTax(false) //
+                .isDormancyTrackingActive(false); //
     }
 
     protected PostSavingsProductsResponse createProduct(PostSavingsProductsRequest productsRequest) {

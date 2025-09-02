@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.fineract.infrastructure.core.domain.ExternalId;
 import org.apache.fineract.infrastructure.core.service.Page;
@@ -104,6 +105,8 @@ public interface LoanReadPlatformService {
 
     Collection<DisbursementData> retrieveLoanDisbursementDetails(Long loanId);
 
+    Map<Long, List<DisbursementData>> retrieveLoanDisbursementDetails(List<Long> loanIds);
+
     DisbursementData retrieveLoanDisbursementDetail(Long loanId, Long disbursementId);
 
     LoanTransactionData retrieveRecoveryPaymentTemplate(Long loanId);
@@ -155,4 +158,9 @@ public interface LoanReadPlatformService {
     List<Long> retrieveLoanIdsByExternalIds(List<ExternalId> externalIds);
 
     boolean existsByLoanId(Long loanId);
+
+    LoanTransactionData retrieveManualInterestRefundTemplate(Long loanId, Long targetTransactionId);
+
+    Long getResolvedLoanId(ExternalId loanExternalId);
+
 }

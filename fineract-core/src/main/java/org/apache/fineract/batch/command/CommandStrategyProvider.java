@@ -57,7 +57,7 @@ public class CommandStrategyProvider {
     /**
      * Regex pattern for specifying any query param that has key = 'command' or not specific anything.
      */
-    private static final String OPTIONAL_COMMAND_PARAM_REGEX = "(\\?command=[\\w]+)?";
+    private static final String OPTIONAL_COMMAND_PARAM_REGEX = "(\\?command=[\\w\\-]+)?";
 
     /**
      * Regex pattern for specifying a mandatory query param that has key = 'command'.
@@ -227,6 +227,22 @@ public class CommandStrategyProvider {
         commandStrategies.put(CommandContext
                 .resource("v1\\/datatables\\/" + ALPHANUMBERIC_WITH_UNDERSCORE_REGEX + "\\/query" + MANDATORY_QUERY_PARAM_REGEX).method(GET)
                 .build(), "getDatatableEntryByQueryCommandStrategy");
+        commandStrategies.put(CommandContext.resource("v1\\/loans\\/" + NUMBER_REGEX + "\\/interest-pauses").method(GET).build(),
+                "getLoanInterestPausesByLoanIdCommandStrategy");
+        commandStrategies.put(CommandContext.resource("v1\\/loans\\/" + NUMBER_REGEX + "\\/interest-pauses").method(POST).build(),
+                "createLoanInterestPauseByLoanIdCommandStrategy");
+        commandStrategies.put(
+                CommandContext.resource("v1\\/loans\\/" + NUMBER_REGEX + "\\/interest-pauses\\/" + NUMBER_REGEX).method(PUT).build(),
+                "updateLoanInterestPauseByLoanIdCommandStrategy");
+        commandStrategies.put(
+                CommandContext.resource("v1\\/loans\\/external-id\\/" + UUID_PARAM_REGEX + "\\/interest-pauses").method(GET).build(),
+                "getLoanInterestPausesByExternalIdCommandStrategy");
+        commandStrategies.put(
+                CommandContext.resource("v1\\/loans\\/external-id\\/" + UUID_PARAM_REGEX + "\\/interest-pauses").method(POST).build(),
+                "createLoanInterestPauseByExternalIdCommandStrategy");
+        commandStrategies.put(CommandContext
+                .resource("v1\\/loans\\/external-id\\/" + UUID_PARAM_REGEX + "\\/interest-pauses\\/" + NUMBER_REGEX).method(PUT).build(),
+                "updateLoanInterestPauseByExternalIdCommandStrategy");
     }
 
 }

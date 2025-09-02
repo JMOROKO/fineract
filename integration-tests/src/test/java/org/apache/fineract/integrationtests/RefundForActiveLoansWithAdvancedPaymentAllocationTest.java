@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.client.models.AdvancedPaymentData;
-import org.apache.fineract.client.models.BusinessDateRequest;
+import org.apache.fineract.client.models.BusinessDateUpdateRequest;
 import org.apache.fineract.client.models.GetLoansLoanIdRepaymentPeriod;
 import org.apache.fineract.client.models.GetLoansLoanIdResponse;
 import org.apache.fineract.client.models.PostClientsResponse;
@@ -39,7 +39,6 @@ import org.apache.fineract.client.models.PostLoansLoanIdRequest;
 import org.apache.fineract.client.models.PostLoansRequest;
 import org.apache.fineract.client.models.PostLoansResponse;
 import org.apache.fineract.client.models.PutGlobalConfigurationsRequest;
-import org.apache.fineract.infrastructure.businessdate.domain.BusinessDateType;
 import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationConstants;
 import org.apache.fineract.integrationtests.common.BusinessDateHelper;
 import org.apache.fineract.integrationtests.common.ClientHelper;
@@ -87,7 +86,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
         try {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            businessDateHelper.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("2023.02.15").dateFormat("yyyy.MM.dd").locale("en"));
 
             final Account assetAccount = accountHelper.createAssetAccount();
@@ -167,7 +166,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(250.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 4, 1), thirdRepaymentInstallment.getDueDate());
 
-            businessDateHelper.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("2023.03.01").dateFormat("yyyy.MM.dd").locale("en"));
             loanTransactionHelper.makeRepayment("01 March 2023", 810.0f, loanId);
 
@@ -288,7 +287,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
         try {
             globalConfigurationHelper.updateGlobalConfiguration(GlobalConfigurationConstants.ENABLE_BUSINESS_DATE,
                     new PutGlobalConfigurationsRequest().enabled(true));
-            businessDateHelper.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("2023.02.15").dateFormat("yyyy.MM.dd").locale("en"));
 
             final Account assetAccount = accountHelper.createAssetAccount();
@@ -368,7 +367,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(250.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 4, 1), thirdRepaymentInstallment.getDueDate());
 
-            businessDateHelper.updateBusinessDate(new BusinessDateRequest().type(BusinessDateType.BUSINESS_DATE.getName())
+            businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
                     .date("2023.03.01").dateFormat("yyyy.MM.dd").locale("en"));
             loanTransactionHelper.makeRepayment("28 January 2023", 810.0f, loanId);
 
@@ -390,11 +389,11 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(LocalDate.of(2023, 1, 31), firstRepaymentInstallment.getDueDate());
 
             assertEquals(feePortion, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesDue()));
-            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesOutstanding()));
+            assertEquals(50.00, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesOutstanding()));
             assertEquals(penaltyPortion, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesDue()));
-            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesOutstanding()));
+            assertEquals(100.00, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesOutstanding()));
             assertEquals(400.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalDueForPeriod()));
-            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalOutstandingForPeriod()));
+            assertEquals(150.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 3, 2), secondRepaymentInstallment.getDueDate());
 
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getFeeChargesDue()));
@@ -402,7 +401,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getPenaltyChargesDue()));
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getPenaltyChargesOutstanding()));
             assertEquals(250.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalDueForPeriod()));
-            assertEquals(240.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
+            assertEquals(90.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 4, 1), thirdRepaymentInstallment.getDueDate());
 
             loanTransactionHelper.makeRefundByCash("28 January 2023", 15.0f, loanId);
@@ -425,13 +424,13 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(LocalDate.of(2023, 1, 31), firstRepaymentInstallment.getDueDate());
 
             assertEquals(feePortion, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesDue()));
-            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesOutstanding()));
+            assertEquals(50.00, Utils.getDoubleValue(secondRepaymentInstallment.getFeeChargesOutstanding()));
             assertEquals(penaltyPortion, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesDue()));
-            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesOutstanding()));
+            assertEquals(100.00, Utils.getDoubleValue(secondRepaymentInstallment.getPenaltyChargesOutstanding()));
             assertEquals(250.00, Utils.getDoubleValue(secondRepaymentInstallment.getPrincipalDue()));
-            assertEquals(5.00, Utils.getDoubleValue(secondRepaymentInstallment.getPrincipalOutstanding()));
+            assertEquals(0.00, Utils.getDoubleValue(secondRepaymentInstallment.getPrincipalOutstanding()));
             assertEquals(400.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalDueForPeriod()));
-            assertEquals(5.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalOutstandingForPeriod()));
+            assertEquals(150.00, Utils.getDoubleValue(secondRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 3, 2), secondRepaymentInstallment.getDueDate());
 
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getFeeChargesDue()));
@@ -439,7 +438,7 @@ public class RefundForActiveLoansWithAdvancedPaymentAllocationTest extends BaseL
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getPenaltyChargesDue()));
             assertEquals(0.00, Utils.getDoubleValue(thirdRepaymentInstallment.getPenaltyChargesOutstanding()));
             assertEquals(250.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalDueForPeriod()));
-            assertEquals(250.00, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
+            assertEquals(105.0, Utils.getDoubleValue(thirdRepaymentInstallment.getTotalOutstandingForPeriod()));
             assertEquals(LocalDate.of(2023, 4, 1), thirdRepaymentInstallment.getDueDate());
 
             // fully unpaying the second installment

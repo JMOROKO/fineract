@@ -100,8 +100,11 @@ public class ProductToGLAccountMappingHelper {
                 optionalProductToGLAccountMappingEntries.add("incomeFromGoodwillCreditInterestAccountId");
                 optionalProductToGLAccountMappingEntries.add("incomeFromGoodwillCreditFeesAccountId");
                 optionalProductToGLAccountMappingEntries.add("incomeFromGoodwillCreditPenaltyAccountId");
+                optionalProductToGLAccountMappingEntries.add("interestReceivableAccountId");
                 optionalProductToGLAccountMappingEntries.add(LoanProductAccountingParams.DEFERRED_INCOME_LIABILITY.getValue());
                 optionalProductToGLAccountMappingEntries.add(LoanProductAccountingParams.INCOME_FROM_CAPITALIZATION.getValue());
+                optionalProductToGLAccountMappingEntries.add(LoanProductAccountingParams.BUY_DOWN_EXPENSE.getValue());
+                optionalProductToGLAccountMappingEntries.add(LoanProductAccountingParams.INCOME_FROM_BUY_DOWN.getValue());
 
                 if (optionalProductToGLAccountMappingEntries.contains(paramName)) {
                     saveProductToAccountMapping(element, paramName, productId, accountTypeId, expectedAccountType, portfolioProductType);
@@ -555,6 +558,15 @@ public class ProductToGLAccountMappingHelper {
                     GLAccountType.fromInt(glAccount.getType()).toString(), glAccountTypeValues.toString());
         }
         return glAccount;
+    }
+
+    public void deleteProductToGLAccountMapping(final Long loanProductId, final PortfolioProductType portfolioProductType,
+            final int accountTypeId) {
+        final ProductToGLAccountMapping accountMapping = this.accountMappingRepository.findCoreProductToFinAccountMapping(loanProductId,
+                portfolioProductType.getValue(), accountTypeId);
+        if (accountMapping != null && accountMapping.getGlAccount() != null) {
+            this.accountMappingRepository.delete(accountMapping);
+        }
     }
 
     public void deleteProductToGLAccountMapping(final Long loanProductId, final PortfolioProductType portfolioProductType) {

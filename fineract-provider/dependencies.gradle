@@ -25,6 +25,9 @@ dependencies {
     }
 
     implementation(project(path: ':fineract-core'))
+    implementation(project(path: ':fineract-cob'))
+    implementation(project(path: ':fineract-command'))
+    implementation(project(path: ':fineract-validation'))
     implementation(project(path: ':fineract-accounting'))
     implementation(project(path: ':fineract-investor'))
     implementation(project(path: ':fineract-rates'))
@@ -36,7 +39,6 @@ dependencies {
     implementation(project(path: ':fineract-progressive-loan'))
     implementation(project(path: ':fineract-report'))
     implementation(project(path: ':fineract-tax'))
-    implementation(project(path: ':fineract-command'))
 
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
@@ -51,6 +53,7 @@ dependencies {
             )
     implementation(
             'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-validation',
             'org.springframework.boot:spring-boot-starter-security',
             'org.springframework.boot:spring-boot-starter-cache',
             'org.springframework.boot:spring-boot-starter-oauth2-resource-server',
@@ -183,8 +186,6 @@ dependencies {
 
     // runtimeOnly dependencies are things that Fineract code has no direct compile time dependency on, but which must be present at run-time
     runtimeOnly(
-            'org.apache.bval:org.apache.bval.bundle',
-
             // Although fineract (at the time of writing) doesn't have any compile time dep. on httpclient,
             // it's useful to have this for the Spring Boot TestRestTemplate http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-rest-templates-test-utility
             'org.apache.httpcomponents:httpclient'

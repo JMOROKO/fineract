@@ -1640,4 +1640,141 @@ public class LoanProductsRequestFactory {
                 .incomeFromCapitalizationAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_INCOME));//
     }
 
+    public PostLoanProductsRequest defaultLoanProductsRequestLP2BuyDownFees() {
+        final String name = Utils.randomNameGenerator(NAME_PREFIX_LP2, 4);
+        final String shortName = Utils.randomNameGenerator(SHORT_NAME_PREFIX, 3);
+        final List<Integer> principalVariationsForBorrowerCycle = new ArrayList<>();
+        final List<Integer> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
+        final List<Integer> interestRateVariationsForBorrowerCycle = new ArrayList<>();
+        final List<LoanProductChargeData> charges = new ArrayList<>();
+        final List<LoanProductChargeToGLAccountMapper> penaltyToIncomeAccountMappings = new ArrayList<>();
+        final List<LoanProductChargeToGLAccountMapper> feeToIncomeAccountMappings = new ArrayList<>();
+        final List<GetLoanPaymentChannelToFundSourceMappings> paymentChannelToFundSourceMappings = new ArrayList<>();
+        final GetLoanPaymentChannelToFundSourceMappings loanPaymentChannelToFundSourceMappings = new GetLoanPaymentChannelToFundSourceMappings();
+        loanPaymentChannelToFundSourceMappings.fundSourceAccountId(accountTypeResolver.resolve(DefaultAccountType.FUND_RECEIVABLES));
+        loanPaymentChannelToFundSourceMappings.paymentTypeId(paymentTypeResolver.resolve(DefaultPaymentType.MONEY_TRANSFER));
+        paymentChannelToFundSourceMappings.add(loanPaymentChannelToFundSourceMappings);
+
+        return new PostLoanProductsRequest()//
+                .name(name)//
+                .shortName(shortName)//
+                .description(DESCRIPTION_LP2_EMI)//
+                .loanScheduleType("PROGRESSIVE") //
+                .interestCalculationPeriodType(InterestCalculationPeriodTime.DAILY.value)//
+                .transactionProcessingStrategyCode(ADVANCED_PAYMENT_ALLOCATION.getValue())//
+                .fundId(FUND_ID)//
+                .startDate(null)//
+                .closeDate(null)//
+                .includeInBorrowerCycle(false)//
+                .currencyCode(CURRENCY_CODE)//
+                .digitsAfterDecimal(2)//
+                .inMultiplesOf(0)//
+                .useBorrowerCycle(false)//
+                .minPrincipal(10.0)//
+                .principal(1000.0)//
+                .maxPrincipal(10000.0)//
+                .minNumberOfRepayments(1)//
+                .numberOfRepayments(4)//
+                .maxNumberOfRepayments(30)//
+                .isLinkedToFloatingInterestRates(false)//
+                .minInterestRatePerPeriod((double) 0)//
+                .interestRatePerPeriod((double) 12)//
+                .maxInterestRatePerPeriod((double) 90)//
+                .interestRateFrequencyType(INTEREST_RATE_FREQUENCY_TYPE_YEAR)//
+                .repaymentEvery(15)//
+                .repaymentStartDateType(1)//
+                .repaymentFrequencyType(REPAYMENT_FREQUENCY_TYPE_DAYS)//
+                .principalVariationsForBorrowerCycle(principalVariationsForBorrowerCycle)//
+                .numberOfRepaymentVariationsForBorrowerCycle(numberOfRepaymentVariationsForBorrowerCycle)//
+                .interestRateVariationsForBorrowerCycle(interestRateVariationsForBorrowerCycle)//
+                .amortizationType(AMORTIZATION_TYPE)//
+                .interestType(INTEREST_TYPE_DECLINING_BALANCE)//
+                .isEqualAmortization(false)//
+                .interestCalculationPeriodType(INTEREST_CALCULATION_PERIOD_TYPE_DAILY)//
+                .transactionProcessingStrategyCode(TRANSACTION_PROCESSING_STRATEGY_CODE_ADVANCED)//
+                .daysInYearType(DAYS_IN_YEAR_TYPE_360)//
+                .daysInMonthType(DAYS_IN_MONTH_TYPE_30)//
+                .canDefineInstallmentAmount(true)//
+                .graceOnArrearsAgeing(3)//
+                .overdueDaysForNPA(179)//
+                .accountMovesOutOfNPAOnlyOnArrearsCompletion(false)//
+                .principalThresholdForLastInstallment(50)//
+                .allowVariableInstallments(false)//
+                .canUseForTopup(false)//
+                .isInterestRecalculationEnabled(false)//
+                .holdGuaranteeFunds(false)//
+                .multiDisburseLoan(false)//
+                .allowAttributeOverrides(new AllowAttributeOverrides()//
+                        .amortizationType(true)//
+                        .interestType(true)//
+                        .transactionProcessingStrategyCode(true)//
+                        .interestCalculationPeriodType(true)//
+                        .inArrearsTolerance(true)//
+                        .repaymentEvery(true)//
+                        .graceOnPrincipalAndInterestPayment(true)//
+                        .graceOnArrearsAgeing(true))//
+                .allowPartialPeriodInterestCalcualtion(false)//
+                .maxTrancheCount(10)//
+                .outstandingLoanBalance(10000.0)//
+                .charges(charges)//
+                .accountingRule(LOAN_ACCOUNTING_RULE)//
+                .fundSourceAccountId(accountTypeResolver.resolve(DefaultAccountType.SUSPENSE_CLEARING_ACCOUNT))//
+                .loanPortfolioAccountId(accountTypeResolver.resolve(DefaultAccountType.LOANS_RECEIVABLE))//
+                .transfersInSuspenseAccountId(accountTypeResolver.resolve(DefaultAccountType.TRANSFER_IN_SUSPENSE_ACCOUNT))//
+                .interestOnLoanAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_INCOME))//
+                .incomeFromFeeAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_INCOME))//
+                .incomeFromPenaltyAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_INCOME))//
+                .incomeFromRecoveryAccountId(accountTypeResolver.resolve(DefaultAccountType.RECOVERIES))//
+                .writeOffAccountId(accountTypeResolver.resolve(DefaultAccountType.WRITTEN_OFF))//
+                .overpaymentLiabilityAccountId(accountTypeResolver.resolve(DefaultAccountType.OVERPAYMENT_ACCOUNT))//
+                .receivableInterestAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_FEE_RECEIVABLE))//
+                .receivableFeeAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_FEE_RECEIVABLE))//
+                .receivablePenaltyAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_FEE_RECEIVABLE))//
+                .dateFormat(DATE_FORMAT)//
+                .locale(LOCALE_EN)//
+                .disallowExpectedDisbursements(false)//
+                .delinquencyBucketId(DELINQUENCY_BUCKET_ID.longValue())//
+                .goodwillCreditAccountId(accountTypeResolver.resolve(DefaultAccountType.GOODWILL_EXPENSE_ACCOUNT))//
+                .incomeFromGoodwillCreditInterestAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_INCOME_CHARGE_OFF))//
+                .incomeFromGoodwillCreditFeesAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_CHARGE_OFF))//
+                .incomeFromGoodwillCreditPenaltyAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_CHARGE_OFF))//
+                .paymentChannelToFundSourceMappings(paymentChannelToFundSourceMappings)//
+                .penaltyToIncomeAccountMappings(penaltyToIncomeAccountMappings)//
+                .feeToIncomeAccountMappings(feeToIncomeAccountMappings)//
+                .incomeFromChargeOffInterestAccountId(accountTypeResolver.resolve(DefaultAccountType.INTEREST_INCOME_CHARGE_OFF))//
+                .incomeFromChargeOffFeesAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_CHARGE_OFF))//
+                .chargeOffExpenseAccountId(accountTypeResolver.resolve(DefaultAccountType.CREDIT_LOSS_BAD_DEBT))//
+                .chargeOffFraudExpenseAccountId(accountTypeResolver.resolve(DefaultAccountType.CREDIT_LOSS_BAD_DEBT_FRAUD))//
+                .incomeFromChargeOffPenaltyAccountId(accountTypeResolver.resolve(DefaultAccountType.FEE_CHARGE_OFF))//
+                .deferredIncomeLiabilityAccountId(accountTypeResolver.resolve(DefaultAccountType.DEFERRED_CAPITALIZED_INCOME))//
+                .buyDownFeeStrategy(PostLoanProductsRequest.BuyDownFeeStrategyEnum.EQUAL_AMORTIZATION)//
+                .buyDownFeeCalculationType(PostLoanProductsRequest.BuyDownFeeCalculationTypeEnum.FLAT)//
+                .buyDownFeeIncomeType(PostLoanProductsRequest.BuyDownFeeIncomeTypeEnum.INTEREST)//
+                .enableBuyDownFee(true)//
+                .merchantBuyDownFee(true)//
+                .buyDownExpenseAccountId(accountTypeResolver.resolve(DefaultAccountType.BUY_DOWN_EXPENSE))//
+                .incomeFromBuyDownAccountId(accountTypeResolver.resolve(DefaultAccountType.INCOME_FROM_BUY_DOWN));//
+    }
+
+    public PostLoanProductsRequest defaultLoanProductsRequestLP2ChargeOffReasonToExpenseAccountMappingsWithBuyDownFee() {
+
+        Long chargeOffReasonId = codeHelper.retrieveCodeByName(CHARGE_OFF_REASONS).getId();
+
+        List<PostChargeOffReasonToExpenseAccountMappings> chargeOffReasonToExpenseAccountMappings = new ArrayList<>();
+        PostChargeOffReasonToExpenseAccountMappings chargeOffFraudReason = new PostChargeOffReasonToExpenseAccountMappings();
+        PostChargeOffReasonToExpenseAccountMappings chargeOffDelinquentReason = new PostChargeOffReasonToExpenseAccountMappings();
+        PostChargeOffReasonToExpenseAccountMappings chargeOffOtherReason = new PostChargeOffReasonToExpenseAccountMappings();
+        chargeOffFraudReason.chargeOffReasonCodeValueId(codeValueResolver.resolve(chargeOffReasonId, DefaultCodeValue.FRAUD));
+        chargeOffFraudReason.expenseAccountId(accountTypeResolver.resolve(DefaultAccountType.CREDIT_LOSS_BAD_DEBT_FRAUD));
+        chargeOffDelinquentReason.chargeOffReasonCodeValueId(codeValueResolver.resolve(chargeOffReasonId, DefaultCodeValue.DELINQUENT));
+        chargeOffDelinquentReason.expenseAccountId(accountTypeResolver.resolve(DefaultAccountType.CREDIT_LOSS_BAD_DEBT));
+        chargeOffOtherReason.chargeOffReasonCodeValueId(codeValueResolver.resolve(chargeOffReasonId, DefaultCodeValue.OTHER));
+        chargeOffOtherReason.expenseAccountId(accountTypeResolver.resolve(DefaultAccountType.CREDIT_LOSS_BAD_DEBT));
+        chargeOffReasonToExpenseAccountMappings.add(chargeOffFraudReason);
+        chargeOffReasonToExpenseAccountMappings.add(chargeOffDelinquentReason);
+        chargeOffReasonToExpenseAccountMappings.add(chargeOffOtherReason);
+
+        return defaultLoanProductsRequestLP2BuyDownFees()//
+                .chargeOffReasonToExpenseAccountMappings(chargeOffReasonToExpenseAccountMappings);//
+    }
 }

@@ -26,6 +26,9 @@ import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.organisation.monetary.domain.MonetaryCurrency;
 import org.apache.fineract.portfolio.common.domain.DaysInYearCustomStrategyType;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeCalculationType;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeIncomeType;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeStrategy;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCapitalizedIncomeCalculationType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCapitalizedIncomeStrategy;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCapitalizedIncomeType;
@@ -52,7 +55,7 @@ public class LoanProductRelatedDetailUpdateUtil {
 
         String currencyCode = loanRepaymentScheduleDetail.getCurrency().getCode();
         Integer digitsAfterDecimal = loanRepaymentScheduleDetail.getCurrency().getDigitsAfterDecimal();
-        Integer inMultiplesOf = loanRepaymentScheduleDetail.getCurrency().getCurrencyInMultiplesOf();
+        Integer inMultiplesOf = loanRepaymentScheduleDetail.getCurrency().getInMultiplesOf();
 
         final String digitsAfterDecimalParamName = "digitsAfterDecimal";
         if (command.isChangeInIntegerParameterNamed(digitsAfterDecimalParamName, digitsAfterDecimal)) {
@@ -198,15 +201,15 @@ public class LoanProductRelatedDetailUpdateUtil {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME,
-                loanRepaymentScheduleDetail.isAllowPartialPeriodInterestCalcualtion())) {
+                loanRepaymentScheduleDetail.isAllowPartialPeriodInterestCalculation())) {
             final boolean newValue = command
                     .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME);
             actualChanges.put(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME, newValue);
-            loanRepaymentScheduleDetail.setAllowPartialPeriodInterestCalcualtion(newValue);
+            loanRepaymentScheduleDetail.setAllowPartialPeriodInterestCalculation(newValue);
         }
 
         if (loanRepaymentScheduleDetail.getInterestCalculationPeriodMethod().isDaily()) {
-            loanRepaymentScheduleDetail.setAllowPartialPeriodInterestCalcualtion(false);
+            loanRepaymentScheduleDetail.setAllowPartialPeriodInterestCalculation(false);
         }
 
         final String graceOnPrincipalPaymentParamName = "graceOnPrincipalPayment";
@@ -326,6 +329,41 @@ public class LoanProductRelatedDetailUpdateUtil {
                     .enumValueOfParameterNamed(LoanProductConstants.CAPITALIZED_INCOME_TYPE_PARAM_NAME, LoanCapitalizedIncomeType.class);
             actualChanges.put(LoanProductConstants.CAPITALIZED_INCOME_TYPE_PARAM_NAME, newValue);
             loanRepaymentScheduleDetail.setCapitalizedIncomeType(newValue);
+        }
+
+        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ENABLE_BUY_DOWN_FEE_PARAM_NAME,
+                loanRepaymentScheduleDetail.isEnableBuyDownFee())) {
+            final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_BUY_DOWN_FEE_PARAM_NAME);
+            actualChanges.put(LoanProductConstants.ENABLE_BUY_DOWN_FEE_PARAM_NAME, newValue);
+            loanRepaymentScheduleDetail.setEnableBuyDownFee(newValue);
+        }
+
+        if (command.parameterExists(LoanProductConstants.BUY_DOWN_FEE_CALCULATION_TYPE_PARAM_NAME)) {
+            final LoanBuyDownFeeCalculationType newValue = command.enumValueOfParameterNamed(
+                    LoanProductConstants.BUY_DOWN_FEE_CALCULATION_TYPE_PARAM_NAME, LoanBuyDownFeeCalculationType.class);
+            actualChanges.put(LoanProductConstants.BUY_DOWN_FEE_CALCULATION_TYPE_PARAM_NAME, newValue);
+            loanRepaymentScheduleDetail.setBuyDownFeeCalculationType(newValue);
+        }
+
+        if (command.parameterExists(LoanProductConstants.BUY_DOWN_FEE_STRATEGY_PARAM_NAME)) {
+            final LoanBuyDownFeeStrategy newValue = command.enumValueOfParameterNamed(LoanProductConstants.BUY_DOWN_FEE_STRATEGY_PARAM_NAME,
+                    LoanBuyDownFeeStrategy.class);
+            actualChanges.put(LoanProductConstants.BUY_DOWN_FEE_STRATEGY_PARAM_NAME, newValue);
+            loanRepaymentScheduleDetail.setBuyDownFeeStrategy(newValue);
+        }
+
+        if (command.parameterExists(LoanProductConstants.BUY_DOWN_FEE_INCOME_TYPE_PARAM_NAME)) {
+            final LoanBuyDownFeeIncomeType newValue = command
+                    .enumValueOfParameterNamed(LoanProductConstants.BUY_DOWN_FEE_INCOME_TYPE_PARAM_NAME, LoanBuyDownFeeIncomeType.class);
+            actualChanges.put(LoanProductConstants.BUY_DOWN_FEE_INCOME_TYPE_PARAM_NAME, newValue);
+            loanRepaymentScheduleDetail.setBuyDownFeeIncomeType(newValue);
+        }
+
+        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME,
+                loanRepaymentScheduleDetail.isMerchantBuyDownFee())) {
+            final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME);
+            actualChanges.put(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME, newValue);
+            loanRepaymentScheduleDetail.setMerchantBuyDownFee(newValue);
         }
 
         return actualChanges;

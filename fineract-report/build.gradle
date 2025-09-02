@@ -21,42 +21,9 @@ description = 'Fineract Report'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-tasks.register('staticWeaveJpa', JavaExec) {
-    group = "build"
-    description = "Performs EclipseLink static weaving of entity classes"
-
-    dependsOn classes
-
-    def classesDir = file("$buildDir/classes/java/main")
-
-    mainClass.set('org.eclipse.persistence.tools.weaving.jpa.StaticWeave')
-    classpath = sourceSets.main.runtimeClasspath
-    args '-persistenceinfo', classesDir.absolutePath, classesDir.absolutePath, classesDir.absolutePath
-}
-
-staticWeaveJpa.doLast {
-    delete "${sourceSets.main.output.classesDirs.asPath}/META-INF/persistence.xml"
-}
-
-tasks.named('classes') {
-    finalizedBy staticWeaveJpa
-}
-
-tasks.named('processResources') {
-    from('src/main/resources')
-    into sourceSets.main.java.classesDirectory
-    outputs.upToDateWhen { false }
-}
-
 compileJava {
     dependsOn ':fineract-avro-schemas:buildJavaSdk'
 }
-
-// Configuration for Swagger documentation generation task
-// https://github.com/swagger-api/swagger-core/tree/master/modules/swagger-gradle-plugin
-import org.apache.tools.ant.filters.ReplaceTokens
-
-
 
 configurations {
     providedRuntime // needed for Spring Boot executable WAR

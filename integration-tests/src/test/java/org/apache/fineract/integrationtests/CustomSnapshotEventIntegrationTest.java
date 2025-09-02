@@ -18,18 +18,16 @@
  */
 package org.apache.fineract.integrationtests;
 
-import static org.apache.fineract.infrastructure.businessdate.domain.BusinessDateType.BUSINESS_DATE;
-
 import com.google.gson.Gson;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.fineract.client.models.BusinessDateRequest;
+import org.apache.fineract.client.models.BusinessDateUpdateRequest;
 import org.apache.fineract.client.models.PostLoanProductsRequest;
 import org.apache.fineract.client.models.PostLoanProductsResponse;
-import org.apache.fineract.infrastructure.event.external.service.validation.ExternalEventDTO;
+import org.apache.fineract.infrastructure.event.external.data.ExternalEventResponse;
 import org.apache.fineract.integrationtests.common.BusinessStepHelper;
 import org.apache.fineract.integrationtests.common.ClientHelper;
 import org.apache.fineract.integrationtests.common.ExternalEventConfigurationHelper;
@@ -37,7 +35,6 @@ import org.apache.fineract.integrationtests.common.SchedulerJobHelper;
 import org.apache.fineract.integrationtests.common.externalevents.ExternalEventHelper;
 import org.apache.fineract.integrationtests.common.externalevents.ExternalEventsExtension;
 import org.apache.fineract.integrationtests.common.loans.LoanTestLifecycleExtension;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,7 +85,7 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
             updateBusinessDateAndExecuteCOBJob("01 February 2023");
 
             // verify external events
-            List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+            List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
             Assertions.assertEquals(1, allExternalEvents.size());
             Assertions.assertEquals("LoanAccountCustomSnapshotBusinessEvent", allExternalEvents.get(0).getType());
             Assertions.assertEquals(loanId, allExternalEvents.get(0).getAggregateRootId());
@@ -166,7 +163,7 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
             updateBusinessDateAndExecuteCOBJob("01 February 2023");
 
             // verify external events
-            List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+            List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
             Assertions.assertEquals(0, allExternalEvents.size());
         });
     }
@@ -211,7 +208,7 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
             updateBusinessDateAndExecuteCOBJob("01 February 2023");
 
             // verify external events
-            List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+            List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
             Assertions.assertEquals(0, allExternalEvents.size());
         });
     }
@@ -255,7 +252,7 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
             updateBusinessDateAndExecuteCOBJob("31 January 2023");
 
             // verify external events
-            List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+            List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
             Assertions.assertEquals(0, allExternalEvents.size());
         });
     }
@@ -300,15 +297,9 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
             updateBusinessDateAndExecuteCOBJob("01 February 2023");
 
             // verify external events
-            List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
+            List<ExternalEventResponse> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
             Assertions.assertEquals(0, allExternalEvents.size());
         });
-    }
-
-    private void deleteAllExternalEvents() {
-        ExternalEventHelper.deleteAllExternalEvents(requestSpec, createResponseSpecification(Matchers.is(204)));
-        List<ExternalEventDTO> allExternalEvents = ExternalEventHelper.getAllExternalEvents(requestSpec, responseSpec);
-        Assertions.assertEquals(0, allExternalEvents.size());
     }
 
     private void enableCOBBusinessStep(String... steps) {
@@ -342,8 +333,8 @@ public class CustomSnapshotEventIntegrationTest extends BaseLoanIntegrationTest 
     }
 
     private void updateBusinessDateAndExecuteCOBJob(String date) {
-        businessDateHelper.updateBusinessDate(
-                new BusinessDateRequest().type(BUSINESS_DATE.getName()).date(date).dateFormat(DATETIME_PATTERN).locale("en"));
+        businessDateHelper.updateBusinessDate(new BusinessDateUpdateRequest().type(BusinessDateUpdateRequest.TypeEnum.BUSINESS_DATE)
+                .date(date).dateFormat(DATETIME_PATTERN).locale("en"));
         schedulerJobHelper.executeAndAwaitJob("Loan COB");
     }
 

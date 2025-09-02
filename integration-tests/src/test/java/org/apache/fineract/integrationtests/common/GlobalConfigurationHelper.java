@@ -105,8 +105,8 @@ public class GlobalConfigurationHelper {
         ArrayList<HashMap> expectedGlobalConfigurations = getAllDefaultGlobalConfigurations();
         GetGlobalConfigurationsResponse actualGlobalConfigurations = getAllGlobalConfigurations();
 
-        Assertions.assertEquals(57, expectedGlobalConfigurations.size());
-        Assertions.assertEquals(57, actualGlobalConfigurations.getGlobalConfiguration().size());
+        Assertions.assertEquals(59, expectedGlobalConfigurations.size());
+        Assertions.assertEquals(59, actualGlobalConfigurations.getGlobalConfiguration().size());
 
         for (int i = 0; i < expectedGlobalConfigurations.size(); i++) {
 
@@ -544,10 +544,29 @@ public class GlobalConfigurationHelper {
         assetOwnerTransferInterestOutstandingStrategy.put("name",
                 GlobalConfigurationConstants.ASSET_OWNER_TRANSFER_OUTSTANDING_INTEREST_CALCULATION_STRATEGY);
         assetOwnerTransferInterestOutstandingStrategy.put("value", 0L);
-        assetOwnerTransferInterestOutstandingStrategy.put("enabled", false);
+        assetOwnerTransferInterestOutstandingStrategy.put("enabled", true);
         assetOwnerTransferInterestOutstandingStrategy.put("trapDoor", false);
         assetOwnerTransferInterestOutstandingStrategy.put("string_value", "TOTAL_OUTSTANDING_INTEREST");
         defaults.add(assetOwnerTransferInterestOutstandingStrategy);
+
+        HashMap<String, Object> allowedLoanStatusesForExternalAssetTransfer = new HashMap<>();
+        allowedLoanStatusesForExternalAssetTransfer.put("name",
+                GlobalConfigurationConstants.ALLOWED_LOAN_STATUSES_FOR_EXTERNAL_ASSET_TRANSFER);
+        allowedLoanStatusesForExternalAssetTransfer.put("value", 0L);
+        allowedLoanStatusesForExternalAssetTransfer.put("enabled", true);
+        allowedLoanStatusesForExternalAssetTransfer.put("trapDoor", false);
+        allowedLoanStatusesForExternalAssetTransfer.put("string_value", "ACTIVE,TRANSFER_IN_PROGRESS,TRANSFER_ON_HOLD");
+        defaults.add(allowedLoanStatusesForExternalAssetTransfer);
+
+        HashMap<String, Object> allowedLoanStatusesForDelayedSettlementExternalAssetTransfer = new HashMap<>();
+        allowedLoanStatusesForDelayedSettlementExternalAssetTransfer.put("name",
+                GlobalConfigurationConstants.ALLOWED_LOAN_STATUSES_OF_DELAYED_SETTLEMENT_FOR_EXTERNAL_ASSET_TRANSFER);
+        allowedLoanStatusesForDelayedSettlementExternalAssetTransfer.put("value", 0L);
+        allowedLoanStatusesForDelayedSettlementExternalAssetTransfer.put("enabled", true);
+        allowedLoanStatusesForDelayedSettlementExternalAssetTransfer.put("trapDoor", false);
+        allowedLoanStatusesForDelayedSettlementExternalAssetTransfer.put("string_value",
+                "ACTIVE,TRANSFER_IN_PROGRESS,TRANSFER_ON_HOLD,OVERPAID,CLOSED_OBLIGATIONS_MET");
+        defaults.add(allowedLoanStatusesForDelayedSettlementExternalAssetTransfer);
 
         return defaults;
     }

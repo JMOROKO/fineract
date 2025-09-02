@@ -18,6 +18,8 @@
  */
 package org.apache.fineract.portfolio.loanaccount.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,21 +35,26 @@ import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
 import org.apache.fineract.portfolio.loanaccount.data.LoanPointInTimeData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.arrears.LoanArrearsData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class LoanPointInTimeServiceImpl implements LoanPointInTimeService {
 
     private final LoanUtilService loanUtilService;
     private final LoanScheduleService loanScheduleService;
     private final LoanAssembler loanAssembler;
     private final LoanPointInTimeData.Mapper dataMapper;
+    private final EntityManager entityManager;
+    private final LoanArrearsAgingService arrearsAgingService;
 
     @Override
     public LoanPointInTimeData retrieveAt(Long loanId, LocalDate date) {
+        entityManager.setFlushMode(FlushModeType.COMMIT);
         validateSingularRetrieval(loanId, date);
 
         // Note: since everything is running in a readOnly transaction
@@ -64,8 +71,14 @@ public class LoanPointInTimeServiceImpl implements LoanPointInTimeService {
             ScheduleGeneratorDTO scheduleGeneratorDTO = loanUtilService.buildScheduleGeneratorDTO(loan, null, null);
             loanScheduleService.recalculateSchedule(loan, scheduleGeneratorDTO);
 
-            return dataMapper.map(loan);
+            LoanArrearsData arrearsData = arrearsAgingService.calculateArrearsForLoan(loan);
+
+            LoanPointInTimeData result = dataMapper.map(loan);
+            result.setArrears(arrearsData);
+            return result;
         } finally {
+            entityManager.clear();
+            TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
             ThreadLocalContextUtil.setBusinessDates(originalBDs);
         }
     }
@@ -89,7 +102,9 @@ public class LoanPointInTimeServiceImpl implements LoanPointInTimeService {
     @Override
     public List<LoanPointInTimeData> retrieveAt(List<Long> loanIds, LocalDate date) {
         validateBulkRetrieval(loanIds, date);
-        return loanIds.stream().map(loanId -> retrieveAt(loanId, date)).toList();
+        List<LoanPointInTimeData> result = loanIds.stream().map(loanId -> retrieveAt(loanId, date)).toList();
+        TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+        return result;
     }
 
     private void validateBulkRetrieval(List<Long> loanIds, LocalDate date) {

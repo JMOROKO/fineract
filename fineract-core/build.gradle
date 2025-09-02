@@ -21,33 +21,6 @@ description = 'Fineract Core'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-tasks.register('staticWeaveJpa', JavaExec) {
-    group = "build"
-    description = "Performs EclipseLink static weaving of entity classes"
-
-    dependsOn classes, processResources
-
-    def classesDir = file(sourceSets.main.output.classesDirs.asPath)
-
-    mainClass.set('org.eclipse.persistence.tools.weaving.jpa.StaticWeave')
-    classpath = sourceSets.main.runtimeClasspath
-    args '-persistenceinfo', classesDir, classesDir, classesDir
-}
-
-staticWeaveJpa.doLast {
-    delete "${sourceSets.main.output.classesDirs.asPath}/META-INF/persistence.xml"
-}
-
-tasks.named('classes') {
-    finalizedBy staticWeaveJpa
-}
-
-tasks.named('processResources') {
-    from('src/main/resources')
-    into sourceSets.main.java.classesDirectory
-    outputs.upToDateWhen { false }
-}
-
 configurations {
     providedRuntime // needed for Spring Boot executable WAR
     providedCompile
@@ -72,7 +45,7 @@ configurations {
 apply from: 'dependencies.gradle'
 
 compileJava {
-    dependsOn ':fineract-avro-schemas:compileJava', processResources
+    dependsOn ':fineract-avro-schemas:buildJavaSdk'
     options.compilerArgs += ['-parameters']
 }
 
