@@ -16,21 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.accounting.producttoaccountmapping.data;
+package org.apache.fineract.client.feign;
 
-import java.io.Serial;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 
-@Data
-@NoArgsConstructor
-@Accessors(chain = true)
-public class WriteOffReasonsToExpenseAccountMapper implements Serializable {
+public class TenantIdRequestInterceptor implements RequestInterceptor {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private String writeOffReasonCodeValueId;
-    private String expenseAccountId;
+    private final String tenantId;
+
+    public TenantIdRequestInterceptor(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    @Override
+    public void apply(RequestTemplate template) {
+        template.header("Fineract-Platform-TenantId", tenantId);
+        if (!template.headers().containsKey("Content-Type")) {
+            template.header("Content-Type", "application/json");
+        }
+        if (!template.headers().containsKey("Accept")) {
+            template.header("Accept", "application/json");
+        }
+    }
 }
