@@ -110,7 +110,7 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
                 ? loanApplicationTerms.getLoanTermVariations().getExceptionData()
                 : null;
         final ProgressiveLoanInterestScheduleModel interestScheduleModel = emiCalculator.generatePeriodInterestScheduleModel(
-                expectedRepaymentPeriods, loanApplicationTerms.toLoanProductRelatedDetailMinimumData(), loanTermVariations,
+                expectedRepaymentPeriods, loanApplicationTerms.toLoanConfigurationDetails(), loanTermVariations,
                 loanApplicationTerms.getInstallmentAmountInMultiplesOf(), mc);
         final List<LoanScheduleModelPeriod> periods = new ArrayList<>(expectedRepaymentPeriods.size());
 
@@ -202,14 +202,22 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
 
         Optional<ProgressiveLoanInterestScheduleModel> savedModel = interestScheduleModelRepositoryWrapper.getSavedModel(loan,
                 transactionDate);
-        ProgressiveLoanInterestScheduleModel model = savedModel
-                .orElseGet(() -> processor.calculateInterestScheduleModel(loan.getId(), transactionDate));
+        ProgressiveLoanInterestScheduleModel model = savedModel.orElseThrow();
         OutstandingDetails outstandingAmounts = emiCalculator.getOutstandingAmountsTillDate(model, transactionDate);
         // TODO: We should add all the past due outstanding amounts as well
+
         OutstandingAmountsDTO result = new OutstandingAmountsDTO(currency) //
                 .principal(outstandingAmounts.getOutstandingPrincipal()) //
                 .interest(outstandingAmounts.getOutstandingInterest());//
 
+        if (loan.isProgressiveSchedule()) {
+            final LoanRepaymentScheduleInstallment downPaymentInstallment = loan.getRepaymentScheduleInstallments(i -> i.isDownPayment())
+                    .stream().findFirst().orElse(null);
+            if (downPaymentInstallment != null) {
+                result.principal(downPaymentInstallment.getPrincipalOutstanding(loan.getCurrency())
+                        .add(outstandingAmounts.getOutstandingPrincipal()));
+            }
+        }
         // We need to deduct any paid amount if there is no interest recalculation
         if (!loan.isInterestRecalculationEnabled()) {
             BigDecimal paidInterest = installments.stream().map(LoanRepaymentScheduleInstallment::getInterestPaid).reduce(BigDecimal.ZERO,
@@ -245,8 +253,7 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
             return Money.zero(loan.getCurrency());
         }
         Optional<ProgressiveLoanInterestScheduleModel> savedModel = interestScheduleModelRepositoryWrapper.getSavedModel(loan, targetDate);
-        ProgressiveLoanInterestScheduleModel model = savedModel
-                .orElseGet(() -> processor.calculateInterestScheduleModel(loan.getId(), targetDate));
+        ProgressiveLoanInterestScheduleModel model = savedModel.orElseThrow();
         return emiCalculator.getPeriodInterestTillDate(model, installment.getDueDate(), targetDate, false);
     }
 
@@ -438,7 +445,8 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
             } else {
                 amount = amount.add(principalInterestForThisPeriod.principal().getAmount());
             }
-            BigDecimal loanChargeAmt = amount.multiply(loanCharge.getPercentage()).divide(BigDecimal.valueOf(100), mc);
+            Money loanChargeAmt = Money.of(cumulative.getCurrency(),
+                    amount.multiply(loanCharge.getPercentage()).divide(BigDecimal.valueOf(100), mc));
             cumulative = cumulative.plus(loanChargeAmt);
         } else {
             cumulative = cumulative.plus(loanCharge.amountOrPercentage());
@@ -456,7 +464,8 @@ public class ProgressiveLoanScheduleGenerator implements LoanScheduleGenerator {
         } else {
             amount = amount.add(principalDisbursed.getAmount());
         }
-        BigDecimal loanChargeAmt = amount.multiply(loanCharge.getPercentage()).divide(BigDecimal.valueOf(100), mc);
+        Money loanChargeAmt = Money.of(cumulative.getCurrency(),
+                amount.multiply(loanCharge.getPercentage()).divide(BigDecimal.valueOf(100), mc));
         cumulative = cumulative.plus(loanChargeAmt);
         return cumulative;
     }
