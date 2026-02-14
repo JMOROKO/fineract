@@ -7118,8 +7118,8 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
     }
 
     private PostClientsRequest createRandomClientWithDate(String date) {
-        return new PostClientsRequest().officeId(1L).legalFormId(1L).firstname(Utils.randomStringGenerator("", 5))
-                .lastname(Utils.randomStringGenerator("", 5)).active(true).locale("en").activationDate(date).dateFormat(DATETIME_PATTERN);
+        return new PostClientsRequest().officeId(1L).legalFormId(1L).firstname(Utils.randomFirstNameGenerator())
+                .lastname(Utils.randomLastNameGenerator()).active(true).locale("en").activationDate(date).dateFormat(DATETIME_PATTERN);
     }
 
     private Integer applyForLoanApplication(final Integer clientID, final Integer loanProductID, final List<HashMap> charges) {
@@ -8324,7 +8324,7 @@ public class ClientLoanIntegrationTest extends BaseLoanIntegrationTest {
                         .repaymentEvery(true)//
                         .graceOnPrincipalAndInterestPayment(true)//
                         .graceOnArrearsAgeing(true))//
-                .allowPartialPeriodInterestCalcualtion(true)//
+                .allowPartialPeriodInterestCalculation(true)//
                 .maxTrancheCount(10)//
                 .outstandingLoanBalance(10000.0)//
                 .charges(Collections.emptyList())//

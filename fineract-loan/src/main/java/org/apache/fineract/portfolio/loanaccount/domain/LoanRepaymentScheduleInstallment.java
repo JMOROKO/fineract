@@ -28,6 +28,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -278,6 +279,13 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
                 null, null, null, false, false, true);
     }
 
+    public static LoanRepaymentScheduleInstallment newInstallmentWithMovedPaidAmountDuringReAging(final Loan loan,
+            final Integer installmentNumber, final LocalDate fromDate, final LocalDate dueDate, final BigDecimal principal,
+            final BigDecimal interest) {
+        return new LoanRepaymentScheduleInstallment(loan, installmentNumber, fromDate, dueDate, principal, interest, null, null, null, null,
+                null, null, false, false, false);
+    }
+
     public static LoanRepaymentScheduleInstallment getLastNonDownPaymentInstallment(List<LoanRepaymentScheduleInstallment> installments) {
         return installments.stream().filter(i -> !i.isDownPayment()).reduce((first, second) -> second).orElseThrow();
     }
@@ -511,8 +519,9 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
         return this.installmentNumber.compareTo(o.installmentNumber);
     }
 
-    public int compareToByDueDate(LoanRepaymentScheduleInstallment o) {
-        return this.dueDate.compareTo(o.dueDate);
+    public int compareToByFromDueDate(LoanRepaymentScheduleInstallment o) {
+        return Comparator.comparing(LoanRepaymentScheduleInstallment::getDueDate)
+                .thenComparing(LoanRepaymentScheduleInstallment::getFromDate).compare(this, o);
     }
 
     public boolean isPrincipalNotCompleted(final MonetaryCurrency currency) {
@@ -896,6 +905,14 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
         checkIfRepaymentPeriodObligationsAreMet(transactionDate, transactionAmount.getCurrency());
     }
 
+    public void addToFeeCharges(final Money transactionAmount) {
+        if (this.feeChargesCharged == null) {
+            setFeeChargesCharged(transactionAmount.getAmount());
+        } else {
+            setFeeChargesCharged(this.feeChargesCharged.add(transactionAmount.getAmount()));
+        }
+    }
+
     public void addToCreditedInterest(final BigDecimal amount) {
         if (this.creditedInterest == null) {
             setCreditedInterest(amount);
@@ -925,6 +942,48 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
             setCreditedPenalty(amount);
         } else {
             setCreditedPenalty(this.creditedPenalty.add(amount));
+        }
+    }
+
+    public void addPenaltyCharges(final Money amount) {
+        if (amount != null) {
+            addPenaltyCharges(amount.getAmount());
+        }
+    }
+
+    public void addPenaltyCharges(final BigDecimal amount) {
+        if (this.penaltyCharges == null) {
+            setPenaltyCharges(amount);
+        } else {
+            setPenaltyCharges(this.penaltyCharges.add(amount));
+        }
+    }
+
+    public void addToPenaltyPaid(final Money amount) {
+        if (amount != null) {
+            addToPenaltyPaid(amount.getAmount());
+        }
+    }
+
+    public void addToPenaltyPaid(final BigDecimal amount) {
+        if (this.penaltyChargesPaid == null) {
+            setPenaltyChargesPaid(amount);
+        } else {
+            setPenaltyChargesPaid(this.penaltyChargesPaid.add(amount));
+        }
+    }
+
+    public void addToFeeChargesPaid(final Money amount) {
+        if (amount != null) {
+            addToFeeChargesPaid(amount.getAmount());
+        }
+    }
+
+    public void addToFeeChargesPaid(final BigDecimal amount) {
+        if (this.feeChargesPaid == null) {
+            setFeeChargesPaid(amount);
+        } else {
+            setFeeChargesPaid(this.feeChargesPaid.add(amount));
         }
     }
 
@@ -1073,7 +1132,6 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
         updateLoanCompoundingDetails(period.getLoanCompoundingDetails());
         getInstallmentCharges().clear();
         getPostDatedChecks().clear();
-        getLoanTransactionToRepaymentScheduleMappings().clear();
         // Update fields
         setFromDate(period.periodFromDate());
         setDueDate(period.periodDueDate());
@@ -1089,7 +1147,7 @@ public class LoanRepaymentScheduleInstallment extends AbstractAuditableWithUTCDa
     }
 
     public void copyFrom(final LoanRepaymentScheduleInstallment installment) {
-        if (nonNullAndEqual(getId(), installment.getId())) {
+        if (installment == this || nonNullAndEqual(getId(), installment.getId())) {
             return;
         }
         // Reset balances

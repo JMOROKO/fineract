@@ -368,13 +368,13 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
         Calls.ok(fineractClient().roles.updateRolePermissions(roleId,
                 new PutRolesRoleIdPermissionsRequest().putPermissionsItem(permission, false)));
         // create user with role
-        String firstname = "Test";
-        String lastname = Utils.uniqueRandomStringGenerator("User", 6);
+        String firstname = Utils.randomFirstNameGenerator();
+        String lastname = Utils.randomLastNameGenerator();
         String userName = Utils.uniqueRandomStringGenerator("testUserName", 4);
         String password = "AKleRbDhK421$";
         String email = firstname + "." + lastname + "@whatever.mifos.org";
         Calls.ok(fineractClient().users
-                .create15(new PostUsersRequest().addRolesItem(roleId).email(email).firstname(firstname).lastname(lastname)
+                .create16(new PostUsersRequest().addRolesItem(roleId).email(email).firstname(firstname).lastname(lastname)
                         .repeatPassword(password).sendPasswordToEmail(false).officeId(1L).username(userName).password(password)));
 
         // login user
@@ -434,7 +434,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                 .amortizationType(AmortizationType.EQUAL_INSTALLMENTS)//
                 .interestType(InterestType.DECLINING_BALANCE)//
                 .interestCalculationPeriodType(InterestCalculationPeriodType.DAILY)//
-                .allowPartialPeriodInterestCalcualtion(false)//
+                .allowPartialPeriodInterestCalculation(false)//
                 .creditAllocation(List.of())//
                 .overdueDaysForNPA(179)//
                 .daysInMonthType(30)//
@@ -530,7 +530,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                 .amortizationType(AmortizationType.EQUAL_INSTALLMENTS)//
                 .interestType(InterestType.DECLINING_BALANCE)//
                 .interestCalculationPeriodType(InterestCalculationPeriodType.DAILY)//
-                .allowPartialPeriodInterestCalcualtion(false)//
+                .allowPartialPeriodInterestCalculation(false)//
                 .transactionProcessingStrategyCode(ADVANCED_PAYMENT_ALLOCATION_STRATEGY)//
                 .paymentAllocation(List.of(createDefaultPaymentAllocation("NEXT_INSTALLMENT")))//
                 .creditAllocation(List.of())//
@@ -632,7 +632,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                 .amortizationType(AmortizationType.EQUAL_INSTALLMENTS)//
                 .interestType(InterestType.DECLINING_BALANCE)//
                 .interestCalculationPeriodType(InterestCalculationPeriodType.DAILY)//
-                .allowPartialPeriodInterestCalcualtion(false)//
+                .allowPartialPeriodInterestCalculation(false)//
                 .transactionProcessingStrategyCode(ADVANCED_PAYMENT_ALLOCATION_STRATEGY)//
                 .paymentAllocation(List.of(createDefaultPaymentAllocation("NEXT_INSTALLMENT")))//
                 .creditAllocation(List.of())//
@@ -768,7 +768,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                         .repaymentEvery(true)//
                         .graceOnPrincipalAndInterestPayment(true)//
                         .graceOnArrearsAgeing(true))//
-                .allowPartialPeriodInterestCalcualtion(true)//
+                .allowPartialPeriodInterestCalculation(true)//
                 .maxTrancheCount(10)//
                 .outstandingLoanBalance(10000.0)//
                 .charges(Collections.emptyList())//
@@ -824,7 +824,7 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
                 .loanScheduleProcessingType(LoanScheduleProcessingType.HORIZONTAL.toString()) //
                 .addPaymentAllocationItem(defaultAllocation).enableDownPayment(false) //
                 .isInterestRecalculationEnabled(true).interestRecalculationCompoundingMethod(0) //
-                .preClosureInterestCalculationStrategy(1).recalculationRestFrequencyType(1).allowPartialPeriodInterestCalcualtion(true) //
+                .preClosureInterestCalculationStrategy(1).recalculationRestFrequencyType(1).allowPartialPeriodInterestCalculation(true) //
                 .rescheduleStrategyMethod(rescheduleStrategyMethod);
     }
 
@@ -1016,6 +1016,11 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
 
     protected void reAgeLoan(Long loanId, String frequencyType, int frequencyNumber, String startDate, Integer numberOfInstallments,
             String reAgeInterestHandling) {
+        reAgeLoan(loanId, frequencyType, frequencyNumber, startDate, numberOfInstallments, reAgeInterestHandling, null);
+    }
+
+    protected void reAgeLoan(Long loanId, String frequencyType, int frequencyNumber, String startDate, Integer numberOfInstallments,
+            String reAgeInterestHandling, Double transactionAmount) {
         PostLoansLoanIdTransactionsRequest request = new PostLoansLoanIdTransactionsRequest();
         request.setDateFormat(DATETIME_PATTERN);
         request.setLocale("en");
@@ -1024,6 +1029,9 @@ public abstract class BaseLoanIntegrationTest extends IntegrationTest {
         request.setStartDate(startDate);
         request.setNumberOfInstallments(numberOfInstallments);
         request.setReAgeInterestHandling(reAgeInterestHandling);
+        if (transactionAmount != null) {
+            request.transactionAmount(transactionAmount);
+        }
         loanTransactionHelper.reAge(loanId, request);
     }
 

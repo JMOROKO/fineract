@@ -36,7 +36,9 @@ Tomcat (min. v10) is only required, if you wish to deploy the Fineract WAR to a 
 
 SECURITY
 ============
-If you believe you have found a security vulnerability, [let us know privately](https://fineract.apache.org/#contribute).
+For a list of known vulnerabilities, see [Apache Fineract Security Reports](https://fineract.apache.org/security.html).
+
+If you believe you have found a new vulnerability, [let us know privately](https://fineract.apache.org/#contribute).
 
 For details about security during development and deployment, see the documentation [here](https://fineract.apache.org/docs/current/#_security).
 
@@ -201,6 +203,26 @@ git clone https://github.com/apache/fineract.git
 cd fineract/kubernetes
 minikube start
 ./kubectl-startup.sh
+```
+
+Wait for all pods to be ready:
+```bash
+kubectl get pods -w
+```
+
+Once all pods are running, access the Mifos web application:
+```bash
+minikube service mifos-community
+```
+
+This opens the Mifos X web application in your browser. The nginx reverse proxy in the mifos-community pod forwards API requests to the fineract-server backend.
+
+**Default credentials:**
+- Username: `mifos`
+- Password: `password`
+
+You can also access the Fineract API directly:
+```bash
 minikube service fineract-server --url --https
 ```
 
@@ -208,14 +230,22 @@ Fineract is now running at the printed URL, which you can check e.g. using:
 ```bash
 http --verify=no --timeout 240 --check-status get $(minikube service fineract-server --url --https)/fineract-provider/actuator/health
 ```
+
 To check the status of your containers on your local minikube Kubernetes cluster, run:
 ```bash
 minikube dashboard
 ```
+
 You can check Fineract logs using:
 ```bash
 kubectl logs deployment/fineract-server
 ```
+
+You can check Mifos web app logs using:
+```bash
+kubectl logs deployment/mifos-community
+```
+
 To shutdown and reset your cluster, run:
 ```bash
 ./kubectl-shutdown.sh
@@ -303,14 +333,18 @@ Please check `application.properties` to see which connection pool settings can 
 NOTE: We keep backwards compatibility until one of the next releases to ensure that things are working as expected. Environment variables prefixed `fineract_tenants_*` can still be used to configure the database connection, but we strongly encourage using `FINERACT_HIKARI_*` with more options.
 
 
-VERSIONS
+RELEASES
 ============
 
-A release version is derived from source control. The version will include `-SNAPSHOT` unless the current branch looks like a release or release maintenance branch. See `gitVersioning` settings in `build.gradle` for details.
+[Official releases](https://fineract.apache.org/#downloads) are created quarterly, at the end of each quarter. Our [documented release procedure](https://fineract.apache.org/docs/current/#_releases) follows the [ASF release policy](https://www.apache.org/legal/release-policy.html).
 
-The latest stable release can be viewed on the develop branch: [Latest Release on Develop](https://github.com/apache/fineract/tree/develop "Latest Release").
+See <https://cwiki.apache.org/confluence/display/FINERACT/Fineract+Releases> for an archive of historical release notes along with JIRA issues relevant to each release.
 
-The progress of this project can be viewed in the left hand navigation under [this page of the wiki](https://cwiki.apache.org/confluence/display/FINERACT/Fineract+Releases)
+See <https://github.com/apache/fineract/releases> for a list of PRs and contributors for each release.
+
+EOL/unsupported releases are [archived](https://www.apache.org/legal/release-policy.html#archived).
+
+Versioned build products created from the `develop` branch will include `-SNAPSHOT`. See [related settings](https://github.com/qoomon/gradle-git-versioning-plugin) near `version` and `gitVersioning` in `build.gradle` for details.
 
 
 LICENSE

@@ -2096,6 +2096,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "1 March 2024"
     And Admin does charge-off the loan on "1 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2152,6 +2153,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2208,6 +2210,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "14 February 2024"
     And Admin does charge-off the loan on "14 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "14 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2267,6 +2270,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 68.04 | 0          | 0    | 34.01       |
     When Admin sets the business date to "15 July 2024"
     And Admin does charge-off the loan on "15 July 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 July 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2326,6 +2330,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2382,6 +2387,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2460,6 +2466,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2539,6 +2546,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2620,6 +2628,7 @@ Feature: Charge-off
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "28 February 2024" due date and 3 EUR transaction amount
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2678,6 +2687,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "29 February 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -2736,6 +2746,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "05 March 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     And Admin waives charge
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Waived | Outstanding |
@@ -2796,6 +2807,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "05 March 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Waived | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |        |             |
@@ -2958,6 +2970,7 @@ Feature: Charge-off
       | 02 July 2024     | Credit Balance Refund | 3.0    | 3.0       | 0.0      | 0.0  | 0.0       | 19.9         | false    | true     |
     When Admin sets the business date to "15 July 2024"
     And Admin does charge-off the loan on "15 July 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 July 2024"
     Then Loan Repayment schedule has 7 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3021,6 +3034,7 @@ Feature: Charge-off
       | 100           | 1.5      | 0    | 0         | 101.5 | 17.01 | 17.01      | 0    | 84.49       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                 | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3141,6 +3155,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "1 March 2024"
     And Admin does charge-off the loan on "1 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3220,6 +3235,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3279,6 +3295,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "14 February 2024"
     And Admin does charge-off the loan on "14 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "14 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3348,6 +3365,7 @@ Feature: Charge-off
       | 01 May 2024      | Repayment        | 17.01  | 16.72     | 0.29     | 0.0  | 0.0       | 33.71        | false    | false    |
     When Admin sets the business date to "15 July 2024"
     And Admin does charge-off the loan on "15 July 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 July 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3415,6 +3433,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3494,6 +3513,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3578,6 +3598,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3658,6 +3679,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3738,6 +3760,7 @@ Feature: Charge-off
       | 15 January 2024  | Repayment        | 17.01  | 17.01     | 0.0      | 0.0  | 0.0       | 82.99        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                 | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3819,6 +3842,7 @@ Feature: Charge-off
       | 15 February 2024 | Repayment        | 17.01  | 17.01     | 0.0      | 0.0  | 0.0       | 66.56        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -3951,6 +3975,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "1 March 2024"
     And Admin does charge-off the loan on "1 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4007,6 +4032,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4063,6 +4089,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "14 February 2024"
     And Admin does charge-off the loan on "14 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "14 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4122,6 +4149,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 68.04 | 0          | 0    | 34.01       |
     When Admin sets the business date to "15 July 2024"
     And Admin does charge-off the loan on "15 July 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 July 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4181,6 +4209,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4237,6 +4266,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4314,6 +4344,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4392,6 +4423,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4473,6 +4505,7 @@ Feature: Charge-off
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "28 February 2024" due date and 3 EUR transaction amount
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4531,6 +4564,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "29 February 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4589,6 +4623,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "05 March 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     And Admin waives charge
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Waived | Outstanding |
@@ -4649,6 +4684,7 @@ Feature: Charge-off
     When Admin sets the business date to "29 February 2024"
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "05 March 2024" due date and 3 EUR transaction amount
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Waived | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |        |             |
@@ -4811,6 +4847,7 @@ Feature: Charge-off
       | 02 July 2024     | Credit Balance Refund | 3.0    | 3.0       | 0.0      | 0.0  | 0.0       | 19.9         | false    | true     |
     When Admin sets the business date to "15 July 2024"
     And Admin does charge-off the loan on "15 July 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 July 2024"
     Then Loan Repayment schedule has 7 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -4874,6 +4911,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 17.01      | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                 | 100.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
@@ -4932,6 +4970,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.15 | 17.15      | 0    | 84.9        |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                 | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5045,6 +5084,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan with reason "FRAUD" on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5107,6 +5147,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan with reason "DELINQUENT" on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5169,6 +5210,7 @@ Feature: Charge-off
       | 100           | 2.05     | 0    | 0         | 102.05 | 17.01 | 0          | 0    | 85.04       |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan with reason "OTHER" on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5240,6 +5282,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "01 March 2024"
     And Admin does charge-off the loan on "01 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5302,6 +5345,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "01 March 2024"
     And Admin does charge-off the loan on "01 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5364,6 +5408,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "01 March 2024"
     And Admin does charge-off the loan on "01 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5440,6 +5485,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "01 March 2024"
     And Admin does charge-off the loan on "01 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5502,6 +5548,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "01 March 2024"
     And Admin does charge-off the loan on "01 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "01 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5564,6 +5611,7 @@ Feature: Charge-off
       | 01 January 2024  | Disbursement     | 100.0  | 0.0       | 0.0      | 0.0  | 0.0       | 100.0        | false    | false    |
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     And Admin does charge-off the loan on "15 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 February 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5626,6 +5674,7 @@ Feature: Charge-off
       | 01 January 2024  | Disbursement     | 100.0  | 0.0       | 0.0      | 0.0  | 0.0       | 100.0        | false    | false    |
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     And Admin does charge-off the loan on "15 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "15 February 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5703,6 +5752,7 @@ Feature: Charge-off
       | 15 January 2024  | Repayment        | 17.01  | 17.01     | 0.0      | 0.0  | 0.0       | 82.99        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5781,6 +5831,7 @@ Feature: Charge-off
       | 15 February 2024 | Repayment        | 17.01  | 17.01     | 0.0      | 0.0  | 0.0       | 66.56        | false    | false    |
     When Admin sets the business date to "29 February 2024"
     And Admin does charge-off the loan on "29 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "29 February 2024"
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5842,6 +5893,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5924,6 +5976,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -5986,6 +6039,7 @@ Feature: Charge-off
       | 01 January 2024  | Disbursement     | 100.0  | 0.0       | 0.0      | 0.0  | 0.0       | 100.0        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -6707,6 +6761,7 @@ Feature: Charge-off
       | 15 January 2023  | Repayment        | 170.09 | 167.46    | 2.63     | 0.0  | 0.0       | 832.54       | false    | false    |
     When Admin sets the business date to "31 January 2023"
     And Admin does charge-off the loan on "31 January 2023"
+    Then LoanBalanceChangedBusinessEvent is created on "31 January 2023"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
       |    |      | 01 January 2023  |                 | 1000.0          |               |          | 0.0  |           | 0.0    | 0.0    |            |      |             |
@@ -6921,6 +6976,7 @@ Feature: Charge-off
       | 29 January 2024  | Accrual          | 0.02    | 0.0       | 0.02     | 0.0   | 0.0       | 0.0          | false    | false    |
       | 30 January 2024  | Accrual          | 0.02    | 0.0       | 0.02     | 0.0   | 0.0       | 0.0          | false    | false    |
     And Admin does charge-off the loan on "31 January 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 January 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees  | Penalties | Due     | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0   |           | 0.0     | 0.0  |            |      |             |
@@ -7149,6 +7205,7 @@ Feature: Charge-off
       | 18 January 2024  | Accrual          | 0.52   | 0.0       | 0.52     | 0.0  | 0.0       | 0.0          | false    | false    |
       | 19 January 2024  | Accrual          | 0.52   | 0.0       | 0.52     | 0.0  | 0.0       | 0.0          | false    | false    |
     And Admin does charge-off the loan on "20 January 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "20 January 2024"
     Then Loan Repayment schedule has 4 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date       | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                 | 1000.0          |               |          | 0.0  |           | 0.0    | 0.0    |            |      |             |
@@ -7237,6 +7294,7 @@ Feature: Charge-off
     When Admin sets the business date to "14 February 2024"
     When Admin runs inline COB job for Loan
     And Admin does charge-off the loan on "14 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "14 February 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
@@ -7771,6 +7829,7 @@ Feature: Charge-off
     Then Admin can successfully set Fraud flag to the loan
     When Admin sets the business date to "03 February 2024"
     And Admin does charge-off the loan with reason "DELINQUENT" on "03 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "03 February 2024"
     Then Loan Transactions tab has a "CHARGE_OFF" transaction with date "03 February 2024" which has the following Journal entries:
       | Type    | Account code | Account name               | Debit | Credit |
       | ASSET   | 112601       | Loans Receivable           |       | 100.0  |
@@ -7812,6 +7871,7 @@ Feature: Charge-off
     And Admin successfully disburse the loan on "1 January 2024" with "100" EUR transaction amount
     When Admin sets the business date to "23 January 2024"
     And Admin does charge-off the loan on "23 January 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "23 January 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
@@ -7927,6 +7987,7 @@ Feature: Charge-off
       | 22 January 2024  | Accrual            | 0.4    | 0.0       | 0.4      | 0.0  | 0.0       | 0.0          | false    | false    |
       | 23 January 2024  | Repayment          | 17.01  | 16.6      | 0.41     | 0.0  | 0.0       | 83.4         | true     | false    |
     And Admin does charge-off the loan on "05 January 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "23 January 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
@@ -8047,6 +8108,7 @@ Feature: Charge-off
       | 22 January 2024  | Accrual            | 0.02   | 0.0       | 0.02     | 0.0  | 0.0       | 0.0          | false    | false    |
       | 23 January 2024  | Repayment          | 17.01  | 16.6      | 0.41     | 0.0  | 0.0       | 83.4         | true     | false    |
     And Admin does charge-off the loan on "05 January 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "23 January 2024"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |           | 100.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
@@ -8367,6 +8429,7 @@ Feature: Charge-off
     When Admin runs inline COB job for Loan
     When Admin sets the business date to "14 April 2025"
     And Admin does charge-off the loan with reason "DELINQUENT" on "14 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "14 April 2025"
     Then Loan marked as charged-off on "14 April 2025"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date              | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Waived | Outstanding |
@@ -8478,6 +8541,7 @@ Feature: Charge-off
     When Admin runs inline COB job for Loan
     When Admin sets the business date to "14 April 2025"
     And Admin does charge-off the loan with reason "DELINQUENT" on "14 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "14 April 2025"
     Then Loan marked as charged-off on "14 April 2025"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date              | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Waived | Outstanding |
@@ -8612,6 +8676,7 @@ Feature: Charge-off
     Then Admin can successfully set Fraud flag to the loan
     When Admin sets the business date to "03 February 2024"
     And Admin does charge-off the loan with reason "DELINQUENT" on "03 February 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "03 February 2024"
     Then Loan Transactions tab has a "CHARGE_OFF" transaction with date "03 February 2024" which has the following Journal entries:
       | Type    | Account code | Account name               | Debit | Credit |
       | ASSET   | 112601       | Loans Receivable           |       | 100.0  |
@@ -8892,6 +8957,7 @@ Feature: Charge-off
       | 05 April 2025    | Repayment        | 100.0  | 100.0     | 0.0      | 0.0  | 0.0       | 800.0        |
     When Admin sets the business date to "14 April 2025"
     And Admin does charge-off the loan on "14 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "14 April 2025"
     When Admin runs inline COB job for Loan
     Then Loan Repayment schedule has 1 periods, with the following data for periods:
       | Nr | Days | Date          | Paid date    | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
@@ -9245,6 +9311,7 @@ Feature: Charge-off
     When Admin runs inline COB job for Loan
     When Admin sets the business date to "14 April 2025"
     And Admin does charge-off the loan with reason "DELINQUENT" on "14 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "14 April 2025"
     Then Loan marked as charged-off on "14 April 2025"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date              | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Waived | Outstanding |
@@ -9334,6 +9401,7 @@ Feature: Charge-off
     When Admin runs inline COB job for Loan
     When Admin sets the business date to "14 April 2025"
     And Admin does charge-off the loan with reason "DELINQUENT" on "14 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "14 April 2025"
     Then Loan marked as charged-off on "14 April 2025"
     Then Loan Repayment schedule has 6 periods, with the following data for periods:
       | Nr | Days | Date              | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Waived | Outstanding |
@@ -9460,6 +9528,7 @@ Feature: Charge-off
   # Charge-off on 01 April 2025 (accelerated maturity)
     When Admin sets the business date to "01 April 2025"
     And Admin does charge-off the loan on "01 April 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "01 April 2025"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due     | Paid   | In advance | Late | Outstanding |
       |    |      | 06 January 2025  |                  | 5000.0          |               |          | 0.0  |           | 0.0     | 0.0    |            |      |             |
@@ -9546,6 +9615,7 @@ Feature: Charge-off
       | 01 February 2024 | Repayment        | 17.01  | 16.43     | 0.58     | 0.0  | 0.0       | 83.57        | false    | false    |
     When Admin sets the business date to "31 March 2024"
     And Admin does charge-off the loan with reason "OTHER" on "31 March 2024"
+    Then LoanBalanceChangedBusinessEvent is created on "31 March 2024"
     Then Loan Repayment schedule has 3 periods, with the following data for periods:
       | Nr | Days | Date             | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
       |    |      | 01 January 2024  |                  | 100.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
@@ -10003,6 +10073,7 @@ Feature: Charge-off
       | 01 October 2025   | Accrual Activity | 3.67   | 0.0       | 3.67     | 0.0  | 0.0       | 0.0          |
       | 07 October 2025   | Accrual          | 20.67  | 0.0       | 20.67    | 0.0  | 0.0       | 0.0          |
     And Admin does charge-off the loan on "08 October 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "08 October 2025"
     Then Loan has 11.51 total unpaid payable due interest
     Then Loan has 0.79 total unpaid payable not due interest
     Then Loan Repayment schedule has the following data in Total row:
@@ -10074,5 +10145,353 @@ Feature: Charge-off
       | 01 September 2025 | Accrual Activity | 3.84   | 0.0       | 3.84     | 0.0  | 0.0       | 0.0          |
       | 30 September 2025 | Accrual          | 19.87  | 0.0       | 19.87    | 0.0  | 0.0       | 0.0          |
     And Admin does charge-off the loan on "01 October 2025"
+    Then LoanBalanceChangedBusinessEvent is created on "01 October 2025"
     Then Loan has 11.51 total unpaid payable due interest
     Then Loan has 0.0 total unpaid payable not due interest
+
+  @TestRailId:C4579
+  Scenario: Verify charge-off after repayment reversal with merchant refund and credit balance refund
+    When Admin sets the business date to "03 November 2025"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                                                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type     | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
+      | LP2_ADV_CUSTOM_PMT_ALLOC_INTEREST_DAILY_EMI_ACTUAL_ACTUAL_INTEREST_RECALC_ZERO_CHARGE_OFF_ACCRUAL | 03 November 2025  | 127.17         | 9.51                   | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 24                | MONTHS                | 1              | MONTHS                 | 24                 | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+    And Admin successfully approves the loan on "03 November 2025" with "127.17" amount and expected disbursement date on "03 November 2025"
+    When Admin successfully disburse the loan on "03 November 2025" with "127.17" EUR transaction amount
+    When Admin sets the business date to "03 December 2025"
+    When Customer makes "REPAYMENT" transaction with "AUTOPAY" payment type on "03 December 2025" with 6 EUR transaction amount and system-generated Idempotency key
+    When Admin sets the business date to "17 December 2025"
+    When Customer makes "MERCHANT_ISSUED_REFUND" transaction with "AUTOPAY" payment type on "17 December 2025" with 145 EUR transaction amount and system-generated Idempotency key
+    When Admin sets the business date to "23 January 2026"
+    When Admin makes Credit Balance Refund transaction on "23 January 2026" with 23.83 EUR transaction amount
+    When Customer undo "1"th "Repayment" transaction made on "03 December 2025"
+    And Admin does charge-off the loan on "23 January 2026"
+    Then Loan status will be "ACTIVE"
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted |
+      | 03 November 2025 | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    |
+      | 03 December 2025 | Repayment              | 6.0    | 5.01      | 0.99     | 0.0  | 0.0       | 122.16       | true     |
+      | 03 December 2025 | Accrual Activity       | 0.99   | 0.0       | 0.99     | 0.0  | 0.0       | 0.0          | false    |
+      | 17 December 2025 | Accrual                | 1.44   | 0.0       | 1.44     | 0.0  | 0.0       | 0.0          | false    |
+      | 17 December 2025 | Merchant Issued Refund | 145.0  | 127.17    | 1.45     | 0.0  | 0.0       | 0.0          | false    |
+      | 17 December 2025 | Interest Refund        | 1.45   | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    |
+      | 17 December 2025 | Accrual Activity       | 0.46   | 0.0       | 0.46     | 0.0  | 0.0       | 0.0          | false    |
+      | 03 January 2026  | Accrual Activity       | 0.46   | 0.0       | 0.46     | 0.0  | 0.0       | 0.0          | false    |
+      | 23 January 2026  | Credit Balance Refund  | 23.83  | 6.0       | 0.0      | 0.0  | 0.0       | 6.0          | false    |
+      | 23 January 2026  | Accrual                | 0.01   | 0.0       | 0.01     | 0.0  | 0.0       | 0.0          | false    |
+      | 23 January 2026  | Charge-off             | 6.0    | 6.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    |
+    Then Loan Repayment schedule has 24 periods, with the following data for periods:
+      | Nr | Days | Date              | Paid date        | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      |    |      | 03 November 2025  |                  | 127.17          |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
+      | 1  | 30   | 03 December 2025  | 17 December 2025 | 122.32          | 4.85          | 0.99     | 0.0  | 0.0       | 5.84  | 5.84  | 0.0        | 5.84 | 0.0         |
+      | 2  | 31   | 03 January 2026   | 17 December 2025 | 116.94          | 5.38          | 0.46     | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 3  | 31   | 03 February 2026  |                  | 111.1           | 29.67         | 0.0      | 0.0  | 0.0       | 29.67 | 23.67 | 23.67      | 0.0  | 6.0         |
+      | 4  | 28   | 03 March 2026     | 17 December 2025 | 105.26          | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 5  | 31   | 03 April 2026     | 17 December 2025 | 99.42           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 6  | 30   | 03 May 2026       | 17 December 2025 | 93.58           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 7  | 31   | 03 June 2026      | 17 December 2025 | 87.74           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 8  | 30   | 03 July 2026      | 17 December 2025 | 81.9            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 9  | 31   | 03 August 2026    | 17 December 2025 | 76.06           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 10 | 31   | 03 September 2026 | 17 December 2025 | 70.22           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 11 | 30   | 03 October 2026   | 17 December 2025 | 64.38           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 12 | 31   | 03 November 2026  | 17 December 2025 | 58.54           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 13 | 30   | 03 December 2026  | 17 December 2025 | 52.7            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 14 | 31   | 03 January 2027   | 17 December 2025 | 46.86           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 15 | 31   | 03 February 2027  | 17 December 2025 | 41.02           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 16 | 28   | 03 March 2027     | 17 December 2025 | 35.18           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 17 | 31   | 03 April 2027     | 17 December 2025 | 29.34           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 18 | 30   | 03 May 2027       | 17 December 2025 | 23.5            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 19 | 31   | 03 June 2027      | 17 December 2025 | 17.66           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 20 | 30   | 03 July 2027      | 17 December 2025 | 11.82           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 21 | 31   | 03 August 2027    | 17 December 2025 | 5.98            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 22 | 31   | 03 September 2027 | 17 December 2025 | 0.14            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 23 | 30   | 03 October 2027   | 17 December 2025 | 0.0             | 0.14          | 0.0      | 0.0  | 0.0       | 0.14  | 0.14  | 0.14       | 0.0  | 0.0         |
+      | 24 | 31   | 03 November 2027  | 17 December 2025 | 0.0             | 0.0           | 0.0      | 0.0  | 0.0       | 0.0   | 0.0   | 0.0        | 0.0  | 0.0         |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 151.0         | 1.45     | 0.0  | 0.0       | 152.45 | 146.45 | 140.61     | 5.84 | 6.0         |
+    When Loan Pay-off is made on "23 January 2026"
+    Then Loan's all installments have obligations met
+
+  @TestRailId:C4580
+  Scenario: Verify charge-off after repayment reversal with multiple merchant refunds and credit balance refund
+    When Admin sets the business date to "12 March 2023"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                                                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type     | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
+      | LP2_ADV_CUSTOM_PMT_ALLOC_INTEREST_DAILY_EMI_ACTUAL_ACTUAL_INTEREST_RECALC_ZERO_CHARGE_OFF_ACCRUAL | 12 March 2023     | 127.17         | 9.51                   | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 24                | MONTHS                | 1              | MONTHS                 | 24                 | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+    And Admin successfully approves the loan on "12 March 2023" with "127.17" amount and expected disbursement date on "12 March 2023"
+#  --- Step 1: Disbursement ---
+    When Admin successfully disburse the loan on "12 March 2023" with "127.17" EUR transaction amount
+    Then Loan Repayment schedule has 24 periods, with the following data for periods:
+      | Nr | Days | Date              | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due  | Paid | In advance | Late | Outstanding |
+      |    |      | 12 March 2023     |           | 127.17          |               |          | 0.0  |           | 0.0  | 0.0  |            |      |             |
+      | 1  | 31   | 12 April 2023     |           | 122.36          | 4.81          | 1.03     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 2  | 30   | 12 May 2023       |           | 117.48          | 4.88          | 0.96     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 3  | 31   | 12 June 2023      |           | 112.59          | 4.89          | 0.95     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 4  | 30   | 12 July 2023      |           | 107.63          | 4.96          | 0.88     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 5  | 31   | 12 August 2023    |           | 102.66          | 4.97          | 0.87     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 6  | 31   | 12 September 2023 |           | 97.65           | 5.01          | 0.83     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 7  | 30   | 12 October 2023   |           | 92.57           | 5.08          | 0.76     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 8  | 31   | 12 November 2023  |           | 87.48           | 5.09          | 0.75     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 9  | 30   | 12 December 2023  |           | 82.32           | 5.16          | 0.68     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 10 | 31   | 12 January 2024   |           | 77.14           | 5.18          | 0.66     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 11 | 31   | 12 February 2024  |           | 71.92           | 5.22          | 0.62     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 12 | 29   | 12 March 2024     |           | 66.62           | 5.3           | 0.54     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 13 | 31   | 12 April 2024     |           | 61.32           | 5.3           | 0.54     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 14 | 30   | 12 May 2024       |           | 55.96           | 5.36          | 0.48     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 15 | 31   | 12 June 2024      |           | 50.57           | 5.39          | 0.45     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 16 | 30   | 12 July 2024      |           | 45.13           | 5.44          | 0.4      | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 17 | 31   | 12 August 2024    |           | 39.65           | 5.48          | 0.36     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 18 | 31   | 12 September 2024 |           | 34.13           | 5.52          | 0.32     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 19 | 30   | 12 October 2024   |           | 28.56           | 5.57          | 0.27     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 20 | 31   | 12 November 2024  |           | 22.95           | 5.61          | 0.23     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 21 | 30   | 12 December 2024  |           | 17.29           | 5.66          | 0.18     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 22 | 31   | 12 January 2025   |           | 11.59           | 5.7           | 0.14     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 23 | 31   | 12 February 2025  |           | 5.84            | 5.75          | 0.09     | 0.0  | 0.0       | 5.84 | 0.0  | 0.0        | 0.0  | 5.84        |
+      | 24 | 28   | 12 March 2025     |           | 0.0             | 5.84          | 0.04     | 0.0  | 0.0       | 5.88 | 0.0  | 0.0        | 0.0  | 5.88        |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      | 127.17        | 13.03    | 0.0  | 0.0       | 140.20 | 0.0  | 0.0        | 0.0  | 140.20      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement     | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+#  --- Step 2: First Repayment ---
+    When Admin sets the business date to "12 April 2023"
+    When Customer makes "REPAYMENT" transaction with "AUTOPAY" payment type on "12 April 2023" with 5.84 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      | 127.17        | 13.03    | 0.0  | 0.0       | 140.20 | 5.84 | 0.0        | 0.0  | 134.36      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement     | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment        | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+#  --- Step 3: Merchant Issued Refunds (2x 42.39) ---
+    When Admin sets the business date to "20 April 2023"
+    When Customer makes "MERCHANT_ISSUED_REFUND" transaction with "AUTOPAY" payment type on "20 April 2023" with 42.39 EUR transaction amount and system-generated Idempotency key
+    When Customer makes "MERCHANT_ISSUED_REFUND" transaction with "AUTOPAY" payment type on "20 April 2023" with 42.39 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid  | In advance | Late | Outstanding |
+      | 127.17        | 4.4      | 0.0  | 0.0       | 131.57 | 91.49 | 85.65      | 0.0  | 40.08       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+#  --- Step 4: Repayment on 12 May 2023 (will be reversed later) ---
+    When Admin sets the business date to "12 May 2023"
+    When Customer makes "REPAYMENT" transaction with "AUTOPAY" payment type on "12 May 2023" with 5.84 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid  | In advance | Late | Outstanding |
+      | 127.17        | 4.32     | 0.0  | 0.0       | 131.49 | 97.33 | 90.29      | 0.0  | 34.16       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | false    | false    |
+#  --- Step 5: Undo Repayment from 12 May 2023 ---
+    When Admin sets the business date to "13 May 2023"
+    When Customer undo "1"th "Repayment" transaction made on "12 May 2023"
+    Then On Loan Transactions tab the "Repayment" Transaction with date "12 May 2023" is reverted
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid  | In advance | Late | Outstanding |
+      | 127.17        | 4.4      | 0.0  | 0.0       | 131.57 | 91.49 | 85.65       | 0.0  | 40.08      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+#  --- Step 6: Repayment on 22 May 2023 ---
+    When Admin sets the business date to "22 May 2023"
+    When Customer makes "REPAYMENT" transaction with "REAL_TIME" payment type on "22 May 2023" with 5.84 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid  | In advance | Late | Outstanding |
+      | 127.17        | 4.35     | 0.0  | 0.0       | 131.52 | 97.33 | 90.29      | 1.2  | 34.19       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+    When Admin sets the business date to "12 June 2023"
+    When Customer makes "REPAYMENT" transaction with "AUTOPAY" payment type on "12 June 2023" with 5.84 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 127.17        | 4.17     | 0.0  | 0.0       | 131.34 | 103.17 | 96.13     | 1.2  | 28.17       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84   | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+#  --- Step 8: Repayment on 12 July 2023 (will be reversed later) ---
+    When Admin sets the business date to "12 July 2023"
+    When Customer makes "REPAYMENT" transaction with "AUTOPAY" payment type on "12 July 2023" with 5.84 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 127.17        | 3.9      | 0.0  | 0.0       | 131.07 | 109.01 | 101.97     | 1.2  | 22.06       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84   | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+      | 12 July 2023     | Repayment              | 5.84   | 5.64      | 0.2      | 0.0  | 0.0       | 20.13        | false    | false    |
+#  --- Step 9: Merchant Issued Refund on 24 July 2023 ---
+    When Admin sets the business date to "24 July 2023"
+    When Customer makes "MERCHANT_ISSUED_REFUND" transaction with "AUTOPAY" payment type on "24 July 2023" with 42.39 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 127.17        | 2.03     | 0.0  | 0.0       | 129.2  | 129.2  | 122.16     | 1.2  | 0.0         |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 12 April 2023    | Accrual Activity       | 1.03   | 0.0       | 1.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 12 May 2023      | Accrual Activity       | 0.47   | 0.0       | 0.47     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84   | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+      | 12 June 2023     | Accrual Activity       | 0.1    | 0.0       | 0.1      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 12 July 2023     | Repayment              | 5.84   | 5.64      | 0.2      | 0.0  | 0.0       | 20.13        | false    | false    |
+      | 24 July 2023     | Merchant Issued Refund | 42.39  | 20.13     | 0.06     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Interest Refund        | 1.16   | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Accrual                | 2.03   | 0.0       | 2.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Accrual Activity       | 0.43   | 0.0       | 0.43     | 0.0  | 0.0       | 0.0          | false    | false    |
+    Then Loan status will be "OVERPAID"
+#  --- Step 10: Credit Balance Refund on 25 July 2023 ---
+    When Admin sets the business date to "25 July 2023"
+    When Admin makes Credit Balance Refund transaction on "25 July 2023" with 23.36 EUR transaction amount
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 127.17        | 2.03     | 0.0  | 0.0       | 129.2  | 129.2  | 122.16     | 1.2  | 0.0         |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 12 April 2023    | Accrual Activity       | 1.03   | 0.0       | 1.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 12 May 2023      | Accrual Activity       | 0.47   | 0.0       | 0.47     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84   | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+      | 12 June 2023     | Accrual Activity       | 0.1    | 0.0       | 0.1      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 12 July 2023     | Repayment              | 5.84   | 5.64      | 0.2      | 0.0  | 0.0       | 20.13        | false    | false    |
+      | 24 July 2023     | Merchant Issued Refund | 42.39  | 20.13     | 0.06     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Interest Refund        | 1.16   | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Accrual                | 2.03   | 0.0       | 2.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Accrual Activity       | 0.43   | 0.0       | 0.43     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 25 July 2023     | Credit Balance Refund  | 23.36  | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+    Then Loan status will be "CLOSED_OBLIGATIONS_MET"
+#  --- Step 11: Undo Repayment from 12 July 2023 ---
+    When Customer undo "1"th "Repayment" transaction made on "12 July 2023"
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 150.53        | 2.36     | 0.0  | 0.0       | 152.89 | 146.74 | 139.7      | 1.2  | 6.15        |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17 | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84   | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 12 April 2023    | Accrual Activity       | 1.03   | 0.0       | 1.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44   | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39  | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43   | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84   | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 12 May 2023      | Accrual Activity       | 0.47   | 0.0       | 0.47     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 22 May 2023      | Repayment              | 5.84   | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84   | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+      | 12 June 2023     | Accrual Activity       | 0.1    | 0.0       | 0.1      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 12 July 2023     | Repayment              | 5.84   | 5.64      | 0.2      | 0.0  | 0.0       | 20.13        | true     | false    |
+      | 24 July 2023     | Accrual                | 2.03   | 0.0       | 2.03     | 0.0  | 0.0       | 0.0          | false    | false     |
+      | 24 July 2023     | Merchant Issued Refund | 42.39  | 25.77     | 0.28     | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 24 July 2023     | Interest Refund        | 1.18   | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 25 July 2023     | Credit Balance Refund  | 23.36  | 5.84      | 0.0      | 0.0  | 0.0       | 5.84         | false    | true     |
+    Then Loan status will be "ACTIVE"
+#  --- Step 12: Charge-off on 26 July 2023
+    When Admin sets the business date to "26 July 2023"
+    And Admin does charge-off the loan on "26 July 2023"
+    Then Loan Repayment schedule has 24 periods, with the following data for periods:
+      | Nr | Days | Date              | Paid date     | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      |    |      | 12 March 2023     |               | 127.17          |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
+      | 1  | 31   | 12 April 2023     | 12 April 2023 | 122.36          | 4.81          | 1.03     | 0.0  | 0.0       | 5.84  | 5.84  | 0.0        | 0.0  | 0.0         |
+      | 2  | 30   | 12 May 2023       | 22 May 2023   | 116.99          | 5.37          | 0.47     | 0.0  | 0.0       | 5.84  | 5.84  | 4.64       | 1.2  | 0.0         |
+      | 3  | 31   | 12 June 2023      | 22 May 2023   | 111.25          | 5.74          | 0.1      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 4  | 30   | 12 July 2023      | 22 May 2023   | 105.41          | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 5  | 31   | 12 August 2023    |               | 99.74           | 29.03         | 0.45     | 0.0  | 0.0       | 29.48 | 23.36 | 23.36      | 0.0  | 6.12        |
+      | 6  | 31   | 12 September 2023 | 12 June 2023  | 93.9            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 7  | 30   | 12 October 2023   | 12 June 2023  | 88.06           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 8  | 31   | 12 November 2023  | 24 July 2023  | 82.5            | 5.56          | 0.28     | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 9  | 30   | 12 December 2023  | 24 July 2023  | 76.66           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 10 | 31   | 12 January 2024   | 24 July 2023  | 70.82           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 11 | 31   | 12 February 2024  | 24 July 2023  | 64.98           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 12 | 29   | 12 March 2024     | 24 July 2023  | 59.14           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 13 | 31   | 12 April 2024     | 24 July 2023  | 53.3            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 14 | 30   | 12 May 2024       | 24 July 2023  | 47.46           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 15 | 31   | 12 June 2024      | 24 July 2023  | 41.62           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 16 | 30   | 12 July 2024      | 24 July 2023  | 35.78           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 17 | 31   | 12 August 2024    | 24 July 2023  | 29.94           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 18 | 31   | 12 September 2024 | 24 July 2023  | 24.1            | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 19 | 30   | 12 October 2024   | 24 July 2023  | 18.26           | 5.84          | 0.0      | 0.0  | 0.0       | 5.84  | 5.84  | 5.84       | 0.0  | 0.0         |
+      | 20 | 31   | 12 November 2024  | 24 July 2023  | 13.15           | 5.11          | 0.0      | 0.0  | 0.0       | 5.11  | 5.11  | 5.11       | 0.0  | 0.0         |
+      | 21 | 30   | 12 December 2024  | 24 July 2023  | 9.38            | 3.77          | 0.0      | 0.0  | 0.0       | 3.77  | 3.77  | 3.77       | 0.0  | 0.0         |
+      | 22 | 31   | 12 January 2025   | 20 April 2023 | 5.61            | 3.77          | 0.0      | 0.0  | 0.0       | 3.77  | 3.77  | 3.77       | 0.0  | 0.0         |
+      | 23 | 31   | 12 February 2025  | 20 April 2023 | 1.91            | 3.7           | 0.0      | 0.0  | 0.0       | 3.7   | 3.7   | 3.7        | 0.0  | 0.0         |
+      | 24 | 28   | 12 March 2025     | 20 April 2023 | 0.0             | 1.91          | 0.0      | 0.0  | 0.0       | 1.91  | 1.91  | 1.91       | 0.0  | 0.0         |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid   | In advance | Late | Outstanding |
+      | 150.53        | 2.33     | 0.0  | 0.0       | 152.86 | 146.74 | 139.7      | 1.2  | 6.12        |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount  | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 12 March 2023    | Disbursement           | 127.17  | 0.0       | 0.0      | 0.0  | 0.0       | 127.17       | false    | false    |
+      | 12 April 2023    | Repayment              | 5.84    | 4.81      | 1.03     | 0.0  | 0.0       | 122.36       | false    | false    |
+      | 12 April 2023    | Accrual Activity       | 1.03    | 0.0       | 1.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39   | 42.39     | 0.0      | 0.0  | 0.0       | 79.97        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.44    | 0.44      | 0.0      | 0.0  | 0.0       | 79.53        | false    | false    |
+      | 20 April 2023    | Merchant Issued Refund | 42.39   | 42.39     | 0.0      | 0.0  | 0.0       | 37.14        | false    | false    |
+      | 20 April 2023    | Interest Refund        | 0.43    | 0.43      | 0.0      | 0.0  | 0.0       | 36.71        | false    | false    |
+      | 12 May 2023      | Repayment              | 5.84    | 5.37      | 0.47     | 0.0  | 0.0       | 31.34        | true     | false    |
+      | 12 May 2023      | Accrual Activity       | 0.47    | 0.0       | 0.47     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 22 May 2023      | Repayment              | 5.84    | 5.27      | 0.57     | 0.0  | 0.0       | 31.44        | false    | false    |
+      | 12 June 2023     | Repayment              | 5.84    | 5.67      | 0.17     | 0.0  | 0.0       | 25.77        | false    | false    |
+      | 12 June 2023     | Accrual Activity       | 0.1    | 0.0       | 0.1      | 0.0  | 0.0       | 0.0           | false    | false    |
+      | 12 July 2023     | Repayment              | 5.84    | 5.64      | 0.2      | 0.0  | 0.0       | 20.13        | true     | false    |
+      | 24 July 2023     | Accrual                | 2.03    | 0.0       | 2.03     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 24 July 2023     | Merchant Issued Refund | 42.39   | 25.77     | 0.28     | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 24 July 2023     | Interest Refund        | 1.18    | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 25 July 2023     | Credit Balance Refund  | 23.36   | 5.84      | 0.0      | 0.0  | 0.0       | 5.84         | false    | true     |
+      | 26 July 2023     | Accrual                | 0.02    | 0.0       | 0.02     | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 26 July 2023     | Charge-off             | 6.12   | 5.84       | 0.28     | 0.0  | 0.0       | 0.0          | false    | false    |
+    Then Loan status will be "ACTIVE"

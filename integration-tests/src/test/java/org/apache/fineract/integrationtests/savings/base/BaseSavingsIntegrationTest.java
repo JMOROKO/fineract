@@ -115,6 +115,7 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
                 .description("Daily interest posting product") //
                 .nominalAnnualInterestRate(10.0) //
                 .digitsAfterDecimal(0) //
+                .inMultiplesOf(0) //
                 .currencyCode("EUR") //
                 .accountingRule(1) // none
                 .interestCalculationDaysInYearType(DaysInYearType.DAYS_365).interestCompoundingPeriodType(InterestPeriodType.DAILY)
@@ -128,7 +129,7 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
     }
 
     protected PostSavingsProductsResponse createProduct(PostSavingsProductsRequest productsRequest) {
-        return ok(fineractClient().savingsProducts.create13(productsRequest));
+        return ok(fineractClient().savingsProducts.create14(productsRequest));
     }
 
     protected PostSavingsAccountsRequest applySavingsRequest(Long clientId, Long productId, String submittedDate) {
@@ -162,11 +163,11 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
     }
 
     protected SavingsAccountData getSavingsAccount(Long savingsId) {
-        return ok(fineractClient().savingsAccounts.retrieveOne25(savingsId, false, null, "transactions"));
+        return ok(fineractClient().savingsAccounts.retrieveOne26(savingsId, false, null, "transactions"));
     }
 
     protected List<SavingsAccountTransactionData> getTransactions(Long savingsId) {
-        return ok(fineractClient().savingsAccounts.retrieveOne25(savingsId, false, null, "transactions")).getTransactions();
+        return ok(fineractClient().savingsAccounts.retrieveOne26(savingsId, false, null, "transactions")).getTransactions();
     }
 
     protected void verifyNoTransactions(Long savingsId) {
@@ -174,7 +175,7 @@ public class BaseSavingsIntegrationTest extends IntegrationTest {
     }
 
     protected void verifyTransactions(Long savingsId, Transaction... transactions) {
-        SavingsAccountData savingsDetails = ok(fineractClient().savingsAccounts.retrieveOne25(savingsId, false, null, "transactions"));
+        SavingsAccountData savingsDetails = ok(fineractClient().savingsAccounts.retrieveOne26(savingsId, false, null, "transactions"));
         if (transactions == null || transactions.length == 0) {
             Assertions.assertTrue(savingsDetails.getTransactions().isEmpty(), "No transaction is expected on savings account " + savingsId);
         } else {

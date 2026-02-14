@@ -116,7 +116,11 @@ public enum GLAccountType {
 
     @Override
     public String toString() {
-        return name().toString();
+        return name();
+    }
+
+    public EnumOptionData toEnumOptionData() {
+        return new EnumOptionData((long) value, code, code);
     }
 
     public boolean isAssetType() {

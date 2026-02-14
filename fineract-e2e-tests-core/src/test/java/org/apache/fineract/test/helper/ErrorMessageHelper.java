@@ -470,6 +470,18 @@ public final class ErrorMessageHelper {
                 + "%nNumber of transaction tab lines: %s %nNumber of expected datatable lines: %s%n", resourceId, actual, expected);
     }
 
+    public static String wrongValueInLineInRescheduleTab(String resourceId, int line, List<List<String>> actualList,
+            List<String> expected) {
+        String actual = actualList.stream().map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
+        return String.format("%nWrong value in Reschedule tab of resource %s line %s." //
+                + "%nActual values in line are: %n%s %nExpected values in line: %n%s", resourceId, line, actual, expected);
+    }
+
+    public static String nrOfLinesWrongInRescheduleTab(String resourceId, int actual, int expected) {
+        return String.format("%nNumber of lines does not match in Reschedule tab and expected datatable of resource %s." //
+                + "%nNumber of reschedule tab lines: %s %nNumber of expected datatable lines: %s%n", resourceId, actual, expected);
+    }
+
     public static String wrongValueInLineInChargesTab(String resourceId, int line, List<List<String>> actualList, List<String> expected) {
         String actual = actualList.stream().map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
         return String.format("%nWrong value in Charges tab of resource %s line %s." //
@@ -965,5 +977,25 @@ public final class ErrorMessageHelper {
 
     public static String reAgeContractTerminatedLoanFailure() {
         return "Loan re-aging is not allowed on contract terminated loan.";
+    }
+
+    public static String reAgeClosedLoanFailure() {
+        return "Loan reaging can only be done on active loans";
+    }
+
+    public static String reAmortizeChargedOffLoanFailure() {
+        return "Loan re-amortization is not allowed on charged-off loan.";
+    }
+
+    public static String reAmortizeContractTerminatedLoanFailure() {
+        return "Loan re-amortization is not allowed on contract terminated loan.";
+    }
+
+    public static String reAmortizeClosedLoanFailure() {
+        return "Loan re-amortization can only be done on active loans";
+    }
+
+    public static String reAmortizeSameDateFailure() {
+        return "Validation errors: [id] Loan reamortization can only be done once a day. There has already been a reamortization done for today";
     }
 }

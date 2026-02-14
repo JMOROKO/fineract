@@ -191,10 +191,10 @@ public class UserAdministrationTest extends IntegrationTest {
         String originalPassword = "QwE!5rTy#9uP0";
         String simpleUsername = Utils.uniqueRandomStringGenerator("NotificationUser", 4);
         GetOfficesResponse headOffice = OfficeHelper.getHeadOffice(requestSpec, responseSpec);
-        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername)
-                .firstname(Utils.randomStringGenerator("NotificationFN", 4)).lastname(Utils.randomStringGenerator("NotificationLN", 4))
-                .email("whatever@mifos.org").password(originalPassword).repeatPassword(originalPassword).sendPasswordToEmail(false)
-                .officeId(headOffice.getId()).roles(List.of(Long.valueOf(roleId)));
+        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername).firstname(Utils.randomFirstNameGenerator())
+                .lastname(Utils.randomLastNameGenerator()).email("whatever@mifos.org").password(originalPassword)
+                .repeatPassword(originalPassword).sendPasswordToEmail(false).officeId(headOffice.getId())
+                .roles(List.of(Long.valueOf(roleId)));
 
         PostUsersResponse userCreationResponse = UserHelper.createUser(requestSpec, responseSpec, createUserRequest);
         Long userId = userCreationResponse.getResourceId();
@@ -202,19 +202,19 @@ public class UserAdministrationTest extends IntegrationTest {
 
         // User updates its own password
         String updatedPassword = "QwE!5rTy#9uP0u";
-        PutUsersUserIdResponse putUsersUserIdResponse = ok(newFineractClient(simpleUsername, originalPassword).users.update26(userId,
+        PutUsersUserIdResponse putUsersUserIdResponse = ok(newFineractClient(simpleUsername, originalPassword).users.update27(userId,
                 new PutUsersUserIdRequest().password(updatedPassword).repeatPassword(updatedPassword)));
         Assertions.assertNotNull(putUsersUserIdResponse.getResourceId());
 
         // From then on the originalPassword is not working anymore
         CallFailedRuntimeException callFailedRuntimeException = Assertions.assertThrows(CallFailedRuntimeException.class, () -> {
-            ok(newFineractClient(simpleUsername, originalPassword).users.retrieveOne31(userId));
+            ok(newFineractClient(simpleUsername, originalPassword).users.retrieveOne32(userId));
         });
         Assertions.assertEquals(401, callFailedRuntimeException.getResponse().raw().code());
         Assertions.assertTrue(callFailedRuntimeException.getMessage().contains("Unauthorized"));
 
         // The update password is still working perfectly
-        GetUsersUserIdResponse ok = ok(newFineractClient(simpleUsername, updatedPassword).users.retrieveOne31(userId));
+        GetUsersUserIdResponse ok = ok(newFineractClient(simpleUsername, updatedPassword).users.retrieveOne32(userId));
     }
 
     @Test
@@ -224,10 +224,10 @@ public class UserAdministrationTest extends IntegrationTest {
         String originalPassword = "QwE!5rTy#9uP0";
         String simpleUsername = Utils.uniqueRandomStringGenerator("NotificationUser", 4);
         GetOfficesResponse headOffice = OfficeHelper.getHeadOffice(requestSpec, responseSpec);
-        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername)
-                .firstname(Utils.randomStringGenerator("NotificationFN", 4)).lastname(Utils.randomStringGenerator("NotificationLN", 4))
-                .email("whatever@mifos.org").password(originalPassword).repeatPassword(originalPassword).sendPasswordToEmail(false)
-                .officeId(headOffice.getId()).roles(List.of(Long.valueOf(roleId)));
+        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername).firstname(Utils.randomFirstNameGenerator())
+                .lastname(Utils.randomLastNameGenerator()).email("whatever@mifos.org").password(originalPassword)
+                .repeatPassword(originalPassword).sendPasswordToEmail(false).officeId(headOffice.getId())
+                .roles(List.of(Long.valueOf(roleId)));
 
         PostUsersResponse userCreationResponse = UserHelper.createUser(requestSpec, responseSpec, createUserRequest);
         Long userId = userCreationResponse.getResourceId();
@@ -242,13 +242,13 @@ public class UserAdministrationTest extends IntegrationTest {
 
         // From then on the originalPassword is not working anymore
         CallFailedRuntimeException callFailedRuntimeException = Assertions.assertThrows(CallFailedRuntimeException.class, () -> {
-            ok(newFineractClient(simpleUsername, originalPassword).users.retrieveOne31(userId));
+            ok(newFineractClient(simpleUsername, originalPassword).users.retrieveOne32(userId));
         });
         Assertions.assertEquals(401, callFailedRuntimeException.getResponse().raw().code());
         Assertions.assertTrue(callFailedRuntimeException.getMessage().contains("Unauthorized"));
 
         // The update password is still working perfectly
-        GetUsersUserIdResponse ok = ok(newFineractClient(simpleUsername, updatedPassword).users.retrieveOne31(userId));
+        GetUsersUserIdResponse ok = ok(newFineractClient(simpleUsername, updatedPassword).users.retrieveOne32(userId));
     }
 
     @Test
@@ -258,10 +258,9 @@ public class UserAdministrationTest extends IntegrationTest {
         String password = "QwE!5rTy#9uP0";
         String simpleUsername = Utils.uniqueRandomStringGenerator("NotificationUser", 4);
         GetOfficesResponse headOffice = OfficeHelper.getHeadOffice(requestSpec, responseSpec);
-        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername)
-                .firstname(Utils.randomStringGenerator("NotificationFN", 4)).lastname(Utils.randomStringGenerator("NotificationLN", 4))
-                .email("whatever@mifos.org").password(password).repeatPassword(password).sendPasswordToEmail(false)
-                .officeId(headOffice.getId()).roles(List.of(Long.valueOf(roleId)));
+        PostUsersRequest createUserRequest = new PostUsersRequest().username(simpleUsername).firstname(Utils.randomFirstNameGenerator())
+                .lastname(Utils.randomLastNameGenerator()).email("whatever@mifos.org").password(password).repeatPassword(password)
+                .sendPasswordToEmail(false).officeId(headOffice.getId()).roles(List.of(Long.valueOf(roleId)));
 
         PostUsersResponse userCreationResponse = UserHelper.createUser(requestSpec, responseSpec, createUserRequest);
         Long userId = userCreationResponse.getResourceId();
@@ -272,7 +271,7 @@ public class UserAdministrationTest extends IntegrationTest {
 
         // User tries to update it's own roles
         CallFailedRuntimeException callFailedRuntimeException = Assertions.assertThrows(CallFailedRuntimeException.class, () -> {
-            ok(newFineractClient(simpleUsername, password).users.update26(userId,
+            ok(newFineractClient(simpleUsername, password).users.update27(userId,
                     new PutUsersUserIdRequest().roles(List.of(Long.valueOf(roleId2)))));
         });
 
