@@ -364,6 +364,7 @@ public class FineractProperties {
         private List<String> regexWhitelist;
         private boolean mimeWhitelistEnabled;
         private List<String> mimeWhitelist;
+        private Integer defaultBufferSize;
         private FineractContentFilesystemProperties filesystem;
         private FineractContentS3Properties s3;
     }
@@ -599,19 +600,12 @@ public class FineractProperties {
     public static class FineractModulesProperties {
 
         private FineractInvestorModuleProperties investor;
-        private FineractSelfServiceModuleProperties selfService;
         private FineractLoanOriginationModuleProperties loanOrigination;
     }
 
     @Getter
     @Setter
     public static class FineractInvestorModuleProperties extends AbstractFineractModuleProperties {
-
-    }
-
-    @Getter
-    @Setter
-    public static class FineractSelfServiceModuleProperties extends AbstractFineractModuleProperties {
 
     }
 

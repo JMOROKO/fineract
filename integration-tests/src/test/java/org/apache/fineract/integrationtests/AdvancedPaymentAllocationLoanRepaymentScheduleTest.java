@@ -278,6 +278,11 @@ public class AdvancedPaymentAllocationLoanRepaymentScheduleTest extends BaseLoan
             validateRepaymentPeriod(loanDetails, 4, 125.0, 125.0, 0.0, 25.0, 0.0);
             validateLoanTransaction(loanDetails, 4, 125.0, 100.0, 25.0, 0.0);
             assertTrue(loanDetails.getStatus().getOverpaid());
+
+            // Loan Repayment (after) Overpaid
+            GetLoansLoanIdTransactionsTemplateResponse transactionAfter = loanTransactionHelper
+                    .retrieveTransactionTemplate(loanResponse.getLoanId(), "repayment", DATETIME_PATTERN, "15 February 2023", LOCALE);
+            assertNotNull(transactionAfter);
         });
     }
     // UC3: Overpayment2
@@ -345,6 +350,11 @@ public class AdvancedPaymentAllocationLoanRepaymentScheduleTest extends BaseLoan
             validateRepaymentPeriod(loanDetails, 4, 125.0, 125.0, 0.0, 25.0, 0.0);
             validateLoanTransaction(loanDetails, 4, 125.0, 100.0, 25.0, 0.0);
             assertTrue(loanDetails.getStatus().getOverpaid());
+
+            // Loan Repayment (after) Overpaid
+            GetLoansLoanIdTransactionsTemplateResponse transactionAfter = loanTransactionHelper
+                    .retrieveTransactionTemplate(loanResponse.getLoanId(), "repayment", DATETIME_PATTERN, "15 February 2023", LOCALE);
+            assertNotNull(transactionAfter);
         });
     }
     // UC4: Delinquent balance
@@ -5549,7 +5559,7 @@ public class AdvancedPaymentAllocationLoanRepaymentScheduleTest extends BaseLoan
             GetLoansLoanIdResponse loanDetails = loanTransactionHelper.getLoanDetails(loanResponse.getLoanId());
             GetLoansLoanIdInterestRateFrequencyType interestRateFrequencyType = loanDetails.getInterestRateFrequencyType();
             assertNotNull(interestRateFrequencyType);
-            assertEquals(interestRateFrequencyType.getId(), WHOLE_TERM);
+            assertEquals(interestRateFrequencyType.getId(), Long.valueOf(WHOLE_TERM));
 
             // Annual Interest rate validation, in this case It must be 12 %
             assertEquals(BigDecimal.valueOf(12), loanDetails.getAnnualInterestRate().stripTrailingZeros());

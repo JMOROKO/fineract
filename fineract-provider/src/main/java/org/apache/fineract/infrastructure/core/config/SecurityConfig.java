@@ -19,7 +19,6 @@
 
 package org.apache.fineract.infrastructure.core.config;
 
-import static org.apache.fineract.infrastructure.security.vote.SelfServiceUserAuthorizationManager.selfServiceUserAuthManager;
 import static org.springframework.security.authorization.AuthenticatedAuthorizationManager.fullyAuthenticated;
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasAuthority;
 import static org.springframework.security.authorization.AuthorizationManagers.allOf;
@@ -45,6 +44,7 @@ import org.apache.fineract.infrastructure.security.data.PlatformRequestLog;
 import org.apache.fineract.infrastructure.security.filter.TenantAwareBasicAuthenticationFilter;
 import org.apache.fineract.infrastructure.security.filter.TwoFactorAuthenticationFilter;
 import org.apache.fineract.infrastructure.security.service.AuthTenantDetailsService;
+import org.apache.fineract.infrastructure.security.service.PlatformUserDetailsChecker;
 import org.apache.fineract.infrastructure.security.service.TenantAwareJpaPlatformUserDetailsService;
 import org.apache.fineract.infrastructure.security.service.TwoFactorService;
 import org.apache.fineract.notification.service.UserNotificationService;
@@ -115,7 +115,9 @@ public class SecurityConfig {
     @Autowired
     private IdempotencyStoreHelper idempotencyStoreHelper;
     @Autowired
-    ProgressiveLoanModelCheckerFilter progressiveLoanModelCheckerFilter;
+    private ProgressiveLoanModelCheckerFilter progressiveLoanModelCheckerFilter;
+    @Autowired
+    private PlatformUserDetailsChecker platformUserDetailsChecker;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -127,13 +129,6 @@ public class SecurityConfig {
 
             if (fineractProperties.getSecurity().getTwoFactor().isEnabled()) {
                 authorizationManagers.add(hasAuthority("TWOFACTOR_AUTHENTICATED"));
-            }
-
-            if (fineractProperties.getModule().getSelfService().isEnabled()) {
-                auth.requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/self/authentication")).permitAll()
-                        .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/self/registration")).permitAll()
-                        .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/self/registration/user")).permitAll();
-                authorizationManagers.add(selfServiceUserAuthManager());
             }
 
             auth.requestMatchers(API_MATCHER.matcher(HttpMethod.OPTIONS, "/api/**")).permitAll()
@@ -204,6 +199,134 @@ public class SecurityConfig {
                     .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_SAVINGNOTE")
                     .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/groups/*/notes"))
                     .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_GROUPNOTE")
+                    // document: clients
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/clients/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/clients/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/clients/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/clients/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: client_identifiers
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/client_identifiers/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/client_identifiers/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/client_identifiers/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/client_identifiers/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: staff
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/staff/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/staff/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/staff/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/staff/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: loans
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/loans/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/loans/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/loans/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/loans/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: savings
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/savings/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/savings/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/savings/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/savings/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: groups
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/groups/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/groups/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/groups/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/groups/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // document: import
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/import/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/import/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/import/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/import/*/documents"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_DOCUMENT")
+                    // image: clients
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/clients/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/clients/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_CLIENTIMAGE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/clients/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_CLIENTIMAGE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/clients/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_CLIENTIMAGE")
+                    // image: staff
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/staff/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_DOCUMENT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/staff/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_STAFFIMAGE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/staff/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_STAFFIMAGE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/staff/*/images"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_STAFFIMAGE")
+                    // bulk import
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/import"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_IMPORT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/import/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_IMPORT")
+                    // payment type
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/paymenttypes/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_PAYMENTTYPE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/paymenttypes"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_PAYMENTTYPE")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/paymenttypes"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_PAYMENTTYPE")
+                    // mix: taxonomy
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/mixtaxonomy/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_MIX_TAXONOMY")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/mixtaxonomy/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_MIX_TAXONOMY")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/mixtaxonomy/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_MIX_TAXONOMY")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/mixtaxonomy/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_MIX_TAXONOMY")
+                    // mix: mapping
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/mixmapping/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_MIX_MAPPING")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/mixmapping/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_MIX_MAPPING")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/mixmapping/*"))
+                    // TODO: "UPDATE_XBRLMAPPING" is the legacy permission name; we should rename for consistency
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_MIX_MAPPING", "UPDATE_XBRLMAPPING")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/mixmapping/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_MIX_MAPPING")
+                    // mix: report
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/mixreport/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_MIX_REPORT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/mixreport/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "CREATE_MIX_REPORT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/mixreport/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_MIX_REPORT")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.DELETE, "/api/*/mixreport/*"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "DELETE_MIX_REPORT")
+                    // working days
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/workingdays"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_WORKING_DAYS")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.GET, "/api/*/workingdays/template"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_READ, "READ_WORKING_DAYS")
+                    .requestMatchers(API_MATCHER.matcher(HttpMethod.PUT, "/api/*/workingdays"))
+                    .hasAnyAuthority(ALL_FUNCTIONS, ALL_FUNCTIONS_WRITE, "UPDATE_WORKING_DAYS")
 
                     .requestMatchers(API_MATCHER.matcher(HttpMethod.POST, "/api/*/twofactor/validate")).fullyAuthenticated()
                     .requestMatchers(API_MATCHER.matcher("/api/*/twofactor")).fullyAuthenticated()
@@ -297,6 +420,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPostAuthenticationChecks(platformUserDetailsChecker);
         return authProvider;
     }
 

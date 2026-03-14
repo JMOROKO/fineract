@@ -53,10 +53,13 @@ public final class SavingsHelper {
 
         final List<LocalDateInterval> postingPeriods = new ArrayList<>();
 
-        if (startInterestCalculationLocalDate == null || interestPostingUpToDate == null) {
+        if (startInterestCalculationLocalDate == null || interestPostingUpToDate == null || postingPeriodType == null) {
             return postingPeriods;
         }
 
+        if (postInterestAsOn == null) {
+            postInterestAsOn = Collections.emptyList();
+        }
         LocalDate periodStartDate = startInterestCalculationLocalDate;
         LocalDate periodEndDate = periodStartDate;
         LocalDate actualPeriodStartDate = periodStartDate;

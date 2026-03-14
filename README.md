@@ -1,9 +1,11 @@
 # Apache Fineract
+
 <!-- TODO Reactivate when there is a working CI-CD instance: [![Swagger Validation](https://validator.swagger.io/validator?url=https://sandbox.mifos.community/fineract-provider/swagger-ui/fineract.yaml)](https://validator.swagger.io/validator/debug?url=https://sandbox.mifos.community/fineract-provider/swagger-ui/fineract.yaml) -->
 [![Build](https://github.com/apache/fineract/actions/workflows/build-mariadb.yml/badge.svg?branch=develop)](https://github.com/apache/fineract/actions/workflows/build-mariadb.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/apache/fineract.svg?logo=Docker)](https://hub.docker.com/r/apache/fineract)
 [![Docker Build](https://github.com/apache/fineract/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/apache/fineract/actions/workflows/publish-dockerhub.yml)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=apache_fineract&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=apache_fineract)
+[![Verified DPG](https://img.shields.io/badge/Verified-DPG-3333AB)](https://www.digitalpublicgoods.net/r/apache-fineract "Apache Fineract is a verified Digital Public Good under the Digital Public Goods Alliance.")
 
 Apache Fineract is an open-source core banking platform providing a
 flexible, extensible foundation for a wide range of financial services. By
@@ -28,7 +30,7 @@ In the moment you get started writing code, please consult our [CONTRIBUTING](CO
 REQUIREMENTS
 ============
 * min. 16GB RAM and 8 core CPU
-* `MariaDB >= 11.5.2` or `PostgreSQL >= 17.0`
+* `MariaDB >= 12.2` or `PostgreSQL >= 18.0`
 * `Java >= 21` (Azul Zulu JVM is tested by our CI on GitHub Actions)
 
 Tomcat (min. v10) is only required, if you wish to deploy the Fineract WAR to a separate external servlet container.  You do not need to install Tomcat to run Fineract. We recommend the use of the self-contained JAR, which transparently embeds a servlet container using Spring Boot.
@@ -291,11 +293,11 @@ DATABASE AND TABLES
 
 You can run the required version of the database server in a container, instead of having to install it, like this:
 
-    docker run --name mariadb-11.5 -p 3306:3306 -e MARIADB_ROOT_PASSWORD=mysql -d mariadb:11.5.2
+    docker run --name mariadb-12.2 -p 3306:3306 -e MARIADB_ROOT_PASSWORD=mysql -d mariadb:12.2.2 --innodb-snapshot-isolation=OFF
 
 and stop and destroy it like this:
 
-    docker rm -f mariadb-11.5
+    docker rm -f mariadb-12.2
 
 Beware that this container database keeps its state inside the container and not on the host filesystem.  It is lost when you destroy (rm) this container.  This is typically fine for development.  See [Caveats: Where to Store Data on the database container documentation](https://hub.docker.com/_/mariadb) regarding how to make it persistent instead of ephemeral.
 

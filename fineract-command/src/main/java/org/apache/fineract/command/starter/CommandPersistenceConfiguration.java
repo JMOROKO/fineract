@@ -28,7 +28,7 @@ import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 @Configuration
-@EnableJdbcRepositories(basePackages = { "org.apache.fineract.command.persistence" })
+@EnableJdbcRepositories(basePackages = { "org.apache.fineract.**.domain" })
 @ComponentScan("org.apache.fineract.command.persistence")
 class CommandPersistenceConfiguration {
 
